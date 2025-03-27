@@ -9,7 +9,7 @@
 <meta name="author" content="Francesc Català-Moll">
 <meta name="dcterms.date" content="2025-03-27">
 
-<title>asdfasf</title>
+<title>01 Metadata Preparation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -3086,7 +3086,26 @@ vertical-align: -.125em;
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#quarto" id="toc-quarto" class="nav-link active" data-scroll-target="#quarto"><span class="header-section-number">1</span> Quarto</a></li>
+  <li><a href="#define-the-input-and-output-paths" id="toc-define-the-input-and-output-paths" class="nav-link active" data-scroll-target="#define-the-input-and-output-paths"><span class="header-section-number">1</span> Define the input and output paths</a></li>
+  <li><a href="#set-up" id="toc-set-up" class="nav-link" data-scroll-target="#set-up"><span class="header-section-number">2</span> Set-up</a></li>
+  <li><a href="#metadata-preprocessing" id="toc-metadata-preprocessing" class="nav-link" data-scroll-target="#metadata-preprocessing"><span class="header-section-number">3</span> Metadata Preprocessing</a>
+  <ul class="collapse">
+  <li><a href="#load-inspect-metadata" id="toc-load-inspect-metadata" class="nav-link" data-scroll-target="#load-inspect-metadata"><span class="header-section-number">3.1</span> Load &amp; Inspect Metadata</a></li>
+  <li><a href="#clean-metadata" id="toc-clean-metadata" class="nav-link" data-scroll-target="#clean-metadata"><span class="header-section-number">3.2</span> Clean Metadata</a></li>
+  <li><a href="#save-cleaned-metadata" id="toc-save-cleaned-metadata" class="nav-link" data-scroll-target="#save-cleaned-metadata"><span class="header-section-number">3.3</span> Save Cleaned Metadata</a></li>
+  </ul></li>
+  <li><a href="#prepare-phyloseq-and-treese-objects" id="toc-prepare-phyloseq-and-treese-objects" class="nav-link" data-scroll-target="#prepare-phyloseq-and-treese-objects"><span class="header-section-number">4</span> Prepare Phyloseq and TreeSE objects</a>
+  <ul class="collapse">
+  <li><a href="#load-raw-phyloseq" id="toc-load-raw-phyloseq" class="nav-link" data-scroll-target="#load-raw-phyloseq"><span class="header-section-number">4.1</span> Load Raw Phyloseq</a></li>
+  <li><a href="#filter-phyloseq-add-new-metadata" id="toc-filter-phyloseq-add-new-metadata" class="nav-link" data-scroll-target="#filter-phyloseq-add-new-metadata"><span class="header-section-number">4.2</span> Filter Phyloseq &amp; Add New Metadata</a></li>
+  <li><a href="#construct-treese-object" id="toc-construct-treese-object" class="nav-link" data-scroll-target="#construct-treese-object"><span class="header-section-number">4.3</span> Construct TreeSE Object</a></li>
+  <li><a href="#save-phyloseq-and-treese-objects" id="toc-save-phyloseq-and-treese-objects" class="nav-link" data-scroll-target="#save-phyloseq-and-treese-objects"><span class="header-section-number">4.4</span> Save Phyloseq and TreeSE Objects</a></li>
+  </ul></li>
+  <li><a href="#appendix" id="toc-appendix" class="nav-link" data-scroll-target="#appendix"><span class="header-section-number">5</span> Appendix</a>
+  <ul class="collapse">
+  <li><a href="#session-info" id="toc-session-info" class="nav-link" data-scroll-target="#session-info"><span class="header-section-number">5.1</span> Session Info</a></li>
+  <li><a href="#contact" id="toc-contact" class="nav-link" data-scroll-target="#contact"><span class="header-section-number">5.2</span> Contact</a></li>
+  </ul></li>
   </ul>
 </nav>
 </div>
@@ -3094,7 +3113,7 @@ vertical-align: -.125em;
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">asdfasf</h1>
+<h1 class="title">01 Metadata Preparation</h1>
 </div>
 
 
@@ -3129,15 +3148,2160 @@ vertical-align: -.125em;
 </header>
 
 
-<section id="quarto" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="quarto"><span class="header-section-number">1</span> Quarto</h2>
-<p>Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <a href="https://quarto.org" class="uri">https://quarto.org</a>.</p>
+<section id="define-the-input-and-output-paths" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="define-the-input-and-output-paths"><span class="header-section-number">1</span> Define the input and output paths</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># input</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>metadat_file <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;raw&quot;</span>, <span class="st">&quot;2023_05_29_clean_metadata_LIMS.csv&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>phy_file <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;raw&quot;</span>, <span class="st">&quot;Metaphlan3Counts_psObject.rds&quot;</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># output</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>out_dir <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;processed&quot;</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(out_dir, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="set-up" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="set-up"><span class="header-section-number">2</span> Set-up</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load libraries</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(magrittr)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidySingleCellExperiment)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: SingleCellExperiment</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: SummarizedExperiment</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: MatrixGenerics</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: matrixStats</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: &#39;MatrixGenerics&#39;</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from &#39;package:matrixStats&#39;:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    colWeightedMeans, colWeightedMedians, colWeightedSds,
+    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: GenomicRanges</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: stats4</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: BiocGenerics</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: generics</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: &#39;generics&#39;</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from &#39;package:base&#39;:
+
+    as.difftime, as.factor, as.ordered, intersect, is.element, setdiff,
+    setequal, union</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: &#39;BiocGenerics&#39;</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from &#39;package:stats&#39;:
+
+    IQR, mad, sd, var, xtabs</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from &#39;package:base&#39;:
+
+    anyDuplicated, aperm, append, as.data.frame, basename, cbind,
+    colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,
+    get, grep, grepl, is.unsorted, lapply, Map, mapply, match, mget,
+    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    rbind, Reduce, rownames, sapply, saveRDS, table, tapply, unique,
+    unsplit, which.max, which.min</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: S4Vectors</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: &#39;S4Vectors&#39;</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from &#39;package:utils&#39;:
+
+    findMatches</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from &#39;package:base&#39;:
+
+    expand.grid, I, unname</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: IRanges</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: GenomeInfoDb</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: &#39;GenomicRanges&#39;</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from &#39;package:magrittr&#39;:
+
+    subtract</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: Biobase</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    &#39;browseVignettes()&#39;. To cite Bioconductor, see
+    &#39;citation(&quot;Biobase&quot;)&#39;, and for packages &#39;citation(&quot;pkgname&quot;)&#39;.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: &#39;Biobase&#39;</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from &#39;package:MatrixGenerics&#39;:
+
+    rowMedians</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from &#39;package:matrixStats&#39;:
+
+    anyMissing, rowMedians</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: &#39;tidySingleCellExperiment&#39;</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from &#39;package:generics&#39;:
+
+    tidy</code></pre>
+</div>
+</div>
+</section>
+<section id="metadata-preprocessing" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="metadata-preprocessing"><span class="header-section-number">3</span> Metadata Preprocessing</h2>
+<section id="load-inspect-metadata" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="load-inspect-metadata"><span class="header-section-number">3.1</span> Load &amp; Inspect Metadata</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>meta_df <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(metadat_file, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>skimr<span class="sc">::</span><span class="fu">skim</span>(meta_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">meta_df</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">263</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">149</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">character</td>
+<td style="text-align: left;">79</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Date</td>
+<td style="text-align: left;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">logical</td>
+<td style="text-align: left;">29</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">40</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 42%">
+<col style="width: 9%">
+<col style="width: 13%">
+<col style="width: 3%">
+<col style="width: 3%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">min</th>
+<th style="text-align: right;">max</th>
+<th style="text-align: right;">empty</th>
+<th style="text-align: right;">n_unique</th>
+<th style="text-align: right;">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">SampleID</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">record_id</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">88</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">group</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">sCD14</td>
+<td style="text-align: right;">51</td>
+<td style="text-align: right;">0.81</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">196</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">CD4diff_48</td>
+<td style="text-align: right;">58</td>
+<td style="text-align: right;">0.78</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">CD8diff_48</td>
+<td style="text-align: right;">58</td>
+<td style="text-align: right;">0.78</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">CD4diff_96</td>
+<td style="text-align: right;">98</td>
+<td style="text-align: right;">0.63</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">CD8diff_96</td>
+<td style="text-align: right;">98</td>
+<td style="text-align: right;">0.63</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">CD4after_48</td>
+<td style="text-align: right;">58</td>
+<td style="text-align: right;">0.78</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">CD8after_48</td>
+<td style="text-align: right;">58</td>
+<td style="text-align: right;">0.78</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">CD4after_96</td>
+<td style="text-align: right;">98</td>
+<td style="text-align: right;">0.63</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">CD8after_96</td>
+<td style="text-align: right;">98</td>
+<td style="text-align: right;">0.63</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">cmv_disease_after</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">units_CD4_CD38_DR</td>
+<td style="text-align: right;">116</td>
+<td style="text-align: right;">0.56</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">units_CD8_CD38_DR</td>
+<td style="text-align: right;">116</td>
+<td style="text-align: right;">0.56</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">units_CMV_VL</td>
+<td style="text-align: right;">115</td>
+<td style="text-align: right;">0.56</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">units_IL6</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">0.81</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">units_TNFa</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">0.81</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">units_CRP</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">0.81</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">units_sCD14</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">0.81</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">units_HIV_VL</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0.97</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">units_CD4</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0.97</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">units_CD8</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0.97</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">units_sCD163</td>
+<td style="text-align: right;">198</td>
+<td style="text-align: right;">0.25</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Selected_For_Sequencing</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">gender</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ethnic_group</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0.98</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">country</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.96</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">treatment</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">center</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">44</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">end_reason_48</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">end_reason_96</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ITT</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">mITT</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">PP</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">aids_diag</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">risk_group</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">0.95</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">any_liver_disease_record</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">previous_liver_disease</td>
+<td style="text-align: right;">241</td>
+<td style="text-align: right;">0.08</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">59</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">active_liver_disease</td>
+<td style="text-align: right;">241</td>
+<td style="text-align: right;">0.08</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">any_kidney_disease_record</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">previous_kidney_disease</td>
+<td style="text-align: right;">258</td>
+<td style="text-align: right;">0.02</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">active_kidney_disease</td>
+<td style="text-align: right;">258</td>
+<td style="text-align: right;">0.02</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">any_other_disease</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">aids_event</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">aids_myco_candidiasis_respiratory</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">aids_myco_candidiasis_esophagic</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">aids_myco_candidiasis_general</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">aids_myco_coccidiomycosis_general</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">aids_parasyte_criptococcosis_extrapulmonar</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">aids_myco_criptosporidiasis_1month</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">aids_CMV_retinitis</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">aids_HIV_encephalopathy</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">aids_HSV_severe</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">aids_myco_histoplasmosis</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">aids_parasyte_isosporidiasis</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">aids_sarcoma_kaposi</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">aids_burkitt_lymphoma</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">aids_lymphoma_immunoblast</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">aids_lymphoma_brain</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">aids_mycobacterium_kansasii</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">aids_mycobacterium_TB_extrapulmonar</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">aids_mycobacterium_other</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">aids_pneumonia_pneumocystis</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">aids_leucoencephalopathy</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">aids_salmonella_sepsis</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">aids_parasyte_brain_toxoplasmosis</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">aids_wasting</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">aids_cervix_carcinoma</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">aids_mycobacterium_TB_lung</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">aids_pneumonia_recurring</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">aids_calculated_logic</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">study_result</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">followup_complete</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">iris</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">new_cmv</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">new_cmv_evol</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cmv_negative</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">unit</td>
+<td style="text-align: right;">188</td>
+<td style="text-align: right;">0.29</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: Date</strong></p>
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 12%">
+<col style="width: 17%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: left;">min</th>
+<th style="text-align: left;">max</th>
+<th style="text-align: left;">median</th>
+<th style="text-align: right;">n_unique</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">ExtractionDate</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">2015-03-31</td>
+<td style="text-align: left;">2020-07-28</td>
+<td style="text-align: left;">2017-08-08</td>
+<td style="text-align: right;">218</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: logical</strong></p>
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: left;">count</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">result_date_CD4_CD38_DR</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">result_date_CD8_CD38_DR</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">result_date_CMV_VL</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">result_date_IL6</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">result_date_TNFa</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">result_date_CRP</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">result_date_sCD14</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">result_date_HIV_VL</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">result_date_CD4</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">result_date_CD8</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">result_date_sCD163</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">birth_date</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">randomization_Date</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">inclusion_date</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">aids_diag_date</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">previous_liver_disease_date</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">previous_kidney_disease_date</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">drug_resistance_date</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">protocol_last_date</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">protocol_last_monitor_date</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">iris_date</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">new_aids_date</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">new_cmv_date</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">lab_max_date</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">PE_max_date</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">VS_max_date</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Uni_max_date</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">patient_max_date</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">consent_sign_date</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 8%">
+<col style="width: 12%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 9%">
+<col style="width: 5%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">time_point</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">41.16</td>
+<td style="text-align: right;">36.55</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">48.00</td>
+<td style="text-align: right;">72.00</td>
+<td style="text-align: right;">96.00</td>
+<td style="text-align: left;">▇▅▇▁▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">CD4</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">0.95</td>
+<td style="text-align: right;">204.64</td>
+<td style="text-align: right;">186.38</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">67.00</td>
+<td style="text-align: right;">166.00</td>
+<td style="text-align: right;">300.00</td>
+<td style="text-align: right;">1220.00</td>
+<td style="text-align: left;">▇▃▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">CD8</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">0.95</td>
+<td style="text-align: right;">891.03</td>
+<td style="text-align: right;">584.03</td>
+<td style="text-align: right;">43.00</td>
+<td style="text-align: right;">473.70</td>
+<td style="text-align: right;">745.00</td>
+<td style="text-align: right;">1189.50</td>
+<td style="text-align: right;">3108.00</td>
+<td style="text-align: left;">▇▇▃▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">CD4_CD38_DR</td>
+<td style="text-align: right;">116</td>
+<td style="text-align: right;">0.56</td>
+<td style="text-align: right;">20.49</td>
+<td style="text-align: right;">17.52</td>
+<td style="text-align: right;">2.37</td>
+<td style="text-align: right;">6.76</td>
+<td style="text-align: right;">14.90</td>
+<td style="text-align: right;">29.85</td>
+<td style="text-align: right;">96.40</td>
+<td style="text-align: left;">▇▃▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">CD8_CD38_DR</td>
+<td style="text-align: right;">116</td>
+<td style="text-align: right;">0.56</td>
+<td style="text-align: right;">33.53</td>
+<td style="text-align: right;">18.33</td>
+<td style="text-align: right;">4.91</td>
+<td style="text-align: right;">19.30</td>
+<td style="text-align: right;">31.00</td>
+<td style="text-align: right;">47.30</td>
+<td style="text-align: right;">76.70</td>
+<td style="text-align: left;">▇▇▅▅▂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">CRP</td>
+<td style="text-align: right;">68</td>
+<td style="text-align: right;">0.74</td>
+<td style="text-align: right;">0.82</td>
+<td style="text-align: right;">2.94</td>
+<td style="text-align: right;">0.02</td>
+<td style="text-align: right;">0.08</td>
+<td style="text-align: right;">0.16</td>
+<td style="text-align: right;">0.36</td>
+<td style="text-align: right;">30.00</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">IL6</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0.62</td>
+<td style="text-align: right;">19.14</td>
+<td style="text-align: right;">37.92</td>
+<td style="text-align: right;">2.00</td>
+<td style="text-align: right;">2.00</td>
+<td style="text-align: right;">8.00</td>
+<td style="text-align: right;">19.00</td>
+<td style="text-align: right;">288.00</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">TNFa</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">0.81</td>
+<td style="text-align: right;">13.66</td>
+<td style="text-align: right;">10.29</td>
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">8.00</td>
+<td style="text-align: right;">11.00</td>
+<td style="text-align: right;">16.00</td>
+<td style="text-align: right;">85.00</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ADV</td>
+<td style="text-align: right;">188</td>
+<td style="text-align: right;">0.29</td>
+<td style="text-align: right;">105060.39</td>
+<td style="text-align: right;">890740.05</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.06</td>
+<td style="text-align: right;">2.46</td>
+<td style="text-align: right;">326.57</td>
+<td style="text-align: right;">7716041.00</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">HIV_VL</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0.97</td>
+<td style="text-align: right;">326790.76</td>
+<td style="text-align: right;">944606.33</td>
+<td style="text-align: right;">19.00</td>
+<td style="text-align: right;">39.00</td>
+<td style="text-align: right;">50.00</td>
+<td style="text-align: right;">76735.00</td>
+<td style="text-align: right;">8650000.00</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">CMV_VL</td>
+<td style="text-align: right;">155</td>
+<td style="text-align: right;">0.41</td>
+<td style="text-align: right;">476.33</td>
+<td style="text-align: right;">1649.93</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">35.00</td>
+<td style="text-align: right;">49.08</td>
+<td style="text-align: right;">12600.00</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">weight</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">0.94</td>
+<td style="text-align: right;">71.62</td>
+<td style="text-align: right;">12.30</td>
+<td style="text-align: right;">39.10</td>
+<td style="text-align: right;">63.25</td>
+<td style="text-align: right;">71.55</td>
+<td style="text-align: right;">79.57</td>
+<td style="text-align: right;">114.40</td>
+<td style="text-align: left;">▂▇▇▃▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">height</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">0.96</td>
+<td style="text-align: right;">171.77</td>
+<td style="text-align: right;">7.38</td>
+<td style="text-align: right;">150.00</td>
+<td style="text-align: right;">167.00</td>
+<td style="text-align: right;">173.00</td>
+<td style="text-align: right;">177.00</td>
+<td style="text-align: right;">185.00</td>
+<td style="text-align: left;">▁▃▆▇▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">BMI</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">0.93</td>
+<td style="text-align: right;">24.26</td>
+<td style="text-align: right;">3.88</td>
+<td style="text-align: right;">15.04</td>
+<td style="text-align: right;">21.79</td>
+<td style="text-align: right;">23.64</td>
+<td style="text-align: right;">26.59</td>
+<td style="text-align: right;">37.79</td>
+<td style="text-align: left;">▂▇▆▂▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SBP</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">0.92</td>
+<td style="text-align: right;">119.68</td>
+<td style="text-align: right;">16.25</td>
+<td style="text-align: right;">85.00</td>
+<td style="text-align: right;">110.00</td>
+<td style="text-align: right;">118.00</td>
+<td style="text-align: right;">127.00</td>
+<td style="text-align: right;">168.00</td>
+<td style="text-align: left;">▂▇▆▂▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">DBP</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">0.91</td>
+<td style="text-align: right;">74.65</td>
+<td style="text-align: right;">9.77</td>
+<td style="text-align: right;">48.00</td>
+<td style="text-align: right;">69.00</td>
+<td style="text-align: right;">74.00</td>
+<td style="text-align: right;">80.00</td>
+<td style="text-align: right;">108.00</td>
+<td style="text-align: left;">▁▇▇▂▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">sCD163</td>
+<td style="text-align: right;">198</td>
+<td style="text-align: right;">0.25</td>
+<td style="text-align: right;">529.25</td>
+<td style="text-align: right;">327.38</td>
+<td style="text-align: right;">131.20</td>
+<td style="text-align: right;">305.20</td>
+<td style="text-align: right;">439.80</td>
+<td style="text-align: right;">666.20</td>
+<td style="text-align: right;">1568.40</td>
+<td style="text-align: left;">▇▅▃▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">age</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">42.79</td>
+<td style="text-align: right;">14.65</td>
+<td style="text-align: right;">21.00</td>
+<td style="text-align: right;">32.00</td>
+<td style="text-align: right;">41.00</td>
+<td style="text-align: right;">52.00</td>
+<td style="text-align: right;">103.00</td>
+<td style="text-align: left;">▇▆▃▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">CD4_nadir</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">39.06</td>
+<td style="text-align: right;">28.47</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">13.00</td>
+<td style="text-align: right;">38.00</td>
+<td style="text-align: right;">61.00</td>
+<td style="text-align: right;">97.00</td>
+<td style="text-align: left;">▇▅▃▅▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">pat_number</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2394.71</td>
+<td style="text-align: right;">1440.72</td>
+<td style="text-align: right;">676.00</td>
+<td style="text-align: right;">1126.00</td>
+<td style="text-align: right;">2184.00</td>
+<td style="text-align: right;">3074.00</td>
+<td style="text-align: right;">6004.00</td>
+<td style="text-align: left;">▇▅▅▂▂</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">n_other_diseases</td>
+<td style="text-align: right;">158</td>
+<td style="text-align: right;">0.40</td>
+<td style="text-align: right;">2.63</td>
+<td style="text-align: right;">1.73</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">8.00</td>
+<td style="text-align: left;">▇▂▂▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">protocol_weeks</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">45.98</td>
+<td style="text-align: right;">8.30</td>
+<td style="text-align: right;">2.14</td>
+<td style="text-align: right;">48.00</td>
+<td style="text-align: right;">48.00</td>
+<td style="text-align: right;">48.00</td>
+<td style="text-align: right;">48.00</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">exclussion_ITT</td>
+<td style="text-align: right;">262</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: left;">▁▁▇▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">exclussion_PP</td>
+<td style="text-align: right;">244</td>
+<td style="text-align: right;">0.07</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: left;">▁▁▇▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">iris_weeks</td>
+<td style="text-align: right;">243</td>
+<td style="text-align: right;">0.08</td>
+<td style="text-align: right;">10.31</td>
+<td style="text-align: right;">17.01</td>
+<td style="text-align: right;">0.86</td>
+<td style="text-align: right;">1.29</td>
+<td style="text-align: right;">3.71</td>
+<td style="text-align: right;">6.71</td>
+<td style="text-align: right;">49.43</td>
+<td style="text-align: left;">▇▁▁▁▂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">iris_new_weeks_n</td>
+<td style="text-align: right;">243</td>
+<td style="text-align: right;">0.08</td>
+<td style="text-align: right;">10.31</td>
+<td style="text-align: right;">17.01</td>
+<td style="text-align: right;">0.86</td>
+<td style="text-align: right;">1.29</td>
+<td style="text-align: right;">3.71</td>
+<td style="text-align: right;">6.71</td>
+<td style="text-align: right;">49.43</td>
+<td style="text-align: left;">▇▁▁▁▂</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">new_aids_n</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.05</td>
+<td style="text-align: right;">0.22</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">new_aids_weeks</td>
+<td style="text-align: right;">254</td>
+<td style="text-align: right;">0.03</td>
+<td style="text-align: right;">22.10</td>
+<td style="text-align: right;">24.58</td>
+<td style="text-align: right;">0.86</td>
+<td style="text-align: right;">1.14</td>
+<td style="text-align: right;">2.29</td>
+<td style="text-align: right;">49.43</td>
+<td style="text-align: right;">49.43</td>
+<td style="text-align: left;">▇▁▁▁▆</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">cmv_any_time</td>
+<td style="text-align: right;">259</td>
+<td style="text-align: right;">0.02</td>
+<td style="text-align: right;">1.21</td>
+<td style="text-align: right;">0.54</td>
+<td style="text-align: right;">0.86</td>
+<td style="text-align: right;">0.86</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.36</td>
+<td style="text-align: right;">2.00</td>
+<td style="text-align: left;">▇▃▁▁▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cmv_time_evol</td>
+<td style="text-align: right;">261</td>
+<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">1.57</td>
+<td style="text-align: right;">0.61</td>
+<td style="text-align: right;">1.14</td>
+<td style="text-align: right;">1.36</td>
+<td style="text-align: right;">1.57</td>
+<td style="text-align: right;">1.79</td>
+<td style="text-align: right;">2.00</td>
+<td style="text-align: left;">▇▁▁▁▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">cmv_bl</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">12700.77</td>
+<td style="text-align: right;">137472.70</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">35.00</td>
+<td style="text-align: right;">191.00</td>
+<td style="text-align: right;">1580000.00</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">max_week</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">89.16</td>
+<td style="text-align: right;">17.71</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">96.00</td>
+<td style="text-align: right;">96.00</td>
+<td style="text-align: right;">96.00</td>
+<td style="text-align: right;">96.00</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">max_week_protocol</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">85.92</td>
+<td style="text-align: right;">23.12</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">96.00</td>
+<td style="text-align: right;">96.00</td>
+<td style="text-align: right;">96.00</td>
+<td style="text-align: right;">96.00</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">followup_max_weeks</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">47.46</td>
+<td style="text-align: right;">4.05</td>
+<td style="text-align: right;">5.29</td>
+<td style="text-align: right;">48.00</td>
+<td style="text-align: right;">48.00</td>
+<td style="text-align: right;">48.00</td>
+<td style="text-align: right;">48.00</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">study_time</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">46.16</td>
+<td style="text-align: right;">8.21</td>
+<td style="text-align: right;">2.14</td>
+<td style="text-align: right;">48.00</td>
+<td style="text-align: right;">48.00</td>
+<td style="text-align: right;">48.00</td>
+<td style="text-align: right;">48.00</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">followup_time_n</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">105.49</td>
+<td style="text-align: right;">33.02</td>
+<td style="text-align: right;">5.29</td>
+<td style="text-align: right;">95.86</td>
+<td style="text-align: right;">98.57</td>
+<td style="text-align: right;">109.57</td>
+<td style="text-align: right;">203.14</td>
+<td style="text-align: left;">▁▂▇▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">study_time_n</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">47.16</td>
+<td style="text-align: right;">9.47</td>
+<td style="text-align: right;">2.14</td>
+<td style="text-align: right;">48.00</td>
+<td style="text-align: right;">48.00</td>
+<td style="text-align: right;">48.00</td>
+<td style="text-align: right;">73.43</td>
+<td style="text-align: left;">▁▁▁▇▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">kit</td>
+<td style="text-align: right;">188</td>
+<td style="text-align: right;">0.29</td>
+<td style="text-align: right;">33024.32</td>
+<td style="text-align: right;">0.47</td>
+<td style="text-align: right;">33024.00</td>
+<td style="text-align: right;">33024.00</td>
+<td style="text-align: right;">33024.00</td>
+<td style="text-align: right;">33025.00</td>
+<td style="text-align: right;">33025.00</td>
+<td style="text-align: left;">▇▁▁▁▃</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ct_ADV</td>
+<td style="text-align: right;">188</td>
+<td style="text-align: right;">0.29</td>
+<td style="text-align: right;">34.30</td>
+<td style="text-align: right;">7.11</td>
+<td style="text-align: right;">14.17</td>
+<td style="text-align: right;">28.28</td>
+<td style="text-align: right;">35.11</td>
+<td style="text-align: right;">40.98</td>
+<td style="text-align: right;">44.61</td>
+<td style="text-align: left;">▁▃▅▅▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ct_IC</td>
+<td style="text-align: right;">188</td>
+<td style="text-align: right;">0.29</td>
+<td style="text-align: right;">24.61</td>
+<td style="text-align: right;">0.97</td>
+<td style="text-align: right;">17.58</td>
+<td style="text-align: right;">24.48</td>
+<td style="text-align: right;">24.69</td>
+<td style="text-align: right;">24.86</td>
+<td style="text-align: right;">27.26</td>
+<td style="text-align: left;">▁▁▁▇▁</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="clean-metadata" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="clean-metadata"><span class="header-section-number">3.2</span> Clean Metadata</h3>
+<ul>
+<li>Remove columns with unit information</li>
+<li>Remove columns with results dates</li>
+<li>Remove columns with only one unique value</li>
+<li>Remove columns with more than 50% missing values</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Clean</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>meta_df <span class="ot">&lt;-</span> </span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  meta_df <span class="sc">%&gt;%</span> </span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>dplyr<span class="sc">::</span><span class="fu">starts_with</span>(<span class="st">&quot;units_&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>dplyr<span class="sc">::</span><span class="fu">starts_with</span>(<span class="st">&quot;result_date_&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select_if</span>(<span class="sc">~</span> <span class="fu">length</span>(<span class="fu">unique</span>(.x)) <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select_if</span>(<span class="sc">~</span> <span class="fu">mean</span>(<span class="fu">is.na</span>(.x)) <span class="sc">&lt;</span> <span class="fl">0.55</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="save-cleaned-metadata" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="save-cleaned-metadata"><span class="header-section-number">3.3</span> Save Cleaned Metadata</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>readr<span class="sc">::</span><span class="fu">write_csv</span>(meta_df, here<span class="sc">::</span><span class="fu">here</span>(out_dir, <span class="st">&quot;metadata_cleaned.csv&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="prepare-phyloseq-and-treese-objects" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="prepare-phyloseq-and-treese-objects"><span class="header-section-number">4</span> Prepare Phyloseq and TreeSE objects</h2>
+<section id="load-raw-phyloseq" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="load-raw-phyloseq"><span class="header-section-number">4.1</span> Load Raw Phyloseq</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>raw_phy <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_rds</span>(phy_file)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>raw_phy</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required namespace: phyloseq</code></pre>
+</div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 2</code></pre>
+<pre><code>phyloseq-class experiment-level object
+otu_table()   OTU Table:         [ 587 taxa and 271 samples ]
+sample_data() Sample Data:       [ 271 samples by 112 sample variables ]
+tax_table()   Taxonomy Table:    [ 587 taxa by 7 taxonomic ranks ]</code></pre>
 </div>
 </div>
+</section>
+<section id="filter-phyloseq-add-new-metadata" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="filter-phyloseq-add-new-metadata"><span class="header-section-number">4.2</span> Filter Phyloseq &amp; Add New Metadata</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>phy <span class="ot">&lt;-</span> phyloseq<span class="sc">::</span><span class="fu">subset_samples</span>(raw_phy, SampleID <span class="sc">%in%</span> meta_df<span class="sc">$</span>SampleID)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Prepare phy inputs</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>otu_table <span class="ot">&lt;-</span> phyloseq<span class="sc">::</span><span class="fu">otu_table</span>(phy)</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>tax_table <span class="ot">&lt;-</span> phyloseq<span class="sc">::</span><span class="fu">tax_table</span>(phy)</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>sam_data <span class="ot">&lt;-</span>  </span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>  meta_df <span class="sc">%&gt;%</span> </span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">SampleID_ =</span> SampleID, <span class="at">.before =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">row.names =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>  phyloseq<span class="sc">::</span><span class="fu">sample_data</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>  .[phyloseq<span class="sc">::</span><span class="fu">sample_names</span>(phy), ]</span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Add new metadata to new phyloseq</span></span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>phy <span class="ot">&lt;-</span> phyloseq<span class="sc">::</span><span class="fu">phyloseq</span>(otu_table, tax_table, sam_data)</span>
+<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a>phy</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>phyloseq-class experiment-level object
+otu_table()   OTU Table:         [ 587 taxa and 263 samples ]
+sample_data() Sample Data:       [ 263 samples by 75 sample variables ]
+tax_table()   Taxonomy Table:    [ 587 taxa by 7 taxonomic ranks ]</code></pre>
+</div>
+</div>
+</section>
+<section id="construct-treese-object" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="construct-treese-object"><span class="header-section-number">4.3</span> Construct TreeSE Object</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>tse <span class="ot">&lt;-</span> mia<span class="sc">::</span><span class="fu">convertFromPhyloseq</span>(phy)</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>tse</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>class: TreeSummarizedExperiment 
+dim: 587 263 
+metadata(0):
+assays(1): counts
+rownames(587): Otu_1 Otu_2 ... Otu_586 Otu_587
+rowData names(7): Kingdom Phylum ... Genus Species
+colnames(263): ADZ4_99 ADZ4_98 ... ADZ4_100 ADZ4_1
+colData names(75): SampleID record_id ... followup_time_n study_time_n
+reducedDimNames(0):
+mainExpName: NULL
+altExpNames(0):
+rowLinks: NULL
+rowTree: NULL
+colLinks: NULL
+colTree: NULL</code></pre>
+</div>
+</div>
+</section>
+<section id="save-phyloseq-and-treese-objects" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="save-phyloseq-and-treese-objects"><span class="header-section-number">4.4</span> Save Phyloseq and TreeSE Objects</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>readr<span class="sc">::</span><span class="fu">write_rds</span>(phy, here<span class="sc">::</span><span class="fu">here</span>(out_dir, <span class="st">&quot;phy_cleaned.rds&quot;</span>))</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>readr<span class="sc">::</span><span class="fu">write_rds</span>(tse, here<span class="sc">::</span><span class="fu">here</span>(out_dir, <span class="st">&quot;tse_cleaned.rds&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="appendix" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="appendix"><span class="header-section-number">5</span> Appendix</h2>
+<section id="session-info" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="session-info"><span class="header-section-number">5.1</span> Session Info</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">session_info</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>─ Session info ───────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.5.0 alpha (2025-03-25 r88054)
+ os       Ubuntu 22.04.5 LTS
+ system   x86_64, linux-gnu
+ ui       X11
+ language (EN)
+ collate  en_US.UTF-8
+ ctype    en_US.UTF-8
+ tz       Europe/Madrid
+ date     2025-03-27
+ pandoc   3.2 @ /usr/lib/rstudio/resources/app/bin/quarto/bin/tools/x86_64/ (via rmarkdown)
+ quarto   1.5.57 @ /usr/lib/rstudio/resources/app/bin/quarto/bin/quarto
+
+─ Packages ───────────────────────────────────────────────────────────────────
+ package                  * version  date (UTC) lib source
+ abind                      1.4-8    2024-09-12 [1] RSPM (R 4.5.0)
+ ade4                       1.7-23   2025-02-14 [1] RSPM
+ ape                        5.8-1    2024-12-16 [1] RSPM
+ base64enc                  0.1-3    2015-07-28 [1] RSPM (R 4.5.0)
+ beachmat                   2.23.7   2025-03-17 [1] Bioconduc~
+ beeswarm                   0.4.0    2021-06-01 [1] RSPM
+ Biobase                  * 2.67.0   2024-10-29 [1] Bioconduc~
+ BiocBaseUtils              1.9.0    2024-10-29 [1] Bioconduc~
+ BiocGenerics             * 0.53.6   2025-01-27 [1] Bioconduc~
+ BiocNeighbors              2.1.3    2025-03-05 [1] Bioconduc~
+ BiocParallel               1.41.2   2025-02-19 [1] Bioconduc~
+ BiocSingular               1.23.0   2024-10-29 [1] Bioconduc~
+ biomformat                 1.35.0   2024-10-29 [1] Bioconduc~
+ Biostrings                 2.75.4   2025-02-21 [1] Bioconduc~
+ bit                        4.6.0    2025-03-06 [1] RSPM (R 4.5.0)
+ bit64                      4.6.0-1  2025-01-16 [1] RSPM (R 4.5.0)
+ bluster                    1.17.0   2024-10-29 [1] Bioconduc~
+ cachem                     1.1.0    2024-05-16 [1] RSPM (R 4.5.0)
+ cellranger                 1.1.0    2016-07-27 [1] RSPM
+ cli                        3.6.4    2025-02-13 [1] RSPM (R 4.5.0)
+ cluster                    2.1.8.1  2025-03-12 [2] CRAN (R 4.5.0)
+ coda                       0.19-4.1 2024-01-31 [1] RSPM (R 4.5.0)
+ codetools                  0.2-20   2024-03-31 [2] CRAN (R 4.5.0)
+ colorspace                 2.1-1    2024-07-26 [1] RSPM (R 4.5.0)
+ crayon                     1.5.3    2024-06-20 [1] RSPM (R 4.5.0)
+ data.table                 1.17.0   2025-02-22 [1] RSPM (R 4.5.0)
+ DBI                        1.2.3    2024-06-02 [1] RSPM
+ DECIPHER                   3.3.4    2025-03-11 [1] Bioconduc~
+ decontam                   1.27.0   2024-10-29 [1] Bioconduc~
+ DelayedArray               0.33.6   2025-02-14 [1] Bioconduc~
+ DelayedMatrixStats         1.29.1   2025-01-09 [1] Bioconduc~
+ devtools                   2.4.5    2022-10-11 [1] RSPM
+ digest                     0.6.37   2024-08-19 [1] RSPM (R 4.5.0)
+ DirichletMultinomial       1.49.0   2024-10-29 [1] Bioconduc~
+ dplyr                    * 1.1.4    2023-11-17 [1] RSPM (R 4.5.0)
+ ellipsis                   0.3.2    2021-04-29 [1] RSPM
+ emmeans                    1.11.0   2025-03-20 [1] RSPM
+ estimability               1.5.1    2024-05-12 [1] RSPM
+ evaluate                   1.0.3    2025-01-10 [1] RSPM (R 4.5.0)
+ fansi                      1.0.6    2023-12-08 [1] RSPM (R 4.5.0)
+ farver                     2.1.2    2024-05-13 [1] RSPM (R 4.5.0)
+ fastmap                    1.2.0    2024-05-15 [1] RSPM (R 4.5.0)
+ fillpattern                1.0.2    2024-06-24 [1] RSPM
+ foreach                    1.5.2    2022-02-02 [1] RSPM
+ fs                         1.6.5    2024-10-30 [1] RSPM (R 4.5.0)
+ generics                 * 0.1.3    2022-07-05 [1] RSPM (R 4.5.0)
+ GenomeInfoDb             * 1.43.4   2025-01-24 [1] Bioconduc~
+ GenomeInfoDbData           1.2.14   2025-03-27 [1] Bioconductor
+ GenomicRanges            * 1.59.1   2024-11-15 [1] Bioconduc~
+ ggbeeswarm                 0.7.2    2023-04-29 [1] RSPM
+ ggnewscale                 0.5.1    2025-02-24 [1] RSPM
+ ggplot2                  * 3.5.1    2024-04-23 [1] RSPM (R 4.5.0)
+ ggrepel                    0.9.6    2024-09-07 [1] RSPM (R 4.5.0)
+ ggtext                     0.1.2    2022-09-16 [1] RSPM
+ glue                       1.8.0    2024-09-30 [1] RSPM (R 4.5.0)
+ gridExtra                  2.3      2017-09-09 [1] RSPM
+ gridtext                   0.1.5    2022-09-16 [1] RSPM
+ gtable                     0.3.6    2024-10-25 [1] RSPM (R 4.5.0)
+ here                       1.0.1    2020-12-13 [1] RSPM (R 4.5.0)
+ hms                        1.1.3    2023-03-21 [1] RSPM (R 4.5.0)
+ htmltools                  0.5.8.1  2024-04-04 [1] RSPM (R 4.5.0)
+ htmlwidgets                1.6.4    2023-12-06 [1] RSPM (R 4.5.0)
+ httpuv                     1.6.15   2024-03-26 [1] RSPM
+ httr                       1.4.7    2023-08-15 [1] CRAN (R 4.5.0)
+ igraph                     2.1.4    2025-01-23 [1] RSPM
+ IRanges                  * 2.41.3   2025-02-12 [1] Bioconduc~
+ irlba                      2.3.5.1  2022-10-03 [1] RSPM
+ iterators                  1.0.14   2022-02-05 [1] RSPM
+ jsonlite                   1.9.1    2025-03-03 [1] RSPM (R 4.5.0)
+ knitr                      1.50     2025-03-16 [1] RSPM
+ later                      1.4.1    2024-11-27 [1] RSPM (R 4.5.0)
+ lattice                    0.22-6   2024-03-20 [2] CRAN (R 4.5.0)
+ lazyeval                   0.2.2    2019-03-15 [1] RSPM (R 4.5.0)
+ lifecycle                  1.0.4    2023-11-07 [1] RSPM (R 4.5.0)
+ magrittr                 * 2.0.3    2022-03-30 [1] RSPM (R 4.5.0)
+ MASS                       7.3-65   2025-02-28 [2] CRAN (R 4.5.0)
+ Matrix                     1.7-3    2025-03-11 [2] CRAN (R 4.5.0)
+ MatrixGenerics           * 1.19.1   2025-01-09 [1] Bioconduc~
+ matrixStats              * 1.5.0    2025-01-07 [1] RSPM
+ memoise                    2.0.1    2021-11-26 [1] RSPM (R 4.5.0)
+ mgcv                       1.9-1    2023-12-21 [2] CRAN (R 4.5.0)
+ mia                        1.15.32  2025-03-17 [1] Bioconduc~
+ mime                       0.13     2025-03-17 [1] RSPM (R 4.5.0)
+ miniUI                     0.1.1.1  2018-05-18 [1] RSPM
+ multcomp                   1.4-28   2025-01-29 [1] RSPM
+ MultiAssayExperiment       1.33.9   2025-01-29 [1] Bioconduc~
+ multtest                   2.63.0   2024-10-29 [1] Bioconduc~
+ munsell                    0.5.1    2024-04-01 [1] RSPM (R 4.5.0)
+ mvtnorm                    1.3-3    2025-01-10 [1] RSPM (R 4.5.0)
+ nlme                       3.1-167  2025-01-27 [2] CRAN (R 4.5.0)
+ parallelly                 1.43.0   2025-03-24 [1] RSPM
+ patchwork                  1.3.0    2024-09-16 [1] RSPM (R 4.5.0)
+ permute                    0.9-7    2022-01-27 [1] RSPM (R 4.5.0)
+ phyloseq                   1.51.0   2025-01-23 [1] Bioconduc~
+ pillar                     1.10.1   2025-01-07 [1] RSPM (R 4.5.0)
+ pkgbuild                   1.4.7    2025-03-24 [1] RSPM
+ pkgconfig                  2.0.3    2019-09-22 [1] RSPM (R 4.5.0)
+ pkgload                    1.4.0    2024-06-28 [1] RSPM
+ plotly                     4.10.4   2024-01-13 [1] RSPM (R 4.5.0)
+ plyr                       1.8.9    2023-10-02 [1] RSPM (R 4.5.0)
+ profvis                    0.4.0    2024-09-20 [1] RSPM
+ promises                   1.3.2    2024-11-28 [1] RSPM (R 4.5.0)
+ purrr                      1.0.4    2025-02-05 [1] RSPM
+ R6                         2.6.1    2025-02-15 [1] RSPM (R 4.5.0)
+ ragg                       1.3.3    2024-09-11 [1] RSPM
+ rbiom                      2.1.2    2025-03-18 [1] RSPM
+ Rcpp                       1.0.14   2025-01-12 [1] RSPM (R 4.5.0)
+ readr                      2.1.5    2024-01-10 [1] RSPM
+ readxl                     1.4.5    2025-03-07 [1] RSPM
+ remotes                    2.5.0    2024-03-17 [1] RSPM
+ repr                       1.1.7    2024-03-22 [1] RSPM
+ reshape2                   1.4.4    2020-04-09 [1] RSPM (R 4.5.0)
+ rhdf5                      2.51.2   2025-01-08 [1] Bioconduc~
+ rhdf5filters               1.19.2   2025-03-05 [1] Bioconduc~
+ Rhdf5lib                   1.29.2   2025-03-24 [1] Bioconduc~
+ rlang                      1.1.5    2025-01-17 [1] RSPM (R 4.5.0)
+ rmarkdown                  2.29     2024-11-04 [1] RSPM
+ rprojroot                  2.0.4    2023-11-05 [1] RSPM (R 4.5.0)
+ rstudioapi                 0.17.1   2024-10-22 [1] RSPM (R 4.5.0)
+ rsvd                       1.0.5    2021-04-16 [1] RSPM
+ S4Arrays                   1.7.3    2025-02-09 [1] Bioconduc~
+ S4Vectors                * 0.45.4   2025-02-11 [1] Bioconduc~
+ sandwich                   3.1-1    2024-09-15 [1] RSPM
+ ScaledMatrix               1.15.0   2024-10-29 [1] Bioconduc~
+ scales                     1.3.0    2023-11-28 [1] RSPM (R 4.5.0)
+ scater                     1.35.4   2025-03-07 [1] Bioconduc~
+ scuttle                    1.17.0   2024-10-29 [1] Bioconduc~
+ sessioninfo                1.2.3    2025-02-05 [1] RSPM
+ shiny                      1.10.0   2024-12-14 [1] RSPM
+ SingleCellExperiment     * 1.29.2   2025-03-07 [1] Bioconduc~
+ skimr                      2.1.5    2022-12-23 [1] RSPM
+ slam                       0.1-55   2024-11-13 [1] RSPM
+ SparseArray                1.7.7    2025-03-19 [1] Bioconduc~
+ sparseMatrixStats          1.19.0   2024-10-29 [1] Bioconduc~
+ stringi                    1.8.4    2024-05-06 [1] RSPM (R 4.5.0)
+ stringr                    1.5.1    2023-11-14 [1] RSPM (R 4.5.0)
+ SummarizedExperiment     * 1.37.0   2024-10-29 [1] Bioconduc~
+ survival                   3.8-3    2024-12-17 [2] CRAN (R 4.5.0)
+ systemfonts                1.2.1    2025-01-20 [1] RSPM
+ textshaping                1.0.0    2025-01-20 [1] RSPM
+ TH.data                    1.1-3    2025-01-17 [1] RSPM
+ tibble                     3.2.1    2023-03-20 [1] RSPM (R 4.5.0)
+ tidyr                    * 1.3.1    2024-01-24 [1] RSPM (R 4.5.0)
+ tidyselect                 1.2.1    2024-03-11 [1] RSPM (R 4.5.0)
+ tidySingleCellExperiment * 1.17.0   2024-10-29 [1] Bioconductor 3.21 (R 4.5.0)
+ tidytree                   0.4.6    2023-12-12 [1] RSPM
+ treeio                     1.31.0   2024-10-29 [1] Bioconduc~
+ TreeSummarizedExperiment   2.15.0   2024-10-29 [1] Bioconduc~
+ ttservice                * 0.4.1    2024-06-07 [1] RSPM (R 4.5.0)
+ tzdb                       0.5.0    2025-03-15 [1] RSPM (R 4.5.0)
+ UCSC.utils                 1.3.1    2025-01-15 [1] Bioconduc~
+ urlchecker                 1.0.1    2021-11-30 [1] RSPM
+ usethis                    3.1.0    2024-11-26 [1] RSPM
+ vctrs                      0.6.5    2023-12-01 [1] RSPM (R 4.5.0)
+ vegan                      2.6-10   2025-01-29 [1] RSPM (R 4.5.0)
+ vipor                      0.4.7    2023-12-18 [1] RSPM
+ viridis                    0.6.5    2024-01-29 [1] RSPM
+ viridisLite                0.4.2    2023-05-02 [1] RSPM (R 4.5.0)
+ vroom                      1.6.5    2023-12-05 [1] RSPM (R 4.5.0)
+ withr                      3.0.2    2024-10-28 [1] RSPM (R 4.5.0)
+ xfun                       0.51     2025-02-19 [1] RSPM
+ xml2                       1.3.8    2025-03-14 [1] CRAN (R 4.5.0)
+ xtable                     1.8-4    2019-04-21 [1] RSPM
+ XVector                    0.47.2   2025-01-08 [1] Bioconduc~
+ yaml                       2.3.10   2024-07-26 [1] RSPM
+ yulab.utils                0.2.0    2025-01-29 [1] RSPM
+ zoo                        1.8-13   2025-02-22 [1] RSPM
+
+ [1] /home/fcatala/R/x86_64-pc-linux-gnu-library/4.5
+ [2] /opt/R/next/lib/R/library
+ * ── Packages attached to the search path.
+
+──────────────────────────────────────────────────────────────────────────────</code></pre>
+</div>
+</div>
+</section>
+<section id="contact" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="contact"><span class="header-section-number">5.2</span> Contact</h3>
+<ul>
+<li><strong>Analysis Lead:</strong> Francesc Català-Moll</li>
+<li><strong>Email:</strong> fcatala@irsicaixa.es</li>
+<li><strong>Institution:</strong> GEM - IrsiCaixa</li>
+</ul>
+</section>
 </section>
 
 </main>

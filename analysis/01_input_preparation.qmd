@@ -1,0 +1,118 @@
+---
+title: "01 Metadata Preparation"
+editor_options: 
+  chunk_output_type: console
+---
+
+## Define the input and output paths
+
+```{r}
+# input
+metadat_file <- here::here("data", "raw", "2023_05_29_clean_metadata_LIMS.csv")
+phy_file <- here::here("data", "raw", "Metaphlan3Counts_psObject.rds")
+
+# output
+out_dir <- here::here("data", "processed")
+dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+```
+
+## Set-up
+
+```{r}
+# load libraries
+library(magrittr)
+library(tidySingleCellExperiment)
+```
+
+## Metadata Preprocessing
+
+### Load & Inspect Metadata
+
+```{r}
+# Load
+meta_df <- readr::read_csv(metadat_file, show_col_types = FALSE)
+
+# Inspect
+skimr::skim(meta_df)
+```
+
+### Clean Metadata
+
+- Remove columns with unit information
+- Remove columns with results dates
+- Remove columns with only one unique value
+- Remove columns with more than 50% missing values
+
+```{r}
+# Clean
+meta_df <- 
+  meta_df %>% 
+  dplyr::select(-dplyr::starts_with("units_")) %>%
+  dplyr::select(-dplyr::starts_with("result_date_")) %>%
+  dplyr::select_if(~ length(unique(.x)) > 1) %>%
+  dplyr::select_if(~ mean(is.na(.x)) < 0.55)
+```
+
+### Save Cleaned Metadata
+
+```{r}
+readr::write_csv(meta_df, here::here(out_dir, "metadata_cleaned.csv"))
+```
+
+## Prepare Phyloseq and TreeSE objects
+
+### Load Raw Phyloseq
+
+```{r}
+raw_phy <- readr::read_rds(phy_file)
+raw_phy
+```
+
+### Filter Phyloseq & Add New Metadata
+
+```{r}
+# Filter
+phy <- phyloseq::subset_samples(raw_phy, SampleID %in% meta_df$SampleID)
+
+# Prepare phy inputs
+otu_table <- phyloseq::otu_table(phy)
+tax_table <- phyloseq::tax_table(phy)
+sam_data <-  
+  meta_df %>% 
+  dplyr::mutate(SampleID_ = SampleID, .before = 1) %>%
+  data.frame(row.names = 1) %>% 
+  phyloseq::sample_data() %>% 
+  .[phyloseq::sample_names(phy), ]
+
+# Add new metadata to new phyloseq
+phy <- phyloseq::phyloseq(otu_table, tax_table, sam_data)
+phy
+```
+
+### Construct TreeSE Object
+
+```{r}
+tse <- mia::convertFromPhyloseq(phy)
+tse
+```
+
+### Save Phyloseq and TreeSE Objects
+
+```{r}
+readr::write_rds(phy, here::here(out_dir, "phy_cleaned.rds"))
+readr::write_rds(tse, here::here(out_dir, "tse_cleaned.rds"))
+```
+
+## Appendix
+
+### Session Info
+
+```{r}
+devtools::session_info()
+```
+
+### Contact
+
+- **Analysis Lead:** Francesc Català-Moll
+- **Email:** fcatala@irsicaixa.es
+- **Institution:** GEM - IrsiCaixa
