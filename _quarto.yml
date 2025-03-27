@@ -1,0 +1,21 @@
+project:
+  title: "fcatala_advanz4"
+  output-dir: docs
+  execute-dir: file
+
+format: 
+  html: 
+    theme: minty
+    brand: _brand.yml
+    date: now
+    date-modified: last-modified
+    author: "Francesc Català-Moll"
+    embed-resources: true
+    link-external-icon: true
+    link-external-newwindow: true
+    toc: true
+    number-sections: true
+
+
+
+    
