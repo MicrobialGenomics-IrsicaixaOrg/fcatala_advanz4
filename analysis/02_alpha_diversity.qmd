@@ -1,0 +1,364 @@
+---
+title: "02 - Alpha Diversity Analysis"
+editor_options: 
+  chunk_output_type: console
+---
+
+## Define the input and output paths
+
+```{r}
+# input
+tse_file <- here::here("data", "processed", "tse_cleaned.rds")
+igc_file <- here::here("data", "raw", "dataTable.rds")
+
+# output
+out_dir <- here::here("data", "02_alpha_diversity")
+dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+```
+
+## Set-up
+
+```{r}
+# load libraries
+library(magrittr)
+library(patchwork)
+suppressPackageStartupMessages(library(tidySingleCellExperiment))
+```
+
+## Computate Alpha Diversity Metrics
+
+### Load TreeSE
+
+```{r}
+# load
+tse <- readr::read_rds(tse_file)
+```
+
+### Add Gene Richness
+
+```{r}
+# load
+igc_df <- readr::read_rds(igc_file) %>% tibble::as_tibble()
+
+# threshold
+threshold <- 
+  igc_df %>%
+  dplyr::group_by(SampleID) %>% 
+  dplyr::summarise(NumberMappedReads = max(NumberMappedReads)) %>% 
+  dplyr::summarise(q = quantile(NumberMappedReads, 0.02)) %>%
+  dplyr::pull()
+  
+# extract
+igc_df <- 
+  igc_df %>% 
+  dplyr::filter(ReadCountReal >= threshold) %>% 
+  dplyr::group_by(SampleID) %>%
+  dplyr::summarise(gene_richness = min(GeneNumber))
+
+# merge
+tse <- tse %>% dplyr::left_join(igc_df, by = "SampleID")
+```
+
+### Compute Alpha Diversity Metrics
+
+```{r}
+# select metrics
+metrics <- c(
+  "shannon_diversity", "gini_dominance","observed_richness", "pielou_evenness"
+)
+
+# compute
+tse <-
+  tse %>%
+  mia::addAlpha(
+    index = metrics,
+    sample = quantile(colSums(assay(tse, "counts")), 0.02),
+    niter = 10,
+    BPPARAM = BiocParallel::MulticoreParam()
+  )
+```
+
+## Plot Alpha Diversity Metrics
+
+```{r}
+#| message: FALSE
+#| warning: FALSE
+plt_list <- 
+  c(metrics, "gene_richness") %>% 
+  purrr::set_names() %>% 
+  purrr::map( ~ {
+    # prepare data
+    plt_df <- colData(tse) %>% tibble::as_tibble() 
+     
+    # calculate stats
+    stats_2 <-
+      plt_df %>%
+      rstatix::group_by(treatment) %>%
+      rstatix::wilcox_test(
+        formula = formula(glue::glue("{.x} ~ time_point")),
+        p.adjust.method = "fdr"
+      ) %>%
+      rstatix::add_significance() %>%
+      rstatix::add_xy_position(x = "time_point", group = "treatment") %>% 
+      dplyr::mutate(y.position = y.position)
+      
+    # plot
+    plt <- 
+      plt_df %>% 
+      tidyr::drop_na(!!dplyr::sym(.x)) %>% 
+      tidyplots::tidyplot(x = time_point, y = !!dplyr::sym(.x), colour = treatment) %>% 
+      tidyplots::add_boxplot(show_outliers = FALSE) %>%
+      tidyplots::add_data_points_jitter(alpha = 0.4) %>%
+      tidyplots::add_test_asterisks(
+        method = "wilcox_test", hide_info = TRUE, bracket.nudge.y = 0.05, tip.length = 0.01
+      ) %>%
+      tidyplots::add(ggpubr::stat_pvalue_manual(
+        stats_2, label = "p.adj.signif", hide.ns = TRUE, tip.length = 0.01,
+      )) %>% 
+      tidyplots::adjust_x_axis_title("Time Point (weeks)") %>%
+      tidyplots::adjust_legend_title("Treatment") %>%
+      tidyplots::adjust_y_axis_title(
+        .x %>% stringr::str_replace_all("_", " ") %>% stringr::str_to_title()
+      ) %>% 
+      tidyplots::adjust_colors(tidyplots::colors_discrete_friendly) 
+      
+    if (.x == "gene_richness") {
+      plt <- plt %>% tidyplots::adjust_y_axis(labels = scales::scientific)
+    }
+    
+    # save
+    plt %>%
+      tidyplots::adjust_size(width = 40, height = 40, unit = "mm") %>%
+      tidyplots::save_plot(
+        here::here(out_dir, glue::glue("alpha_{.x}.pdf")),
+        view_plot = FALSE
+      )
+    
+    plt
+  })
+```
+
+::: {.panel-tabset}
+
+```{r}
+#| results: asis
+names(plt_list) %>% 
+  purrr::walk(~ {
+    cat("#### ", .x, "\n")
+    plot(plt_list[[.x]])
+    cat("\n\n")
+  })
+```
+
+:::
+
+## Compute Correlations
+
+### Define Cytokines and Markers
+
+```{r}
+populations <- c("CD4", "CD8", "CD4_nadir", "CD4_CD38_DR", "CD8_CD38_DR")
+cytokines <- c("CRP", "IL6", "TNFa", "sCD14")
+others <- c("HIV_VL", "BMI")
+
+all_markers <- c(populations, cytokines, others)
+```
+
+### Cytokines Log2 Transformation
+
+```{r}
+tse2 <- tse %>% dplyr::mutate(dplyr::across(dplyr::all_of(all_markers), ~ log2(.x + 1)))
+```
+
+### Compute Correlations
+
+```{r}
+#| warning: FALSE
+corr_df <-
+  mia::splitOn(tse2, "treatment") %>%
+  purrr::map_dfr(~ {
+    mia::getCrossAssociation(
+      .x,
+      .x,
+      col.var1 = c(metrics, "gene_richness"),
+      col.var2 = all_markers,
+      method = "spearman",
+      p_adj_method = "fdr",
+      test.signif = TRUE, 
+      verbose = FALSE, 
+      show_warnings = FALSE
+    ) %>%
+      dplyr::mutate(treatment = unique(.x$treatment))
+  })
+```
+
+### Plot Global Correlations
+
+```{r}
+#| message: FALSE
+#| warning: FALSE
+plt_list <- 
+  c(metrics, "gene_richness") %>% 
+  purrr::set_names() %>% 
+  purrr::map(~ {
+    # prepare data
+    plt_df <-
+      corr_df %>% 
+      dplyr::filter(Var1 == .x) %>% 
+      dplyr::mutate(sign = p_adj < 0.05 & abs(cor) >= 0.2) 
+      
+    # plot
+    .name <- stringr::str_replace(.x, "_", " ") %>% stringr::str_to_title()
+    lim <- abs(plt_df$cor) %>% max() %>% round(digits = 1)
+    plt <- 
+      plt_df %>% 
+      ggplot(aes(x = Var2, y = treatment, fill = cor, colour = sign)) +
+      geom_point(aes(size = abs(cor), alpha = sign), shape = 22, stroke = 1) +
+      scale_fill_gradientn(
+        colours = rev(RColorBrewer::brewer.pal(11, "Spectral")),
+        limits = c(-lim, lim)
+      ) +
+      scale_colour_manual(values = c("TRUE" = "black", "FALSE" = "white")) +
+      scale_alpha_manual(values = c("TRUE" = 0.9, "FALSE" = 0.6), guide = "none") +
+      scale_size_continuous(range = c(2, 8), guide = "none") +
+      theme_minimal() +
+      labs(
+        x = "",
+        y = "Treatment", 
+        fill = glue::glue("Spearman Correlation\n(Mark. vs. {.name})"), 
+        colour = "q < 0.05"
+      ) +
+      theme(
+        axis.text.x = element_text(angle = 45, hjust = 1), 
+        legend.position = "top", 
+        legend.title.position = "top", 
+        legend.title = element_text(hjust = 0.5), 
+        legend.key.height = unit(0.5, "cm"),
+      ) 
+    
+    # Resize and save
+    plt <- 
+      plt + plot_spacer() +
+      plot_layout(
+        widths = ggplot2::unit(c(70, 1), "mm"), 
+        heights = ggplot2::unit(30, "mm")
+      ) 
+    
+    tidyplots::save_plot(
+      plt, 
+      here::here(out_dir, glue::glue("correlation_{.x}.pdf")), 
+      view_plot = FALSE
+    )
+    
+    plt
+  })
+```
+
+::: {.panel-tabset}
+
+```{r}
+#| results: asis
+names(plt_list) %>% 
+  purrr::walk(~ {
+    cat("#### ", .x, "\n")
+    plot(plt_list[[.x]])
+    cat("\n\n")
+  })
+```
+
+:::
+
+### Plot Scatter Correlations
+
+```{r}
+#| message: FALSE
+#| warning: FALSE
+plt_df <- colData(tse2) %>% tibble::as_tibble()
+plt_list <- 
+  c(metrics, "gene_richness") %>% 
+  purrr::set_names() %>% 
+  purrr::map(function(.metric) {
+   all_markers %>% 
+      purrr::set_names() %>% 
+      purrr::map(function(.marker) {
+        # prepare data
+        marker_values <- plt_df[[.marker]] %>% .[is.finite(.)]
+        lab_min <- min(marker_values, na.rm = TRUE)
+        lab_max <- max(marker_values, na.rm = TRUE)
+        lab_range <- lab_max - lab_min
+        .name <- stringr::str_replace(.metric, "_", " ") %>% stringr::str_to_title()
+        plt <- 
+          plt_df %>%
+          tidyr::drop_na(!!.metric, !!.marker) %>%
+          tidyplots::tidyplot(
+            x = !!dplyr::sym(.metric),
+            y = !!dplyr::sym(.marker),
+            colour = treatment
+          ) %>%
+          tidyplots::add_data_points(alpha = 0.5) %>%
+          tidyplots::add(geom_smooth(method = "lm", alpha = 0.1, formula = 'y ~ x')) %>%
+          tidyplots::add(ggpubr::stat_cor(
+            method = "spearman",
+            cor.coef.name = "rho",
+            label.y.npc = "bottom",
+            p.digits = 1,
+            label.y = c(lab_min - 0.05 * lab_range, lab_min - 0.15 * lab_range), 
+            size = 3
+          )) %>% 
+          tidyplots::adjust_legend_title("Treatment") %>%
+          tidyplots::adjust_y_axis_title(glue::glue("Log2  {.marker}")) %>% 
+          tidyplots::adjust_x_axis_title(.name) %>% 
+          tidyplots::adjust_x_axis(rotate_labels = 30) %>% 
+          tidyplots::adjust_colors(tidyplots::colors_discrete_friendly) 
+          
+          if (.metric == "gene_richness") {
+            plt <- plt %>% tidyplots::adjust_x_axis(labels = scales::scientific)
+          }
+      
+          # save
+          plt %>%
+            tidyplots::adjust_size(width = 50, height = 40, unit = "mm") %>%
+            tidyplots::save_plot(
+              here::here(out_dir, glue::glue("corr_{.metric}_{.marker}.pdf")),
+              view_plot = FALSE
+            )
+          
+          plt
+      })
+  })
+```
+
+::: {.panel-tabset}
+
+```{r}
+#| results: asis
+#| fig.width: 12
+#| fig.height: 7
+#| warning: FALSE
+names(plt_list) %>% 
+  purrr::walk(~ {
+    cat("#### ", .x, "\n")
+    plot(
+      plt_list[[.x]] %>% 
+        patchwork::wrap_plots() + 
+        plot_layout(guides = "collect")
+    )
+    cat("\n\n")
+  })
+```
+
+:::
+
+## Appendix
+
+### Session Info
+
+```{r}
+devtools::session_info()
+```
+
+### Contact
+
+- **Analysis Lead:** Francesc Català-Moll
+- **Email:** fcatala@irsicaixa.es
+- **Institution:** GEM - IrsiCaixa

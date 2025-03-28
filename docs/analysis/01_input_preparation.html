@@ -5000,6 +5000,9 @@ Attaching package: &#39;tidySingleCellExperiment&#39;</code></pre>
 <li>Remove columns with results dates</li>
 <li>Remove columns with only one unique value</li>
 <li>Remove columns with more than 50% missing values</li>
+<li>Remove <code>&lt;</code> and <code>&gt;</code> from sCD14 and transform to numeric</li>
+<li>Rename levels of group variable and rename as tretament</li>
+<li>Create time_point_n (nueric) variable from time_point (factor)</li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Clean</span></span>
@@ -5008,7 +5011,13 @@ Attaching package: &#39;tidySingleCellExperiment&#39;</code></pre>
 <span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>dplyr<span class="sc">::</span><span class="fu">starts_with</span>(<span class="st">&quot;units_&quot;</span>)) <span class="sc">%&gt;%</span></span>
 <span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>dplyr<span class="sc">::</span><span class="fu">starts_with</span>(<span class="st">&quot;result_date_&quot;</span>)) <span class="sc">%&gt;%</span></span>
 <span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select_if</span>(<span class="sc">~</span> <span class="fu">length</span>(<span class="fu">unique</span>(.x)) <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select_if</span>(<span class="sc">~</span> <span class="fu">mean</span>(<span class="fu">is.na</span>(.x)) <span class="sc">&lt;</span> <span class="fl">0.55</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select_if</span>(<span class="sc">~</span> <span class="fu">mean</span>(<span class="fu">is.na</span>(.x)) <span class="sc">&lt;</span> <span class="fl">0.55</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">sCD14 =</span> <span class="fu">as.numeric</span>(stringr<span class="sc">::</span><span class="fu">str_remove</span>(sCD14, <span class="st">&quot;&lt;|&gt;&quot;</span>)), </span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">time_point_n =</span> time_point,</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">time_point =</span> <span class="fu">factor</span>(time_point),</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">treatment =</span> dplyr<span class="sc">::</span><span class="fu">if_else</span>(group <span class="sc">==</span> <span class="st">&quot;bDRV&quot;</span>, <span class="st">&quot;DRV/r&quot;</span>, group)</span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="save-cleaned-metadata" class="level3" data-number="3.3">
@@ -5058,7 +5067,7 @@ tax_table()   Taxonomy Table:    [ 587 taxa by 7 taxonomic ranks ]</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>phyloseq-class experiment-level object
 otu_table()   OTU Table:         [ 587 taxa and 263 samples ]
-sample_data() Sample Data:       [ 263 samples by 75 sample variables ]
+sample_data() Sample Data:       [ 263 samples by 76 sample variables ]
 tax_table()   Taxonomy Table:    [ 587 taxa by 7 taxonomic ranks ]</code></pre>
 </div>
 </div>
@@ -5076,7 +5085,7 @@ assays(1): counts
 rownames(587): Otu_1 Otu_2 ... Otu_586 Otu_587
 rowData names(7): Kingdom Phylum ... Genus Species
 colnames(263): ADZ4_99 ADZ4_98 ... ADZ4_100 ADZ4_1
-colData names(75): SampleID record_id ... followup_time_n study_time_n
+colData names(76): SampleID record_id ... study_time_n time_point_n
 reducedDimNames(0):
 mainExpName: NULL
 altExpNames(0):
