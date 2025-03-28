@@ -1,0 +1,142 @@
+---
+title: "03 - Marker Abundance Temporal Evolution"
+---
+
+## Define the input and output paths
+
+```{r}
+# input
+tse_file <- here::here("data", "processed", "tse_alpha.rds")
+
+# output
+out_dir <- here::here("data", "03_marker_abundance")
+dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+```
+
+## Set-up
+
+```{r}
+# load libraries
+library(magrittr)
+library(patchwork)
+suppressPackageStartupMessages(library(tidySingleCellExperiment))
+```
+
+## Load TSE Object
+
+```{r}
+tse <- readr::read_rds(tse_file)
+tse
+```
+
+## Define Cytokines and Markers
+
+```{r}
+populations <- c("CD4", "CD8", "CD4_nadir", "CD4_CD38_DR", "CD8_CD38_DR")
+cytokines <- c("CRP", "IL6", "TNFa", "sCD14")
+others <- c("HIV_VL", "BMI")
+
+all_markers <- 
+  c(populations, cytokines, others) %>% 
+  tibble::enframe(value = "marker") %>% 
+  dplyr::mutate(unit = dplyr::case_when(
+    marker %in% populations ~ "Counts/mL", 
+    marker %in% c("IL6", "TNFa") ~ "pg/mL", 
+    marker == "CRP" ~ "mg/mL", 
+    marker == "sCD14" ~ "ng/mL", 
+    TRUE ~ NA_character_
+  ))
+```
+
+## Prepare Plots
+
+```{r}
+#| message: false
+plt_list <- 
+  all_markers$marker %>% 
+  purrr::set_names() %>% 
+  purrr::map(~ {
+    # prepare data
+    .unit <- all_markers[all_markers$marker == .x, "unit"]
+    plt_df <- 
+      colData(tse) %>% 
+      tibble::as_tibble() %>% 
+      tidyr::drop_na(!!.x) %>% 
+      dplyr::mutate(time_point = factor(time_point))
+     
+    # calculate stats
+    stats_2 <-
+      plt_df %>%
+      rstatix::group_by(treatment) %>%
+      rstatix::wilcox_test(
+        formula = formula(glue::glue("{.x} ~ time_point")),
+        p.adjust.method = "fdr", 
+        detailed = TRUE
+      ) %>%
+      rstatix::add_significance(output.col = "p.adj.signif") %>%
+      rstatix::add_xy_position(x = "time_point", group = "treatment")
+      
+    # plot
+    plt <- 
+      plt_df %>% 
+      tidyr::drop_na(!!dplyr::sym(.x)) %>% 
+      tidyplots::tidyplot(x = time_point, y = !!dplyr::sym(.x), colour = treatment) %>% 
+      tidyplots::add_boxplot(show_outliers = FALSE) %>%
+      tidyplots::add_data_points_jitter(alpha = 0.4) %>%
+      tidyplots::add_test_asterisks(
+        method = "wilcox_test", hide_info = TRUE, bracket.nudge.y = 0.05, tip.length = 0.01
+      ) %>%
+      tidyplots::add(ggpubr::stat_pvalue_manual(
+        stats_2, label = "p.adj.signif", hide.ns = TRUE, tip.length = 0.01,
+      )) %>% 
+      tidyplots::adjust_x_axis_title("Time Point (weeks)") %>%
+      tidyplots::adjust_legend_title("Treatment") %>%
+      tidyplots::adjust_y_axis_title(
+        glue::glue("{.x} ({.unit})")
+      ) %>% 
+      tidyplots::adjust_colors(tidyplots::colors_discrete_friendly) 
+      
+    # save
+    plt %>%
+      tidyplots::adjust_size(width = 40, height = 40, unit = "mm") %>%
+      tidyplots::save_plot(
+        here::here(out_dir, glue::glue("temp_abundance_{.x}.pdf")),
+        view_plot = FALSE
+      )
+    
+    plt
+  })
+```
+
+## Plot 
+
+::: {.panel-tabset}
+
+```{r}
+#| results: asis
+#| fig.width: 12
+#| fig.height: 7
+#| warning: FALSE
+names(plt_list) %>% 
+  purrr::walk(~ {
+    cat("#### ", .x, "\n")
+    plot(plt_list[[.x]])
+    cat("\n\n")
+  })
+```
+
+:::
+
+## Appendix
+
+### Session Info
+
+```{r}
+devtools::session_info()
+```
+
+### Contact
+
+- **Analysis Lead:** Francesc Català-Moll
+- **Email:** fcatala@irsicaixa.es
+- **Institution:** GEM - IrsiCaixa
