@@ -5,7 +5,4 @@
 
 /.quarto/
 /_*.local
-analysis/*_cache
-analysis/*_files
-docs/analysis/*_files
 data/*

@@ -21,7 +21,7 @@ dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 ```{r}
 # load libraries
 library(magrittr)
-library(tidySingleCellExperiment)
+suppressPackageStartupMessages(library(tidySingleCellExperiment))
 ```
 
 ## Metadata Preprocessing
