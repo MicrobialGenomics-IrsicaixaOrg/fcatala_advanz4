@@ -1,0 +1,596 @@
+---
+title: "04 - Beta Diversity Analysis"
+---
+
+## Define the input and output paths
+
+```{r}
+# input
+tse_file <- here::here("data", "processed", "tse_alpha.rds")
+
+# output
+out_dir <- here::here("data", "04_beta_diversity")
+dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+```
+
+## Set-up
+
+```{r}
+# load libraries
+library(magrittr)
+library(patchwork)
+suppressPackageStartupMessages(library(tidySingleCellExperiment))
+```
+
+## Load TSE Object and Transform
+
+```{r}
+tse <- 
+  readr::read_rds(tse_file) %>% 
+  mia::transformAssay(method = "relab") %>% 
+  mia::transformAssay(method = "clr", pseudocount = 1) %>% 
+  mia::transformAssay(method = "log10", pseudocount = 1)
+
+tse
+```
+
+## NMDS Analysis 
+
+### Commpute NMDS 
+
+```{r}
+tse <- mia::runNMDS(
+  tse,
+  assay.type = "relab",
+  nmds.fun = "monoMDS",
+  keep.dist = TRUE
+)
+```
+
+### Scatter Plot (NMDS1 vs NMDS2)
+
+```{r}
+plot_df <- tse %>% dplyr::select(treatment, time_point, dplyr::contains("NMD")) 
+
+# main scatterplot (NMDS1 vs NMDS2)
+p1 <- 
+  plot_df %>% 
+  ggplot(aes(NMDS1, NMDS2)) +
+  geom_point(aes(colour = treatment, shape = time_point), alpha = 0.7) +
+  stat_ellipse(aes(colour = treatment, linetype = time_point), alpha = 0.8) +
+  scale_fill_manual(values = c("#0072B2", "#D55E00")) +
+  scale_colour_manual(values = c("#0072B2", "#D55E00")) +
+  theme(legend.position = "bottom")
+
+# extract range to ensure align
+build_p1 <- ggplot_build(p1)
+x_limits <- build_p1$layout$panel_params[[1]]$x.range
+y_limits <- build_p1$layout$panel_params[[1]]$y.range
+
+# boxplot NMDS1 (up, horizontal) with significance
+p_box_x <-
+  plot_df %>%
+  ggplot(aes(x = treatment, y = NMDS1, colour = treatment)) +
+  geom_boxplot(alpha = 0.8, outlier.shape = NA) +
+  geom_jitter(
+    aes(shape = time_point), width = 0.2, height = 0, size = 1.5, alpha = 0.4
+  ) +
+  scale_colour_manual(values = c("#0072B2", "#D55E00")) +
+  ggpubr::stat_compare_means(
+    method = "wilcox.test", label = "p.signif", label.x = 1.25, size = 4
+  ) +
+  coord_flip(ylim = x_limits) +
+  theme_void() +
+  theme(legend.position = "none")
+
+# boxplot NMDS2 (right, vertical)  with significance
+p_box_y <- 
+  plot_df %>% 
+  ggplot(aes(x = treatment, y = NMDS2, colour = treatment)) +
+  geom_boxplot(alpha = 0.8, outlier.shape = NA) +
+  geom_jitter(
+    aes(shape = time_point), width = 0.2, height = 0, size = 1.5, alpha = 0.4
+  ) +
+  scale_colour_manual(values = c("#0072B2", "#D55E00")) +
+  ggpubr::stat_compare_means(
+    method = "wilcox.test", label = "p.signif", label.x = 1.5, size = 4
+  ) +
+  coord_cartesian(ylim = y_limits) +
+  theme_void() +
+  theme(legend.position = "none")
+
+p1 <- 
+  p1 %>% 
+  tidyplots:::style_just_xy() %>% 
+  tidyplots::add(coord_cartesian(ylim = y_limits, xlim = x_limits))
+
+# patch
+combined_plot <- 
+  p_box_x + plot_spacer() + p1 + p_box_y + 
+  plot_layout(
+    widths = unit(c(60, 10), "mm"),
+    heights = unit(c(10, 60), "mm"),
+    ncol = 2
+  )
+
+# save
+grob_combined <- patchworkGrob(combined_plot)
+width_mm <- grid::convertWidth(sum(grob_combined$widths), unitTo = "mm", valueOnly = T) * 1.5
+height_mm <- grid::convertHeight(sum(grob_combined$heights), unitTo = "mm", valueOnly = T)
+ggsave(
+  combined_plot, 
+  filename =  here::here(out_dir, "nmds_scatter.pdf"),
+  width = width_mm, height = height_mm, units = "mm"
+)
+
+combined_plot
+```
+
+## Centroid Distances Computation and Plot
+
+```{r}
+# centorids by group (treatment + time_point)
+tse <- 
+  tse %>%
+  dplyr::select(SampleID, treatment, time_point, dplyr::contains("NMD")) %>% 
+  dplyr::group_by(treatment, time_point) %>%
+  dplyr::mutate(
+    cdist_nmds1 = (NMDS1 - mean(NMDS1)) ^ 2, 
+    cdist_nmds2 = (NMDS2 - mean(NMDS2)) ^ 2, 
+    centroid_dist = sqrt(cdist_nmds1 + cdist_nmds2)
+  ) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::select(SampleID, centroid_dist) %>% 
+  dplyr::left_join(tse, ., by = "SampleID")
+ 
+# compute stats
+stats_2 <-
+  colData(tse) %>%
+  tibble::as_tibble() %>% 
+  rstatix::group_by(treatment) %>%
+  rstatix::wilcox_test(centroid_dist ~ time_point, p.adjust.method = "fdr") %>% 
+  rstatix::add_significance() %>%
+  rstatix::add_xy_position(x = "time_point", group = "treatment")
+
+# plot
+plt <- 
+  colData(tse) %>%
+  tibble::as_tibble() %>% 
+  tidyplots::tidyplot(x = time_point, y = centroid_dist, colour = treatment) %>% 
+  tidyplots::add_boxplot(show_outliers = FALSE) %>%
+  tidyplots::add_data_points_jitter(alpha = 0.4) %>%
+  tidyplots::add_test_asterisks(
+    method = "wilcox_test", hide_info = TRUE, bracket.nudge.y = 0.05, tip.length = 0.01
+  ) %>%
+  tidyplots::add(ggpubr::stat_pvalue_manual(
+    stats_2, label = "p.adj.signif", hide.ns = TRUE, tip.length = 0.01,
+  )) %>% 
+  tidyplots::adjust_x_axis_title("Time Point (weeks)") %>%
+  tidyplots::adjust_legend_title("Treatment") %>%
+  tidyplots::adjust_y_axis_title("Centroid Distance") %>% 
+  tidyplots::adjust_colors(tidyplots::colors_discrete_friendly) 
+      
+# save
+plt %>%
+  tidyplots::adjust_size(width = 40, height = 40, unit = "mm") %>%
+  tidyplots::save_plot(
+    here::here(out_dir, glue::glue("centroid_distance.pdf")),
+    view_plot = FALSE
+  )
+
+plt 
+```
+
+## Correlation with Centroid Distance 
+
+### Define Cytokines and Markers
+
+```{r}
+populations <- c("CD4", "CD8", "CD4_nadir", "CD4_CD38_DR", "CD8_CD38_DR")
+cytokines <- c("CRP", "IL6", "TNFa", "sCD14")
+others <- c("HIV_VL", "BMI")
+
+all_markers <- c(populations, cytokines, others)
+```
+
+### Cytokines Log2 Transformation
+
+```{r}
+tse2 <- tse %>% dplyr::mutate(dplyr::across(dplyr::all_of(cytokines), ~ log2(.x + 1)))
+```
+
+### Compute Correlations
+
+```{r}
+#| warning: FALSE
+corr_df <-
+  mia::getCrossAssociation(
+    tse2,
+    tse2,
+    col.var1 = "centroid_dist",
+    col.var2 = all_markers,
+    method = "spearman",
+    p_adj_method = "fdr",
+    test.signif = TRUE,
+    verbose = FALSE,
+    show_warnings = FALSE
+  )
+```
+
+### Plot Global Correlations 
+
+```{r}
+#| message: FALSE
+#| warning: FALSE
+
+# prepare data
+plt_df <- corr_df %>% dplyr::mutate(sign = p_adj < 0.05 & abs(cor) >= 0.2)
+
+# plot
+lim <- abs(plt_df$cor) %>% max() %>% round(digits = 1) * 1.05
+plt <-
+  plt_df %>%
+  dplyr::mutate(lab = stringr::str_replace(Var1, "_", " ") %>% stringr::str_to_sentence()) %>% 
+  ggplot(aes(x = Var2, y = lab, fill = cor, colour = sign)) +
+  geom_point(aes(size = abs(cor), alpha = sign), shape = 22, stroke = 1) +
+  scale_fill_gradientn(
+    colours = rev(RColorBrewer::brewer.pal(11, "PiYG")),
+    limits = c(-lim, lim)
+  ) +
+  scale_colour_manual(values = c("TRUE" = "black", "FALSE" = "white")) +
+  scale_alpha_manual(values = c("TRUE" = 0.9, "FALSE" = 0.6), guide = "none") +
+  scale_size_continuous(range = c(2, 8), guide = "none") +
+  theme_minimal() +
+  labs(
+    x = "", y = "", fill = "Spearman Correlation", colour = "q < 0.05"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "top",
+    legend.title.position = "top",
+    legend.title = element_text(hjust = 0.5),
+    legend.key.height = unit(0.5, "cm"),
+  )
+
+# Resize and save
+r_plt <-
+  plt + plot_spacer() +
+  plot_layout(
+    widths = ggplot2::unit(c(75, 1), "mm"),
+    heights = ggplot2::unit(40, "mm")
+  )
+
+tidyplots::save_plot(
+  r_plt,
+  here::here(out_dir, glue::glue("corr_global_centroid_dist.pdf")),
+  view_plot = FALSE
+)
+
+r_plt
+```
+
+## Correlation with Centroid Distance by Treatment
+
+### Compute Correlations
+
+```{r}
+#| warning: FALSE
+corr_df <-
+  mia::splitOn(tse2, "treatment") %>%
+  purrr::map_dfr(~ {
+    mia::getCrossAssociation(
+      .x,
+      .x,
+      col.var1 = "centroid_dist",
+      col.var2 = all_markers,
+      method = "spearman",
+      p_adj_method = "fdr",
+      test.signif = TRUE, 
+      verbose = FALSE, 
+      show_warnings = FALSE
+    ) %>%
+      dplyr::mutate(treatment = unique(.x$treatment))
+  })
+```
+
+### Plot Global Correlations 
+
+```{r}
+#| message: FALSE
+#| warning: FALSE
+
+# prepare data
+plt_df <- corr_df %>% dplyr::mutate(sign = p_adj < 0.05 & abs(cor) >= 0.2)
+
+# plot
+lim <- abs(plt_df$cor) %>% max() %>% round(digits = 1) * 1.05
+plt <-
+  plt_df %>%
+  dplyr::mutate(lab = stringr::str_replace(Var1, "_", " ") %>% stringr::str_to_sentence()) %>% 
+  ggplot(aes(x = Var2, y = treatment, fill = cor, colour = sign)) +
+  geom_point(aes(size = abs(cor), alpha = sign), shape = 22, stroke = 1) +
+  scale_fill_gradientn(
+    colours = rev(RColorBrewer::brewer.pal(11, "PiYG")),
+    limits = c(-lim, lim)
+  ) +
+  scale_colour_manual(values = c("TRUE" = "black", "FALSE" = "white")) +
+  scale_alpha_manual(values = c("TRUE" = 0.9, "FALSE" = 0.6), guide = "none") +
+  scale_size_continuous(range = c(2, 8), guide = "none") +
+  theme_minimal() +
+  labs(
+    x = "", y = "", fill = "Spearman Correlation", colour = "q < 0.05"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "top",
+    legend.title.position = "top",
+    legend.title = element_text(hjust = 0.5),
+    legend.key.height = unit(0.5, "cm"),
+  )
+
+# Resize and save
+r_plt <-
+  plt + plot_spacer() +
+  plot_layout(
+    widths = ggplot2::unit(c(75, 1), "mm"),
+    heights = ggplot2::unit(40, "mm")
+  )
+
+tidyplots::save_plot(
+  r_plt,
+  here::here(out_dir, glue::glue("corr_treatment_centroid_dist.pdf")),
+  view_plot = FALSE
+)
+
+r_plt
+```
+
+### Plot Scatter Correlations
+
+```{r}
+#| message: FALSE
+#| warning: FALSE
+plt_df <- colData(tse2) %>% tibble::as_tibble()
+.metric <- "centroid_dist"
+plt_list <- 
+  all_markers %>% 
+  purrr::set_names() %>% 
+  purrr::map(function(.marker) {
+    # prepare data
+    marker_values <- plt_df[[.marker]] %>% .[is.finite(.)]
+    lab_min <- min(marker_values, na.rm = TRUE)
+    lab_max <- max(marker_values, na.rm = TRUE)
+    lab_range <- lab_max - lab_min
+    
+    .name <- stringr::str_replace(.metric, "_", " ") %>% stringr::str_to_title()
+    .y_lab <- dplyr::if_else(
+      .marker %in% cytokines, glue::glue("Log2  {.marker}"), .marker
+    )
+    
+    plt <- 
+      plt_df %>%
+      tidyr::drop_na(!!.metric, !!.marker) %>%
+      tidyplots::tidyplot(
+        x = !!dplyr::sym(.metric),
+        y = !!dplyr::sym(.marker),
+        colour = treatment
+      ) %>%
+      tidyplots::add_data_points(alpha = 0.5) %>%
+      tidyplots::add(geom_smooth(method = "lm", alpha = 0.1, formula = 'y ~ x')) %>%
+      tidyplots::add(ggpubr::stat_cor(
+        method = "spearman",
+        cor.coef.name = "rho",
+        label.y.npc = "bottom",
+        p.digits = 1,
+        label.y = c(lab_min - 0.05 * lab_range, lab_min - 0.15 * lab_range), 
+        size = 3
+      )) %>% 
+      tidyplots::adjust_legend_title("Treatment") %>%
+      tidyplots::adjust_y_axis_title(.y_lab) %>% 
+      tidyplots::adjust_x_axis_title(.name) %>% 
+      tidyplots::adjust_x_axis(rotate_labels = 30) %>% 
+      tidyplots::adjust_colors(tidyplots::colors_discrete_friendly) 
+    
+      # save
+      plt %>%
+        tidyplots::adjust_size(width = 50, height = 40, unit = "mm") %>%
+        tidyplots::save_plot(
+          here::here(out_dir, glue::glue("corr_{.metric}_{.marker}.pdf")),
+          view_plot = FALSE
+        )
+      
+      plt
+  })
+```
+
+::: {.panel-tabset}
+
+```{r}
+#| results: asis
+#| fig.width: 12
+#| fig.height: 7
+#| warning: FALSE
+names(plt_list) %>% 
+  purrr::walk(~ {
+    cat("#### ", .x, "\n")
+    plot(plt_list[[.x]])
+    cat("\n\n")
+  })
+```
+
+:::
+
+## Compute Premanova
+
+```{r}
+# compute
+permanova_tbl <- 
+  mia::getPERMANOVA(
+    tse, assay.type =  "relab", 
+    formula =  x ~ treatment + time_point + gender + age + aids_event + cmv_negative + risk_group + HIV_VL,
+    na.action = "na.omit"
+  ) %>% 
+  purrr::pluck("permanova") %>% 
+  broom::tidy() %>% 
+  dplyr::mutate(
+    term = stringr::str_replace_all(term, "_", " "), 
+    term = dplyr::if_else(term == "HIV VL", term, stringr::str_to_title(term))
+  ) %>% 
+  gt::gt() %>% 
+  gt::tab_spanner(label = "Permanova", columns = -term) %>% 
+  gt::cols_label_with(fn = stringr::str_to_title) %>% 
+  gt::fmt_number(decimals = 3, columns = -df)
+
+# save
+gt::gtsave(permanova_tbl, here::here(out_dir, "permanova_results.pdf"))
+
+# view
+permanova_tbl
+```
+
+## Abundance Barplot Composition
+
+### Def SampleID order based on NMDS1
+
+```{r}
+sample_order <- 
+  mia::convertToPhyloseq(tse, assay.type = "relab") %>% 
+  metar:::get_sample_ordination(method = "NMDS", order_var = "MDS1", dist = "bray")
+```
+
+### Alpha Diversity Plot
+
+```{r}
+p1 <- 
+  colData(tse) %>% 
+  tibble::as_tibble() %>%
+  dplyr::select(SampleID, gene_richness) %>% 
+  dplyr::mutate(SampleID = factor(SampleID, levels = sample_order)) %>%
+  tidyr::replace_na(list(gene_richness = 0)) %>%
+  ggplot(aes(SampleID, gene_richness)) +
+  geom_col(width = 1, fill = "#5E4FA2", colour = NA, alpha = 0.6) +
+  scale_y_continuous(labels = scales::scientific) +
+  theme_minimal() +
+  labs(x = "NMDS1 Ordered Smples", y = "Gene Richness") +
+  theme(line = element_blank(), axis.text.x = element_blank())
+```
+
+### Annotations Plots
+
+```{r}
+p2 <- 
+  c("treatment", "risk_group", "time_point", "centroid_dist") %>% 
+  purrr::imap(~ {
+    col <- switch(.x,
+      treatment = tidyplots::colors_discrete_friendly[c(1, 6)],
+      risk_group = tidyplots::colors_discrete_metro[c(1, 3, 2)],
+      time_point = c("#E41A1C", "#FF7F00", "#4DAF4A", "#377EB8"), 
+      centroid_dist = RColorBrewer::brewer.pal(9, "Greys")
+    )
+    
+    p <- 
+      colData(tse) %>%
+      tibble::as_tibble() %>% 
+      dplyr::select(SampleID, !!dplyr::sym(.x)) %>% 
+      dplyr::mutate(SampleID = factor(SampleID, levels = sample_order)) %>%
+      ggplot(aes(SampleID, "x", fill = !!dplyr::sym(.x))) +
+      geom_tile(na.rm = FALSE) +
+      theme_void() +
+      theme(legend.position = "bottom", legend.key.size = unit(0.25, "cm"))
+    
+    if (.x == "centroid_dist") {
+      p <- p + scale_fill_gradientn(colours = col)
+    } else {
+      p <- p + scale_fill_manual(values = col)
+    }
+    p
+  }) %>% wrap_plots(ncol = 1)
+```
+
+### Abundance Plot
+
+```{r}
+# setup
+assay(tse, "clr") <- NULL
+top_n <- 25
+cols <- c(
+  rcartocolor::carto_pal("Safe", n = 12),
+  rcartocolor::carto_pal("Vivid", n = 12), 
+  rcartocolor::carto_pal("Pastel", n = 12)
+) %>% .[1:(top_n + 1)]
+
+# get top taxa
+top_taxa <- 
+  mia::agglomerateByRank(tse, "Genus") %>%
+  mia::getTop(top_n, assay.type = "relab")
+
+# add new var to rowdata
+rowData(tse) <-
+  rowData(tse) %>% 
+  tibble::as_tibble(rownames = "otu_id") %>% 
+  dplyr::mutate(new_genus = dplyr::if_else(Genus %in% top_taxa, Genus, "Other")) %>% 
+  data.frame(row.names = 1)
+
+# agglomerate by new var
+tse_sub <- mia::agglomerateByVariable(tse, by = "rows", f = "new_genus")
+
+# prepare plot data
+plot_df <- 
+  assay(tse_sub, "relab") %>% 
+  tibble::as_tibble(rownames = "taxa") %>% 
+  tidyr::pivot_longer(cols = -taxa, names_to = "SampleID", values_to = "abundance") %>% 
+  dplyr::mutate(SampleID = factor(SampleID, levels = sample_order))
+  
+# plot
+p3 <- 
+  plot_df %>% 
+  ggplot(aes(SampleID, abundance, fill = forcats::fct_reorder(taxa, abundance))) +
+  geom_col(width = 1, colour = NA) +
+  scale_fill_manual(values = cols) +
+  theme_minimal() +
+  labs(x = "", y = glue::glue("Relative Abundance (Top {top_n})"), fill = "Genus") +
+  theme(line = element_blank(), axis.text.x = element_blank(), legend.key.size = unit(0.25, "cm")) 
+```
+
+### Compose Plot
+
+```{r}
+# compose
+combined_plot <- 
+  p2 + p3 + p1 +
+  plot_layout(
+    guides = "collect", 
+    widths = ggplot2::unit(120, "mm"), 
+    heights = ggplot2::unit(c(rep(0.5, 4), 10, 2)*5, units = "mm")
+  )
+
+# save
+grob_combined <- patchworkGrob(combined_plot)
+width_mm <- grid::convertWidth(sum(grob_combined$widths), unitTo = "mm", valueOnly = T) * 1.5
+height_mm <- grid::convertHeight(sum(grob_combined$heights), unitTo = "mm", valueOnly = T)
+ggsave(
+  combined_plot, 
+  filename =  here::here(out_dir, "barplot_genus.pdf"),
+  width = width_mm, height = height_mm, units = "mm"
+)
+
+# plot
+combined_plot
+```
+
+## Appendix
+
+### Session Info
+
+```{r}
+devtools::session_info()
+```
+
+### Contact
+
+- **Analysis Lead:** Francesc Català-Moll
+- **Email:** fcatala@irsicaixa.es
+- **Institution:** GEM - IrsiCaixa
+
+
+
