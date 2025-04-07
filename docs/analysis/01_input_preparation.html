@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Francesc Català-Moll">
-<meta name="dcterms.date" content="2025-04-01">
+<meta name="dcterms.date" content="2025-04-07">
 
 <title>01 Metadata Preparation</title>
 <style>
@@ -3130,14 +3130,14 @@ vertical-align: -.125em;
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">April 1, 2025</p>
+      <p class="date">April 7, 2025</p>
     </div>
   </div>
   
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">March 30, 2025</p>
+      <p class="date-modified">April 7, 2025</p>
     </div>
   </div>
     
@@ -4862,6 +4862,7 @@ vertical-align: -.125em;
 <li>Remove <code>&lt;</code> and <code>&gt;</code> from sCD14 and transform to numeric</li>
 <li>Rename levels of group variable and rename as tretament</li>
 <li>Create time_point_n (nueric) variable from time_point (factor)</li>
+<li>Risk Group renaming</li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Clean</span></span>
@@ -4875,8 +4876,13 @@ vertical-align: -.125em;
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">sCD14 =</span> <span class="fu">as.numeric</span>(stringr<span class="sc">::</span><span class="fu">str_remove</span>(sCD14, <span class="st">&quot;&lt;|&gt;&quot;</span>)), </span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">time_point_n =</span> time_point,</span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">time_point =</span> <span class="fu">factor</span>(time_point),</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">treatment =</span> dplyr<span class="sc">::</span><span class="fu">if_else</span>(group <span class="sc">==</span> <span class="st">&quot;bDRV&quot;</span>, <span class="st">&quot;DRV/r&quot;</span>, group)</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">treatment =</span> dplyr<span class="sc">::</span><span class="fu">if_else</span>(group <span class="sc">==</span> <span class="st">&quot;bDRV&quot;</span>, <span class="st">&quot;DRV/r&quot;</span>, group), </span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">risk_group =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>      risk_group <span class="sc">==</span> <span class="st">&quot;pwid&quot;</span> <span class="sc">~</span> <span class="st">&quot;hts&quot;</span>, </span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>      <span class="fu">is.na</span>(risk_group) <span class="sc">~</span> <span class="st">&quot;unknown&quot;</span>,</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> risk_group</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="save-cleaned-metadata" class="level3" data-number="3.3">
@@ -4980,7 +4986,7 @@ colTree: NULL</code></pre>
  collate  en_US.UTF-8
  ctype    en_US.UTF-8
  tz       Europe/Madrid
- date     2025-04-01
+ date     2025-04-07
  pandoc   3.2 @ /usr/lib/rstudio/resources/app/bin/quarto/bin/tools/x86_64/ (via rmarkdown)
  quarto   1.5.57 @ /usr/lib/rstudio/resources/app/bin/quarto/bin/quarto
 

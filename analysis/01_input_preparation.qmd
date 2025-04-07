@@ -45,6 +45,7 @@ skimr::skim(meta_df)
 - Remove `<` and `>` from sCD14 and transform to numeric
 - Rename levels of group variable and rename as tretament
 - Create time_point_n (nueric) variable from time_point (factor)
+- Risk Group renaming
 
 ```{r}
 # Clean
@@ -58,7 +59,12 @@ meta_df <-
     sCD14 = as.numeric(stringr::str_remove(sCD14, "<|>")), 
     time_point_n = time_point,
     time_point = factor(time_point),
-    treatment = dplyr::if_else(group == "bDRV", "DRV/r", group)
+    treatment = dplyr::if_else(group == "bDRV", "DRV/r", group), 
+    risk_group = dplyr::case_when(
+      risk_group == "pwid" ~ "hts", 
+      is.na(risk_group) ~ "unknown",
+      TRUE ~ risk_group
+    )
   )
 ```
 
