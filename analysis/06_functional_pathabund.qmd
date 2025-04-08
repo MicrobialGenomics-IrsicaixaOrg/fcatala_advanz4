@@ -1,0 +1,330 @@
+---
+title: "06 - Functional Analysis (Path Abundance)"
+---
+
+## Define the input and output paths
+
+```{r}
+# input
+tse_file <- here::here("data", "processed", "tse_alpha.rds")
+meta_file <- here::here("data", "processed", "metadata_cleaned.csv")
+abund_file <- here::here("data", "raw", "All_pathabun.tsv")
+
+# output
+out_dir <- here::here("data", "06_functional_analysis")
+dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+```
+
+## Set-up
+
+```{r}
+# load libraries
+library(magrittr)
+library(patchwork)
+library(tidyplots)
+suppressPackageStartupMessages(library(tidySingleCellExperiment))
+```
+
+## Construct TSE Object
+
+```{r}
+# load data
+tse <- readr::read_rds(tse_file)
+
+# filter and formatig path abun
+path_ab <- 
+  readr::read_tsv(abund_file, show_col_types = FALSE) %>% 
+  dplyr::filter(!stringr::str_detect(`# Pathway`, "[|]")) %>% 
+  dplyr::rename_with(~ stringr::str_remove_all(.x, "_Abundance")) %>%
+  dplyr::select(1, dplyr::all_of(tse$SampleID)) %>% 
+  data.frame(row.names = 1) %>% 
+  as.matrix()
+
+# prepare rowdata
+row_dat <- 
+  readr::read_tsv(abund_file, show_col_types = FALSE) %>% 
+  dplyr::filter(!stringr::str_detect(`# Pathway`, "[|]")) %>% 
+  dplyr::select(pathway_ = `# Pathway`) %>%
+  dplyr::mutate(Species = pathway_) %>% 
+  data.frame() %>% 
+  as.matrix()
+
+# make tse
+tse <- TreeSummarizedExperiment::TreeSummarizedExperiment(
+  assays = list(counts = path_ab), 
+  colData = colData(tse), 
+  rowData = row_dat
+)
+```
+
+## Differential Abundance Analysis (ANCOMBC2)
+
+### DA Computation
+
+```{r}
+ancombc_results <- ANCOMBC::ancombc2(
+  tse,
+  fix_formula = "treatment * time_point + gender + age + aids_event + risk_group + HIV_VL",
+  tax_level = "Species",
+  p_adj_method = "fdr",
+  group = "treatment",
+  prv_cut = 0.1,
+  n_cl = 8
+)
+```
+
+### Preprocess Results
+
+```{r}
+pre_df <- ancombc_results %>% purrr::pluck("res") %>% tibble::as_tibble()
+
+# lfc_df
+lfc_df <- 
+  pre_df %>% 
+  dplyr::select(taxon, dplyr::starts_with("lfc_treatmentDTG")) %>% 
+  dplyr::rename_with(.cols = dplyr::starts_with("lfc"), .fn = ~ {
+    stringr::str_remove_all(.x, ".*point") %>% 
+      stringr::str_replace_all("lfc_treatmentDTG", "0")
+  }) %>% 
+  dplyr::mutate(`24` = `24` + `0`, `48` = `48` + `0`, `96` = `96` + `0`) %>% 
+  tidyr::pivot_longer(cols = -taxon, names_to = "time_point", values_to = "lfc") 
+
+# pval_df
+pval_df <- 
+  pre_df %>% 
+  dplyr::select(taxon, dplyr::starts_with("p_treatmentDTG")) %>% 
+  dplyr::rename_with(.cols = dplyr::starts_with("p_"), .fn = ~ {
+    stringr::str_remove_all(.x, ".*point") %>% 
+      stringr::str_replace_all("p_treatmentDTG", "0")
+  }) %>% 
+  tidyr::pivot_longer(cols = -taxon, names_to = "time_point", values_to = "pval")
+
+# qval_df
+qval_df <- 
+  pre_df %>% 
+  dplyr::select(taxon, dplyr::starts_with("q_treatmentDTG")) %>% 
+  dplyr::rename_with(.cols = dplyr::starts_with("q_"), .fn = ~ {
+    stringr::str_remove_all(.x, ".*point") %>% 
+      stringr::str_replace_all("q_treatmentDTG", "0")
+  }) %>% 
+  tidyr::pivot_longer(cols = -taxon, names_to = "time_point", values_to = "qval")
+
+# passed DTG
+passed_df <- 
+  pre_df %>% 
+  dplyr::select(taxon, dplyr::starts_with("passed_ss_treatmentDTG")) %>% 
+  dplyr::rename_with(.cols = dplyr::starts_with("p"), .fn = ~ {
+    stringr::str_remove_all(.x, ".*point") %>% 
+      stringr::str_replace_all("passed_ss_treatmentDTG", "0")
+  }) %>% 
+  tidyr::pivot_longer(cols = -taxon, names_to = "time_point", values_to = "passed")
+
+# prepare annot
+annot_df <- 
+  rowData(tse) %>%
+  tibble::as_tibble(rownames = "taxon") %>% 
+  dplyr::select(taxon, Species)
+
+# combine
+res_df <- 
+  lfc_df %>% 
+  dplyr::left_join(pval_df, by = c("taxon", "time_point")) %>% 
+  dplyr::left_join(qval_df, by = c("taxon", "time_point")) %>% 
+  dplyr::left_join(passed_df, by = c("taxon", "time_point")) %>% 
+  dplyr::left_join(annot_df, by = "taxon")
+
+# add prevalence
+res_df <- 
+  assay(tse) %>% 
+  tibble::as_tibble(rownames = "taxon") %>%
+  tidyr::pivot_longer(cols = -taxon, names_to = "SampleID", values_to = "ab") %>%
+  dplyr::group_by(taxon) %>% 
+  dplyr::summarise(prevalence = round(sum(ab > 0) / dplyr::n(), 2)) %>% 
+  dplyr::left_join(res_df, ., by = "taxon")
+```
+
+### Volcano Plot
+
+```{r}
+# prepare data
+plot_df <- 
+  res_df %>% 
+  dplyr::mutate(
+    candidate = abs(lfc) >= 0.5 & qval < 0.05 & passed & prevalence > 0.1 & time_point != "0",
+    time_point = factor(time_point), 
+    neg_log10_qval = -log10(qval)
+  )
+
+# prepare plot
+volc_plt <- 
+  plot_df %>% 
+  tidyr::drop_na(lfc, neg_log10_qval) %>%
+  tidyplot(lfc, neg_log10_qval, color = time_point, size = neg_log10_qval) %>% 
+  add(geom_point(
+    data = filter_rows(!candidate), 
+    color = "lightgrey", 
+    aes(size = neg_log10_qval)
+  )) %>%
+  add(geom_point(data = filter_rows(candidate), aes(size = neg_log10_qval))) %>%
+  add(scale_size_continuous(range = c(0.5, 3))) %>%
+  add_reference_lines(x = c(-0.5, 0.5), y = -log10(0.05)) %>% 
+  adjust_x_axis_title("$Log[2]~fold~change$") %>% 
+  adjust_y_axis_title("$-Log[10]~italic(P)~adjusted$") %>% 
+  adjust_legend_title("Time Point") %>% 
+  adjust_size(width = 50, height = 50)
+
+# save plot
+save_plot(volc_plt, here::here(out_dir, "volcano_plot.pdf"), view_plot = FALSE)
+
+volc_plt
+```
+
+### Bar Plot of Top Candidates
+
+```{r}
+# prepare plot
+bar_plt <- 
+  plot_df %>% 
+  dplyr::filter(candidate) %>% 
+  dplyr::group_by(Species) %>% 
+  dplyr::filter(abs(lfc) == max(abs(lfc))) %>% 
+  dplyr::ungroup() %>%
+  dplyr::mutate(
+    abs_lfc = abs(lfc), 
+    sign = dplyr::if_else(lfc > 0, "Up DTG", "Down DTG"), 
+    Species = forcats::fct_reorder(Species, lfc)
+  ) %>% 
+  tidyplot(abs_lfc, Species, color = sign) %>%
+  add_reference_lines(x = c(0.5)) %>% 
+  add(geom_col(width = 0.75, alpha = 0.6)) %>% 
+  add(geom_text(aes(label = prevalence), hjust = 1.2, size = 3, colour = "black")) %>%
+  adjust_y_axis_title(NULL) %>% 
+  adjust_x_axis_title("Absolute Log2 Fold Change") %>%
+  adjust_colors(c("#FFE577", "#7CC9E5")) %>%
+  adjust_size(width = 75, height = 75)
+
+# save plot
+save_plot(bar_plt, here::here(out_dir, "barplot_plot.pdf"), view_plot = FALSE)
+
+bar_plt
+```
+
+### Export Results as Tables
+
+```{r}
+# save results
+readr::write_csv(plot_df, here::here(out_dir, "diff_abundance_results.csv"))
+readr::write_rds(ancombc_results, here::here(out_dir,"ancombc_results.rds"))
+
+# print results
+plot_df %>% dplyr::filter(candidate) %>% kableExtra::kable()
+```
+
+## Correlations Sign Taxa vs Markers
+
+### Define Cytokines and Markers
+
+```{r}
+populations <- c("CD4", "CD8", "CD4_nadir", "CD4_CD38_DR", "CD8_CD38_DR")
+cytokines <- c("CRP", "IL6", "TNFa", "sCD14")
+
+all_markers <- c(populations, cytokines)
+```
+
+### Cytokines Log2 Transformation
+
+```{r}
+tse2 <- 
+  tse %>% 
+  dplyr::mutate(dplyr::across(dplyr::all_of(cytokines), ~ log2(.x + 1))) %>% 
+  mia::transformAssay(method = "clr", pseudocount = 1)
+```
+
+### Compute Correlations
+
+```{r}
+#| warning: FALSE
+corr_df <-
+  mia::getCrossAssociation(
+    tse2,
+    tse2,
+    assay.type1 = "clr",
+    col.var2 = all_markers,
+    method = "spearman",
+    p_adj_method = "fdr",
+    test.signif = TRUE,
+    verbose = FALSE,
+    show_warnings = FALSE
+  ) %>% 
+  tibble::as_tibble()
+```
+
+### Plot Correlations 
+
+```{r}
+#| message: FALSE
+#| warning: FALSE
+
+# prepare data
+sig_taxa <- plot_df %>% dplyr::filter(candidate) %>% dplyr::pull(taxon)
+plt_df <- 
+  corr_df %>% 
+  dplyr::filter(Var1 %in% sig_taxa) %>% 
+  dplyr::mutate(sign = p_adj < 0.05 & abs(cor) >= 0.1) 
+
+# plot
+lim <- abs(plt_df$cor) %>% max() %>% round(digits = 1)
+lim <- 0.3
+plt <-
+  plt_df %>%
+  ggplot(aes(x = Var1, y = Var2, fill = cor, colour = sign)) +
+  geom_point(aes(size = abs(cor), alpha = sign), shape = 22, stroke = 1) +
+  scale_fill_gradientn(
+    colours = rev(RColorBrewer::brewer.pal(11, "PiYG")),
+    limits = c(-lim, lim)
+  ) +
+  scale_colour_manual(values = c("TRUE" = "black", "FALSE" = "white")) +
+  scale_alpha_manual(values = c("TRUE" = 0.9, "FALSE" = 0.6), guide = "none") +
+  scale_size_continuous(range = c(2, 8), guide = "none") +
+  theme_minimal() +
+  labs(
+    x = "", y = "", fill = "Spearman Correlation", colour = "q < 0.05"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "top",
+    legend.title.position = "top",
+    legend.title = element_text(hjust = 0.5),
+    legend.key.height = unit(0.5, "cm")
+  )
+
+# Resize and save
+r_plt <-
+  plt + plot_spacer() +
+  plot_layout(
+    widths = ggplot2::unit(c(120, 1), "mm"),
+    heights = ggplot2::unit(60, "mm")
+  )
+
+tidyplots::save_plot(
+  r_plt,
+  here::here(out_dir, glue::glue("corr_diff_functions.pdf")),
+  view_plot = FALSE
+)
+
+r_plt
+```
+
+## Appendix
+
+### Session Info
+
+```{r}
+devtools::session_info()
+```
+
+### Contact
+
+- **Analysis Lead:** Francesc Català-Moll
+- **Email:** fcatala@irsicaixa.es
+- **Institution:** GEM - IrsiCaixa
