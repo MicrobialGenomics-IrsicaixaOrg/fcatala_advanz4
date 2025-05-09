@@ -1,0 +1,157 @@
+---
+title: "08 - Networks Analysis"
+editor_options: 
+  chunk_output_type: console
+---
+
+## Set-up
+
+### Define the input and output paths
+
+```{r}
+# input
+tse_file <- here::here("data", "processed", "tse_alpha.rds")
+
+# output
+out_dir <- here::here("data", "08_networks")
+dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+```
+
+### Load Libraries
+
+```{r}
+# load libraries
+library(magrittr)
+library(patchwork)
+library(tidyplots)
+library(NetCoMi)
+suppressPackageStartupMessages(library(tidySingleCellExperiment))
+```
+
+## Network Analysis
+
+### Prepare tse
+
+```{r}
+tse <- readr::read_rds(tse_file)
+tse_list <- 
+  levels(tse$time_point) %>% 
+  purrr::set_names() %>% 
+  purrr::map(~ {
+    tse %>%
+      dplyr::filter(time_point == .x) %>%
+      mia::agglomerateByRank(rank = "Genus") %>%
+      mia::transformAssay(method = "relab") %>%
+      mia::subsetByPrevalent(prevalence = 0.15, assay.type = "relab") %>%
+      mia::transformAssay(method = "clr", pseudocount = 1) %>%
+      mia::transformAssay(method = "log10", pseudocount = 1) %>%
+      mia::splitOn(group = "treatment", use.names = TRUE)
+  })
+
+tse_list
+```
+
+### Network Learning
+
+```{r}
+future::plan("multisession", workers = 8)
+on.exit(future::plan("sequential"))
+spring_net_list <- 
+  tse_list %>% 
+  furrr::future_map(~ {
+    NetCoMi::netConstruct(
+      data = .x$DTG,
+      data2 = .x$`DRV/r`,
+      taxRank = "Genus",
+      filtTax = "highestFreq",
+      filtTaxPar = list(highestFreq  = 200),
+      measure = "spring",
+      measurePar = list(
+        nlambda = 20,
+        rep.num = 10,
+        thresh = 0.05,
+        Rmethod = "approx"
+      ),
+      sparsMethod = "none", # included inside spring method
+      dissFunc = "signed",
+      verbose = 2,
+      seed = 13075
+    )
+  })
+
+future::plan("sequential")
+```
+
+### Network Analize
+
+```{r}
+# compute
+spring_netprops_list <- 
+  names(spring_net_list) %>% 
+  purrr::set_names() %>% 
+  purrr::map(~ {
+    file_path <- here::here(out_dir, glue::glue("network_analysis_{.x}.pdf"))
+    pdf(file_path, width = 10, height = 10)
+    res <- NetCoMi::netAnalyze(
+      spring_net_list[[.x]],
+      clustMethod = "cluster_louvain",
+      hubPar = "eigenvector",
+      normDeg = FALSE
+    )
+    dev.off()
+    res
+  })
+
+# summary
+spring_netprops_list %>% purrr::map(summary, groupNames = c("DTG", "DRV/r"))
+```
+
+## Visual Comparison
+
+```{r}
+genus <- rowData(tse)$Phylum %>% as.factor()
+names(genus) <- rowData(tse)$Genus
+colvec <- c(RColorBrewer::brewer.pal(12, "Set3"), RColorBrewer::brewer.pal(9, "Set1"))
+
+# Compute plots
+names(spring_netprops_list) %>% 
+  purrr::walk(~ {
+    file_path <- here::here(out_dir, glue::glue("net_{.x}.pdf"))
+    pdf(file_path, width = 20, height = 10)
+    plot(
+      spring_netprops_list[[.x]],
+      sameLayout = TRUE,
+      repulsion = 0.95,
+      rmSingles = "inboth",
+      nodeSize = "clr",
+      labelScale = FALSE,
+      nodeColor = "feature",
+      featVecCol = genus,
+      colorVec =  colvec,
+      nodeTransp = 20,
+      sameColThresh = 2,
+      highlightHubs = FALSE,
+      cexNodes = 4,
+      edgeTranspHigh = 20,
+      title1 = "DTG",
+      title2 = "DRV/r",
+      showTitle = TRUE,
+      cexTitle = 2
+    )
+    
+    legend(
+      -0.15,
+      1,
+      legend = levels(genus),
+      col = colToTransp(colvec, 20),
+      bty = "n",
+      pch = 16
+    )
+    dev.off()
+  })
+```
+
+
+
+
+

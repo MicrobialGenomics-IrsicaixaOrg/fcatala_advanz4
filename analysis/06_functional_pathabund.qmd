@@ -62,15 +62,19 @@ tse <- TreeSummarizedExperiment::TreeSummarizedExperiment(
 ### DA Computation
 
 ```{r}
-ancombc_results <- ANCOMBC::ancombc2(
-  tse,
-  fix_formula = "treatment * time_point + gender + age + aids_event + risk_group + HIV_VL",
-  tax_level = "Species",
-  p_adj_method = "fdr",
-  group = "treatment",
-  prv_cut = 0.1,
-  n_cl = 8
-)
+if (file.exists(here::here(out_dir, "ancombc_results.rds"))) {
+  ancombc_results <- readr::read_rds(here::here(out_dir, "ancombc_results.rds"))
+} else {
+  ancombc_results <- ANCOMBC::ancombc2(
+    tse,
+    fix_formula = "treatment * time_point + gender + age + aids_event + risk_group + HIV_VL",
+    tax_level = "Species",
+    p_adj_method = "fdr",
+    group = "treatment",
+    prv_cut = 0.1,
+    n_cl = 8
+  )
+}
 ```
 
 ### Preprocess Results
@@ -187,11 +191,12 @@ bar_plt <-
   plot_df %>% 
   dplyr::filter(candidate) %>% 
   dplyr::group_by(Species) %>% 
-  dplyr::filter(abs(lfc) == max(abs(lfc))) %>% 
+  # dplyr::filter(abs(lfc) == max(abs(lfc))) %>% 
   dplyr::ungroup() %>%
   dplyr::mutate(
     abs_lfc = abs(lfc), 
     sign = dplyr::if_else(lfc > 0, "Up DTG", "Down DTG"), 
+    Species = stringr::str_c(Species, "_", time_point, "w"), 
     Species = forcats::fct_reorder(Species, lfc)
   ) %>% 
   tidyplot(abs_lfc, Species, color = sign) %>%
@@ -208,6 +213,87 @@ save_plot(bar_plt, here::here(out_dir, "barplot_plot.pdf"), view_plot = FALSE)
 
 bar_plt
 ```
+
+### Lolliplot Of Top Candidates
+
+```{r}
+lolli_plt <- 
+  plot_df %>% 
+  dplyr::filter(candidate) %>% 
+  dplyr::group_by(Species) %>% 
+  # dplyr::filter(abs(lfc) == max(abs(lfc))) %>% 
+  dplyr::ungroup() %>%
+  dplyr::mutate(
+    abs_lfc = abs(lfc), 
+    sign = dplyr::if_else(lfc > 0, "Up DTG", "Down DTG"), 
+    Species = stringr::str_c(Species, "_", time_point, "w"), 
+    Species = forcats::fct_reorder(Species, lfc)
+  ) %>% 
+  tidyplot(abs_lfc, Species, color = sign, size = prevalence) %>% 
+  add(geom_point(alpha = 1)) %>% 
+  add_reference_lines(x = c(0.5)) %>% 
+  add_mean_bar(width = 0.2, alpha = 0.7) %>% 
+  adjust_size(width = 75, height = 75) %>% 
+  adjust_x_axis_title("Absolute Log2 Fold Change") %>%
+  adjust_colors(c("Down DTG" = "#FFE577", "Up DTG" = "#7CC9E5")) %>%
+  add(scale_size_continuous(range = c(4, 8), breaks = c(0.2, 0.4, 0.6, 0.8))) %>%
+  adjust_y_axis_title(NULL)  %>%
+  add(geom_text(aes(label = prevalence), hjust = -1, size = 3)) %>%
+  add(scale_x_continuous(limits = c(0, 2.4))) %>%
+  adjust_size(width = 75, height = 75)
+
+# save plot
+save_plot(lolli_plt, here::here(out_dir, "lolli_plot.pdf"), view_plot = FALSE)
+
+lolli_plt
+```
+
+```{r}
+plot_df_2 <-
+  plot_df %>%
+  dplyr::group_by(Species) %>%
+  dplyr::filter(any(candidate)) %>%
+  dplyr::ungroup() %>%
+  dplyr::mutate(time_point = as.character(time_point) %>% as.numeric()) 
+
+evolution_plt <- 
+  plot_df_2 %>% 
+  ggplot(aes(time_point, lfc, colour = Species, group = Species)) +
+  geom_line(size = 1, alpha = 0.8) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") + 
+  theme_minimal() +
+  theme(legend.position = "none") +
+  geom_point(data = plot_df_2 %>% dplyr::filter(candidate), shape = 8, size = 2) +
+  ggrepel::geom_text_repel(
+    data = dplyr::filter(plot_df_2, time_point == 96),
+    aes(label = Species),
+    fontface = "bold", size = 3, direction = "y", xlim = c(100, NA), hjust = 0.5,
+    segment.size = .7, segment.alpha = .5, segment.linetype = "dotted", box.padding = .2,
+    segment.curvature = -0.2, segment.ncp = 3, segment.angle = 20
+  ) +
+  coord_cartesian(clip = "off", ylim = c(-1, 2)) +
+  scale_colour_manual(values = 
+    c("#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02", "#A6761D", 
+      "#666666", "#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#000000", 
+      "#A65628", "#F781BF", "#999999"
+    )
+  ) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 180),breaks = c(0, 24, 48, 96)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(-3, 3, by = 1)) +
+  labs(x = "Time Point (weeks)", y = "Log2 Fold Change")
+  
+# save plot
+ggsave(
+  plot = evolution_plt,
+  filename = here::here(out_dir, "evolution_plot.pdf"), 
+  width = 275,
+  height = 100,
+  units = "mm"
+)
+
+evolution_plt
+```
+
 
 ### Export Results as Tables
 
