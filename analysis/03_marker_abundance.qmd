@@ -44,6 +44,8 @@ all_markers <-
     marker %in% c("IL6", "TNFa") ~ "pg/mL", 
     marker == "CRP" ~ "mg/mL", 
     marker == "sCD14" ~ "ng/mL", 
+    marker == "HIV_VL" ~ "copies/mL",
+    marker == "BMI" ~ "kg/m2",
     TRUE ~ NA_character_
   ))
 ```
