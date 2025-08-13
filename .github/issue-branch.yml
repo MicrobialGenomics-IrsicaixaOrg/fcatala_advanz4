@@ -1,0 +1,6 @@
+branchName: short
+autoLinkIssue: true
+autoCloseIssue: true
+autoDeleteBranch: true
+openDraftPR: true
+conventionalPrTitles: true
