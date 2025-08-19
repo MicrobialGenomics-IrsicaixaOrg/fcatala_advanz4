@@ -45,6 +45,8 @@ tse <- mia::runNMDS(
   nmds.fun = "monoMDS",
   keep.dist = TRUE
 )
+
+attr(reducedDim(tse),"Stress")
 ```
 
 ### Scatter Plot (NMDS1 vs NMDS2)
