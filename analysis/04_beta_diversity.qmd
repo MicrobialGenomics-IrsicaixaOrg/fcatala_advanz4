@@ -423,12 +423,23 @@ names(plt_list) %>%
 ## Compute Premanova
 
 ```{r}
+# formula
+form_cov <- ~ treatment * time_point + gender + age + aids_event + cmv_negative + risk_group + log1p(HIV_VL)
+
+# handling NA
+cd <- as.data.frame(colData(tse))
+mf <- model.frame(form_cov, data = cd, na.action = na.omit)
+tse_sub <- tse[, rownames(mf)]  
+
 # compute
 permanova_tbl <- 
   mia::getPERMANOVA(
-    tse, assay.type =  "relab", 
-    formula =  x ~ treatment + time_point + gender + age + aids_event + cmv_negative + risk_group + HIV_VL,
-    na.action = "na.omit"
+    tse_sub, 
+    assay.type =  "relab", 
+    formula =  x ~ treatment * time_point + gender + age + aids_event + cmv_negative + risk_group + HIV_VL,
+    na.action = "na.omit",
+    by = "terms", 
+    strata = colData(tse_sub)$record_id 
   ) %>% 
   purrr::pluck("permanova") %>% 
   broom::tidy() %>% 
@@ -436,6 +447,7 @@ permanova_tbl <-
     term = stringr::str_replace_all(term, "_", " "), 
     term = dplyr::if_else(term == "HIV VL", term, stringr::str_to_title(term))
   ) %>% 
+  dplyr::arrange(p.value, -R2) %>% 
   gt::gt() %>% 
   gt::tab_spanner(label = "Permanova", columns = -term) %>% 
   gt::cols_label_with(fn = stringr::str_to_title) %>% 
