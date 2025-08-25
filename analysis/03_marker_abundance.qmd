@@ -11,6 +11,22 @@ tse_file <- here::here("data", "processed", "tse_alpha.rds")
 # output
 out_dir <- here::here("data", "03_marker_abundance")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+
+# confounders 
+confounders <- c(
+  "treatment",
+  "time_point",
+  "gender",
+  "risk_group",
+  "record_id",
+  "age"
+)
+
+# formula
+mod_formula <- glue::glue(
+  "log_ratio ~ treatment * time_point + gender + scale(age) + risk_group + ", 
+  "(1|record_id)"
+)
 ```
 
 ## Set-up
@@ -50,7 +66,7 @@ all_markers <-
   ))
 ```
 
-## Prepare Plots
+## Plot Global Evolution
 
 ```{r}
 #| message: false
@@ -107,6 +123,183 @@ plt_list <-
       )
     
     plt
+  })
+```
+
+::: {.panel-tabset}
+
+```{r}
+#| results: asis
+#| fig.width: 12
+#| fig.height: 7
+#| warning: FALSE
+names(plt_list) %>% 
+  purrr::walk(~ {
+    cat("#### ", .x, "\n")
+    plot(plt_list[[.x]])
+    cat("\n\n")
+  })
+```
+
+:::
+
+## Plot LMM Ratios
+
+```{r}
+#| message: false
+plt_list <- 
+  all_markers$marker[-3] %>% 
+  purrr::set_names() %>% 
+  purrr::map(~ {
+    
+    # prepare data
+    .unit <- all_markers[all_markers$marker == .x, "unit"]
+    plt_df <- 
+      colData(tse) %>% 
+      tibble::as_tibble() %>%
+      dplyr::select(dplyr::all_of(c(confounders, .x))) %>% 
+      dplyr::arrange(record_id, time_point) %>% 
+      dplyr::group_by(record_id) %>% 
+      tidyr::drop_na() %>%
+      dplyr::mutate(
+        dplyr::across(dplyr::where(is.character), as.factor),
+        treatment = factor(treatment, levels = c("DRV/r", "DTG")),
+        tp = as.character(time_point) %>% as.numeric(),
+        ratio = (.data[[.x]] + 0.00001 ) / (.data[[.x]][tp == min(tp)][1] + 0.00001),
+        log_ratio = log2(ratio)
+      ) %>% 
+      dplyr::ungroup()
+     
+    # lmm 
+    lmm_res <- 
+      stats::as.formula(mod_formula) %>% 
+      lmerTest::lmer(data = plt_df) 
+    
+    # emmeans longitudinal
+    emm <- lmm_res %>% emmeans::emmeans(~ time_point | treatment)
+    lon_emm_df <- emm %>% broom.mixed::tidy(conf.int = TRUE)
+    lon_contrast_df <- 
+      emm %>% 
+      emmeans::contrast(method = "revpairwise", adjust = "fdr") %>% 
+      broom.mixed::tidy(conf.int = TRUE)
+    
+    if (!"adj.p.value" %in% names(lon_contrast_df)) {
+      lon_contrast_df <- 
+        lon_contrast_df %>% 
+        dplyr::mutate(`adj.p.value` = p.adjust(p.value, method = "fdr"))
+    }
+    
+    # emmeand by group
+    emm <- lmm_res %>% emmeans::emmeans(~ treatment | time_point)
+    group_emm_df <- emm %>% broom.mixed::tidy(conf.int = TRUE)
+    group_contrast_df <- 
+      emm %>% 
+      emmeans::contrast(method = "revpairwise", adjust = "tukey") %>% 
+      broom.mixed::tidy(conf.int = TRUE) %>% 
+      dplyr::mutate(p.adj.global = p.adjust(p.value, method = "fdr"))
+      
+    # forest plot longitudinal
+    forest_plt_longitudinal <- 
+      lon_contrast_df %>%
+      rstatix::add_significance(p.col = "adj.p.value") %>%
+      dplyr::mutate(
+        contrast_clean = stringr::str_remove_all(contrast, "time_point"),
+        t1 = as.numeric(stringr::str_extract(contrast_clean, "^[0-9]+")),
+        t2 = as.numeric(stringr::str_extract(contrast_clean, "(?<=- )[0-9]+")),
+        treatment = factor(treatment, levels = c("DRV/r", "DTG"))
+      ) %>%
+      dplyr::arrange(t2, t1) %>%
+      dplyr::mutate(contrast = factor(contrast_clean, levels = unique(contrast_clean))) %>% 
+      tidyplots::tidyplot(x = estimate, y = contrast, colour = treatment) %>%
+      tidyplots::add(geom_pointrange(
+        aes(xmin = conf.low, xmax = conf.high),
+        alpha = 0.8, 
+        position = position_dodge(width = 0.6),
+        size = 2/ggplot2::.pt
+      )) %>% 
+      tidyplots::add_reference_lines(x = 0) %>% 
+      tidyplots::add(geom_text(
+        aes(
+          x = conf.high * 1.2,
+          label = dplyr::if_else(adj.p.value.signif != "ns", adj.p.value.signif, "")
+        ),
+        position = position_dodge(width = 0.6),
+        size = 7,
+        hjust = 0, 
+        colour = "black"
+      )) %>% 
+      tidyplots::add(expand_limits(x = max(lon_contrast_df$conf.high, na.rm = TRUE) * 1.25)) %>% 
+      tidyplots::adjust_x_axis_title("Δ log2(ratio) (later − earlier time point)") %>%
+      tidyplots::adjust_y_axis_title("Comparison of time points") %>%
+      tidyplots::adjust_legend_title("Treatment") %>% 
+      tidyplots::remove_legend()
+    
+    # forest plot by group
+    forest_plt_group <- 
+      group_contrast_df %>%
+      rstatix::add_significance(p.col = "p.adj.global") %>%
+      tidyplots::tidyplot(x = estimate, y = time_point) %>%
+      tidyplots::add(geom_pointrange(
+        aes(xmin = conf.low, xmax = conf.high),
+        alpha = 0.8, 
+        position = position_dodge(width = 0.6),
+        size = 2/ggplot2::.pt
+      )) %>% 
+      tidyplots::add_reference_lines(x = 0) %>% 
+      tidyplots::add(geom_text(
+        aes(
+          x = conf.high * 1.2,
+          label = dplyr::if_else(p.adj.global.signif != "ns", p.adj.global.signif, "")
+        ),
+        position = position_dodge(width = 0.6),
+        size = 7,
+        hjust = 0, 
+        colour = "black"
+      )) %>% 
+      tidyplots::add(expand_limits(x = max(group_contrast_df$conf.high, na.rm = TRUE) * 1.25)) %>% 
+      tidyplots::adjust_x_axis_title("Δ log2 ratio (DTG - DRV/r)") %>%
+      tidyplots::adjust_y_axis_title("Time point (weeks)") 
+    
+    # Trajectory plot
+    traj_plt <- 
+      lon_emm_df %>%
+      dplyr::mutate(
+        time_point = as.numeric(as.character(time_point)),
+        treatment = factor(treatment, levels = c("DRV/r", "DTG"))
+      ) %>%
+      tidyplots::tidyplot(x = time_point, y = estimate, colour = treatment, group = treatment) %>%
+      tidyplots::add(geom_pointrange(
+        aes(y = estimate, ymin = conf.low, ymax = conf.high),
+        alpha = 0.8, 
+        position = position_dodge(width = 50/ggplot2::.pt),
+        size = 2 / ggplot2::.pt
+      )) %>% 
+      tidyplots::add_line() %>% 
+      tidyplots::add_reference_lines(y = 0) %>% 
+      tidyplots::adjust_x_axis_title("Time Point (weeks)") %>%
+      tidyplots::adjust_y_axis_title("Estimated Change in Log2 Ratio") %>%
+      tidyplots::adjust_legend_title("Treatment") 
+    
+    # plt list
+    plt_list <- list(
+      traj_plt = traj_plt,
+      forest_plt_longitudinal = forest_plt_longitudinal,
+      forest_plt_group = forest_plt_group
+    )
+      
+    # save
+    showtext::showtext_auto()
+    names(plt_list) %>% 
+      purrr::walk(function(.plt) {
+        plt_list[[.plt]] %>%
+          tidyplots::adjust_size(width = 40, height = 40, unit = "mm") %>%
+          tidyplots::save_plot(
+            here::here(out_dir, glue::glue("lmm_{.plt}_{.x}.pdf")),
+            view_plot = FALSE
+          )
+      })
+    
+    f_plt <- wrap_plots(plt_list) + plot_layout(guides = "collect")
   })
 ```
 

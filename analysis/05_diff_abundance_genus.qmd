@@ -45,7 +45,7 @@ tse
 ```{r}
 ancombc_results <- ANCOMBC::ancombc2(
   tse,
-  fix_formula = "treatment * time_point + gender + age + aids_event + risk_group + HIV_VL",
+  fix_formula = "treatment * time_point + gender + age + risk_group + HIV_VL",
   tax_level = "Genus",
   p_adj_method = "fdr",
   group = "treatment",
@@ -131,7 +131,7 @@ res_df <-
 plot_df <- 
   res_df %>% 
   dplyr::mutate(
-    candidate = abs(lfc) >= 0.5 & qval < 0.05 & passed & prevalence > 0.2 & time_point != "0",
+    candidate = abs(lfc) >= 0.5 & qval < 0.01 & passed & prevalence > 0.2,
     time_point = factor(time_point), 
     neg_log10_qval = -log10(qval)
   )
@@ -159,6 +159,56 @@ save_plot(volc_plt, here::here(out_dir, "volcano_plot.pdf"), view_plot = FALSE)
 
 volc_plt
 ```
+
+### Volcano by Time-Point
+
+```{r}
+levels(plot_df$time_point) %>%
+  purrr::set_names() %>%
+  purrr::map2(seq_along(.), ~ {
+    print(.y)
+    # prepare plot
+    volc_plt <-
+      plot_df %>%
+      dplyr::filter(time_point == .x) %>% 
+      tidyr::drop_na(lfc, neg_log10_qval) %>%
+      tidyplot(lfc, neg_log10_qval, color = time_point, size = neg_log10_qval) %>%
+      add(geom_point(
+        data = filter_rows(!candidate),
+        color = "lightgrey",
+        aes(size = neg_log10_qval)
+      )) %>%
+      add(geom_point(data = filter_rows(candidate), aes(size = neg_log10_qval))) %>%
+      add(scale_size_continuous(range = c(0.5, 3))) %>%
+      add_reference_lines(x = c(-0.5, 0.5), y = -log10(0.05)) %>%
+      adjust_x_axis(limits = c(-3, 3)) %>% 
+      add_data_labels_repel(
+        data = filter_rows(candidate),
+        label = taxon,
+        color = "#000000",
+        min.segment.length = 0,
+        background = TRUE
+      ) %>% 
+      adjust_colors(colors_discrete_friendly[.y]) %>% 
+      adjust_x_axis_title("$Log[2]~fold~change$") %>%
+      adjust_y_axis_title("$-Log[10]~italic(P)~adjusted$") %>%
+      adjust_legend_title("Time Point") %>%
+      adjust_size(width = 100, height = 100)
+    
+    # save plot
+    save_plot(
+      volc_plt,
+      here::here(out_dir, glue::glue("volcano_plot_{.x}.pdf")), 
+      view_plot = FALSE
+    )
+    
+    volc_plt
+  })
+
+
+
+```
+
 
 ### Bar Plot of Top Candidates
 

@@ -11,6 +11,23 @@ tse_file <- here::here("data", "processed", "tse_alpha.rds")
 # output
 out_dir <- here::here("data", "04_beta_diversity")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+
+# confounders 
+confounders <- c(
+  "treatment",
+  "time_point",
+  "gender",
+  "risk_group",
+  "record_id",
+  "age", 
+  "HIV_VL"
+)
+
+# formula
+mod_formula <- glue::glue(
+  "centroid_log_ratio ~ treatment * time_point + gender + scale(age) + risk_group + ", 
+  "log1p(HIV_VL) + (1|record_id)"
+)
 ```
 
 ## Set-up
@@ -70,15 +87,10 @@ y_limits <- build_p1$layout$panel_params[[1]]$y.range
 # boxplot NMDS1 (up, horizontal) with significance
 p_box_x <-
   plot_df %>%
-  ggplot(aes(x = treatment, y = NMDS1, colour = treatment)) +
+  ggplot(aes(x = time_point, y = NMDS1, colour = treatment)) +
   geom_boxplot(alpha = 0.8, outlier.shape = NA) +
-  geom_jitter(
-    aes(shape = time_point), width = 0.2, height = 0, size = 1.5, alpha = 0.4
-  ) +
+  geom_point(size = 0.5, alpha = 0.2, position = position_jitterdodge()) +
   scale_colour_manual(values = c("#0072B2", "#D55E00")) +
-  ggpubr::stat_compare_means(
-    method = "wilcox.test", label = "p.signif", label.x = 1.25, size = 4
-  ) +
   coord_flip(ylim = x_limits) +
   theme_void() +
   theme(legend.position = "none")
@@ -86,15 +98,10 @@ p_box_x <-
 # boxplot NMDS2 (right, vertical)  with significance
 p_box_y <- 
   plot_df %>% 
-  ggplot(aes(x = treatment, y = NMDS2, colour = treatment)) +
-  geom_boxplot(alpha = 0.8, outlier.shape = NA) +
-  geom_jitter(
-    aes(shape = time_point), width = 0.2, height = 0, size = 1.5, alpha = 0.4
-  ) +
+  ggplot(aes(x = time_point, y = NMDS2, colour = treatment)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) +
+  geom_point(size = 0.8, alpha = 0.2, position = position_jitterdodge()) +
   scale_colour_manual(values = c("#0072B2", "#D55E00")) +
-  ggpubr::stat_compare_means(
-    method = "wilcox.test", label = "p.signif", label.x = 1.5, size = 4
-  ) +
   coord_cartesian(ylim = y_limits) +
   theme_void() +
   theme(legend.position = "none")
@@ -108,8 +115,8 @@ p1 <-
 combined_plot <- 
   p_box_x + plot_spacer() + p1 + p_box_y + 
   plot_layout(
-    widths = unit(c(60, 10), "mm"),
-    heights = unit(c(10, 60), "mm"),
+    widths = unit(c(60, 20), "mm"),
+    heights = unit(c(20, 60), "mm"),
     ncol = 2
   )
 
@@ -126,7 +133,7 @@ ggsave(
 combined_plot
 ```
 
-## Centroid Distances Computation and Plot
+## Centroid Distances Computation and Plot - wilcox
 
 ```{r}
 # centorids by group (treatment + time_point)
@@ -181,29 +188,181 @@ plt %>%
 plt 
 ```
 
+## Centroid Distances Computation and Plot - lmm
+
+```{r}
+# centorids by group (treatment + time_point)
+tse <- 
+  tse %>%
+  dplyr::select(SampleID, time_point, record_id, centroid_dist) %>% 
+  dplyr::arrange(record_id, time_point) %>% 
+  dplyr::group_by(record_id) %>% 
+  dplyr::mutate(
+    tp = as.character(time_point) %>% as.numeric(),
+    ratio = centroid_dist / centroid_dist[tp == min(tp)][1],
+    centroid_log_ratio = log2(ratio)
+  ) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::select(SampleID, centroid_log_ratio) %>% 
+  dplyr::left_join(tse, ., by = "SampleID")
+ 
+plt_df <- 
+  colData(tse) %>% 
+  tibble::as_tibble() %>%
+  dplyr::select(dplyr::all_of(confounders), centroid_log_ratio) %>% 
+  dplyr::mutate(
+    dplyr::across(dplyr::where(is.character), as.factor),
+    treatment = factor(treatment, levels = c("DRV/r", "DTG")),
+  )
+
+# lmm
+lmm_res <-
+  stats::as.formula(mod_formula) %>%
+  lmerTest::lmer(data = plt_df) 
+    
+# emmeans longitudinal
+emm <- lmm_res %>% emmeans::emmeans( ~ time_point | treatment)
+lon_emm_df <- emm %>% broom.mixed::tidy(conf.int = TRUE)
+lon_contrast_df <-
+  emm %>%
+  emmeans::contrast(method = "revpairwise", adjust = "fdr") %>%
+  broom.mixed::tidy(conf.int = TRUE)
+    
+# emmeand by group
+emm <- lmm_res %>% emmeans::emmeans( ~ treatment | time_point)
+group_emm_df <- emm %>% broom.mixed::tidy(conf.int = TRUE)
+group_contrast_df <-
+  emm %>%
+  emmeans::contrast(method = "revpairwise", adjust = "fdr") %>%
+  broom.mixed::tidy(conf.int = TRUE) %>%
+  dplyr::mutate(p.adj.global = p.adjust(p.value, method = "fdr"))
+  
+# forest plot longitudinal
+forest_plt_longitudinal <- 
+  lon_contrast_df %>%
+  rstatix::add_significance(p.col = "adj.p.value") %>%
+  dplyr::mutate(
+    contrast_clean = stringr::str_remove_all(contrast, "time_point"),
+    t1 = as.numeric(stringr::str_extract(contrast_clean, "^[0-9]+")),
+    t2 = as.numeric(stringr::str_extract(contrast_clean, "(?<=- )[0-9]+")),
+    treatment = factor(treatment, levels = c("DRV/r", "DTG"))
+  ) %>%
+  dplyr::arrange(t2, t1) %>%
+  dplyr::mutate(contrast = factor(contrast_clean, levels = unique(contrast_clean))) %>% 
+  tidyplots::tidyplot(x = estimate, y = contrast, colour = treatment) %>%
+  tidyplots::add(geom_pointrange(
+    aes(xmin = conf.low, xmax = conf.high),
+    alpha = 0.8, 
+    position = position_dodge(width = 0.6),
+    size = 2/ggplot2::.pt
+  )) %>% 
+  tidyplots::add_reference_lines(x = 0) %>% 
+  tidyplots::add(geom_text(
+    aes(
+      x = conf.high * 1.2,
+      label = dplyr::if_else(adj.p.value.signif != "ns", adj.p.value.signif, "")
+    ),
+    position = position_dodge(width = 0.6),
+    size = 7,
+    hjust = 0, 
+    colour = "black"
+  )) %>% 
+  tidyplots::add(expand_limits(x = max(lon_contrast_df$conf.high, na.rm = TRUE) * 1.25)) %>% 
+  tidyplots::adjust_x_axis_title("Δ log2(ratio) (later − earlier time point)") %>%
+  tidyplots::adjust_y_axis_title("Comparison of time points") %>%
+  tidyplots::adjust_legend_title("Treatment") %>% 
+  tidyplots::remove_legend()
+    
+# forest plot by group
+forest_plt_group <- 
+  group_contrast_df %>%
+  rstatix::add_significance(p.col = "p.adj.global") %>%
+  tidyplots::tidyplot(x = estimate, y = time_point) %>%
+  tidyplots::add(geom_pointrange(
+    aes(xmin = conf.low, xmax = conf.high),
+    alpha = 0.8, 
+    position = position_dodge(width = 0.6),
+    size = 2/ggplot2::.pt
+  )) %>% 
+  tidyplots::add_reference_lines(x = 0) %>% 
+  tidyplots::add(geom_text(
+    aes(
+      x = conf.high * 1.2,
+      label = dplyr::if_else(p.adj.global.signif != "ns", p.adj.global.signif, "")
+    ),
+    position = position_dodge(width = 0.6),
+    size = 7,
+    hjust = 0, 
+    colour = "black"
+  )) %>% 
+  tidyplots::add(expand_limits(x = max(group_contrast_df$conf.high, na.rm = TRUE) * 1.25)) %>% 
+  tidyplots::adjust_x_axis_title("Δ log2 ratio (DTG - DRV/r)") %>%
+  tidyplots::adjust_y_axis_title("Time point (weeks)") 
+
+# Trajectory plot
+traj_plt <- 
+  lon_emm_df %>%
+  dplyr::mutate(
+    time_point = as.numeric(as.character(time_point)),
+    treatment = factor(treatment, levels = c("DRV/r", "DTG"))
+  ) %>%
+  tidyplots::tidyplot(x = time_point, y = estimate, colour = treatment, group = treatment) %>%
+  tidyplots::add(geom_pointrange(
+    aes(y = estimate, ymin = conf.low, ymax = conf.high),
+    alpha = 0.8, 
+    position = position_dodge(width = 50/ggplot2::.pt),
+    size = 2 / ggplot2::.pt
+  )) %>% 
+  tidyplots::add_line() %>% 
+  tidyplots::add_reference_lines(y = 0) %>% 
+  tidyplots::adjust_x_axis_title("Time Point (weeks)") %>%
+  tidyplots::adjust_y_axis_title("Estimated Change in Log2 Ratio") %>%
+  tidyplots::adjust_legend_title("Treatment") 
+
+# plt list
+plt_list <- list(
+  traj_plt = traj_plt,
+  forest_plt_longitudinal = forest_plt_longitudinal,
+  forest_plt_group = forest_plt_group
+)
+  
+# save
+showtext::showtext_auto()
+names(plt_list) %>% 
+  purrr::walk(function(.plt) {
+    plt_list[[.plt]] %>%
+      tidyplots::adjust_size(width = 40, height = 40, unit = "mm") %>%
+      tidyplots::save_plot(
+        here::here(out_dir, glue::glue("lmm_centroid_distance_{.plt}.pdf")),
+        view_plot = FALSE
+      )
+  })
+
+f_plt <- wrap_plots(plt_list) + plot_layout(guides = "collect")
+
+f_plt 
+```
+
 ## Correlation with Centroid Distance 
 
 ### Define Cytokines and Markers
 
 ```{r}
-populations <- c("CD4", "CD8", "CD4_nadir", "CD4_CD38_DR", "CD8_CD38_DR")
+populations <- c("CD4", "CD8", "CD4_CD38_DR", "CD8_CD38_DR")
 cytokines <- c("CRP", "IL6", "TNFa", "sCD14")
 others <- c("HIV_VL", "BMI")
 
 all_markers <- c(populations, cytokines, others)
+
+# Log2 Transformation
+tse2 <- tse %>% dplyr::mutate(dplyr::across(dplyr::all_of(all_markers), ~ log2(.x + 1e-6)))
 ```
 
-### Cytokines Log2 Transformation
-
-```{r}
-tse2 <- tse %>% dplyr::mutate(dplyr::across(dplyr::all_of(cytokines), ~ log2(.x + 1)))
-```
-
-### Compute Correlations
+### Compute Sperman Correlations
 
 ```{r}
 #| warning: FALSE
-corr_df <-
+sparman_corr_df <-
   mia::getCrossAssociation(
     tse2,
     tse2,
@@ -215,16 +374,17 @@ corr_df <-
     verbose = FALSE,
     show_warnings = FALSE
   )
-```
-
-### Plot Global Correlations 
-
-```{r}
-#| message: FALSE
-#| warning: FALSE
 
 # prepare data
-plt_df <- corr_df %>% dplyr::mutate(sign = p_adj < 0.05 & abs(cor) >= 0.2)
+plt_df <- 
+  sparman_corr_df %>% 
+   dplyr::mutate(
+    sign = dplyr::case_when(
+      p_adj < 0.05 & abs(cor) > 0.2 ~ "< 0.05",
+      dplyr::between(p_adj, 0.05, 0.1) & abs(cor) > 0.2 ~ "< 0.1",
+      TRUE ~ "ns"
+    )
+  )
 
 # plot
 lim <- abs(plt_df$cor) %>% max() %>% round(digits = 1) * 1.05
@@ -237,8 +397,8 @@ plt <-
     colours = rev(RColorBrewer::brewer.pal(11, "PiYG")),
     limits = c(-lim, lim)
   ) +
-  scale_colour_manual(values = c("TRUE" = "black", "FALSE" = "white")) +
-  scale_alpha_manual(values = c("TRUE" = 0.9, "FALSE" = 0.6), guide = "none") +
+  scale_colour_manual(values = c("< 0.05" = "black", "< 0.1" = "#525252", "ns" = "white")) +
+  scale_alpha_manual(values = c("< 0.05" = 0.9, "< 0.1" = 0.9, "ns" = 0.6), guide = "none") +
   scale_size_continuous(range = c(2, 8), guide = "none") +
   theme_minimal() +
   labs(
@@ -269,13 +429,111 @@ tidyplots::save_plot(
 r_plt
 ```
 
-## Correlation with Centroid Distance by Treatment
-
-### Compute Correlations
+### Compute Repeated Measures Correlation Coefficient
 
 ```{r}
 #| warning: FALSE
-corr_df <-
+
+# computes correlations
+rmcorr_df_all <- 
+  tidyr::expand_grid(metric = "centroid_dist", all_markers) %>%
+  purrr::pmap_dfr( ~ {
+    # prepare data
+    f_df <-
+      colData(tse2) %>%
+      tibble::as_tibble() %>%
+      dplyr::select(dplyr::all_of(c(.x, .y, confounders))) %>%
+      dplyr::mutate(tp = as.character(time_point) %>% as.numeric()) %>% 
+      tidyr::drop_na(dplyr::all_of(c(.x, .y))) %>%
+      dplyr::mutate(
+        dplyr::across(dplyr::where(is.character), as.factor),
+        treatment = factor(treatment, levels = c("DRV/r", "DTG"))
+      )
+    
+    # compute rmcorr
+    res <- rmcorr::rmcorr(
+      participant = "record_id",
+      measure1 = f_df[[.x]],
+      measure2 = f_df[[.y]],
+      dataset = f_df
+    )
+    
+    # create tibble 
+    tibble::tibble(
+      metric = .x,
+      marker = .y,
+      cor = res$r,
+      p = res$p,
+      df = list(f_df),
+      rmcorr = list(res),
+    )
+  }) %>% 
+  dplyr::mutate(p_adj = p.adjust(p, method = "fdr"), .after = p) %>%
+  dplyr::arrange(p_adj)
+
+# prepare data
+plt_df <-
+  rmcorr_df_all %>%
+  dplyr::mutate(
+    sign = dplyr::case_when(
+      p_adj < 0.05 & abs(cor) > 0.2 ~ "< 0.05",
+      dplyr::between(p_adj, 0.05, 0.1) & abs(cor) > 0.2 ~ "< 0.1",
+      TRUE ~ "ns"
+    ), 
+    marker = factor(marker, levels = all_markers),
+  )
+
+# plot
+lim <- abs(plt_df$cor) %>% max() %>% round(digits = 1) * 1.2
+plt <-
+  plt_df %>%
+  dplyr::mutate(lab = stringr::str_replace(metric, "_", " ") %>% stringr::str_to_sentence()) %>% 
+  ggplot(aes(x = marker, y = lab, fill = cor, colour = sign)) +
+  geom_point(aes(size = abs(cor), alpha = sign), shape = 22, stroke = 1) +
+  scale_fill_gradientn(
+    colours = rev(RColorBrewer::brewer.pal(11, "PiYG")),
+    limits = c(-lim, lim)
+  ) +
+  scale_colour_manual(values = c("< 0.05" = "black", "< 0.1" = "#525252", "ns" = "white")) +
+  scale_alpha_manual(values = c("< 0.05" = 0.9, "< 0.1" = 0.9, "ns" = 0.6), guide = "none") +
+  scale_size_continuous(range = c(2, 8), guide = "none") +
+  theme_minimal() +
+  labs(
+    x = "", y = "", fill = "Repeated Measures Correlation", colour = "q < 0.05"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "top",
+    legend.title.position = "top",
+    legend.title = element_text(hjust = 0.5),
+    legend.key.height = unit(0.5, "cm"),
+  )
+
+# Resize and save
+r_plt <-
+  plt + plot_spacer() +
+  plot_layout(
+    widths = ggplot2::unit(c(75, 1), "mm"),
+    heights = ggplot2::unit(40, "mm")
+  )
+
+tidyplots::save_plot(
+  r_plt,
+  here::here(out_dir, glue::glue("all_rm_correlation.pdf")),
+  view_plot = FALSE
+)
+
+r_plt
+```
+
+## Correlation with Centroid Distance by Treatment
+
+### Compute Spearman Correlations
+
+```{r}
+#| message: FALSE
+#| warning: FALSE
+spearman_corr_df <-
   mia::splitOn(tse2, "treatment") %>%
   purrr::map_dfr(~ {
     mia::getCrossAssociation(
@@ -291,16 +549,17 @@ corr_df <-
     ) %>%
       dplyr::mutate(treatment = unique(.x$treatment))
   })
-```
-
-### Plot Global Correlations 
-
-```{r}
-#| message: FALSE
-#| warning: FALSE
 
 # prepare data
-plt_df <- corr_df %>% dplyr::mutate(sign = p_adj < 0.05 & abs(cor) >= 0.2)
+plt_df <-
+  spearman_corr_df %>%
+  dplyr::mutate(
+    sign = dplyr::case_when(
+      p_adj < 0.05 & abs(cor) > 0.2 ~ "< 0.05",
+      dplyr::between(p_adj, 0.05, 0.1) & abs(cor) > 0.2 ~ "< 0.1",
+      TRUE ~ "ns"
+    )
+  )
 
 # plot
 lim <- abs(plt_df$cor) %>% max() %>% round(digits = 1) * 1.05
@@ -313,8 +572,8 @@ plt <-
     colours = rev(RColorBrewer::brewer.pal(11, "PiYG")),
     limits = c(-lim, lim)
   ) +
-  scale_colour_manual(values = c("TRUE" = "black", "FALSE" = "white")) +
-  scale_alpha_manual(values = c("TRUE" = 0.9, "FALSE" = 0.6), guide = "none") +
+  scale_colour_manual(values = c("< 0.05" = "black", "< 0.1" = "#525252", "ns" = "white")) +
+  scale_alpha_manual(values = c("< 0.05" = 0.9, "< 0.1" = 0.9, "ns" = 0.6), guide = "none") +
   scale_size_continuous(range = c(2, 8), guide = "none") +
   theme_minimal() +
   labs(
@@ -345,17 +604,121 @@ tidyplots::save_plot(
 r_plt
 ```
 
-### Plot Scatter Correlations
+### Compute Repeated Measures Correlation Coefficient
+
+```{r}
+#| warning: FALSE
+rmcorr_df <- 
+  mia::splitOn(tse2, "treatment") %>%
+  purrr::map_dfr(function(.split) {
+    tidyr::expand_grid(metric = "centroid_dist", all_markers) %>%
+      purrr::pmap_dfr( ~ {
+        # prepare data
+        f_df <-
+          colData(.split) %>%
+          tibble::as_tibble() %>%
+          dplyr::select(dplyr::all_of(c(.x, .y, confounders))) %>%
+          tidyr::drop_na(dplyr::all_of(c(.x, .y))) %>%
+          dplyr::mutate(
+            dplyr::across(dplyr::where(is.character), as.factor),
+            treatment = factor(treatment, levels = c("DRV/r", "DTG"))
+          )
+        
+        # compute rmcorr
+        res <- rmcorr::rmcorr(
+          participant = "record_id",
+          measure1 = f_df[[.x]],
+          measure2 = f_df[[.y]],
+          dataset = f_df
+        )
+        
+        # create tibble
+        tibble::tibble(
+          metric = .x,
+          marker = .y,
+          treatment = unique(.split$treatment),
+          cor = res$r,
+          p = res$p,
+          df = list(f_df),
+          rmcorr = list(res),
+        )
+      })
+  }) %>%
+  dplyr::mutate(p_adj = p.adjust(p, method = "fdr"), .after = p) %>%
+  dplyr::arrange(p_adj)
+
+plt_df <-
+  rmcorr_df %>%
+  dplyr::mutate(
+    sign = dplyr::case_when(
+      p_adj < 0.05 & abs(cor) > 0.2 ~ "< 0.05",
+      dplyr::between(p_adj, 0.05, 0.1) & abs(cor) > 0.2 ~ "< 0.1",
+      TRUE ~ "ns"
+    ), 
+    marker = factor(marker, levels = all_markers)
+  )
+      
+# plot
+.x <- "centroid_dist"
+.name <- stringr::str_replace(.x, "_", " ") %>% stringr::str_to_title()
+lim <- abs(plt_df$cor) %>% max() %>% round(digits = 1) * 1.2
+plt <- 
+  plt_df %>% 
+  ggplot(aes(x = marker, y = treatment, fill = cor, colour = sign)) +
+  geom_point(aes(size = abs(cor), alpha = sign), shape = 22, stroke = 1) +
+  scale_fill_gradientn(
+    colours = rev(RColorBrewer::brewer.pal(11, "PiYG")),
+    limits = c(-lim, lim)
+  ) +
+  scale_colour_manual(values = c("< 0.05" = "black", "< 0.1" = "#525252", "ns" = "white")) +
+  scale_alpha_manual(values = c("< 0.05" = 0.9, "< 0.1" = 0.9, "ns" = 0.6), guide = "none") +
+  scale_size_continuous(range = c(2, 8), guide = "none") +
+  theme_minimal() +
+  labs(
+    x = "",
+    y = "Treatment", 
+    fill = glue::glue("Repeated Measures Correlation\n(Marker vs. {.name})"), 
+    colour = "q < 0.05"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1), 
+    legend.position = "top", 
+    legend.title.position = "top", 
+    legend.title = element_text(hjust = 0.5), 
+    legend.key.height = unit(0.5, "cm"),
+  ) 
+    
+# Resize and save
+plt <- 
+  plt + plot_spacer() +
+  plot_layout(
+    widths = ggplot2::unit(c(70, 1), "mm"), 
+    heights = ggplot2::unit(30, "mm")
+  ) 
+
+tidyplots::save_plot(
+  plt, 
+  here::here(out_dir, glue::glue("rmcorr_treatment_centroid_dist.pdf")), 
+  view_plot = FALSE
+)
+
+plt
+```
+
+## Scatter Correlations
+
+### Spearman Correlations - Global
 
 ```{r}
 #| message: FALSE
 #| warning: FALSE
+dir.create(here::here(out_dir, "spearman_scat"), showWarnings = FALSE, recursive = TRUE)
 plt_df <- colData(tse2) %>% tibble::as_tibble()
-.metric <- "centroid_dist"
 plt_list <- 
   all_markers %>% 
   purrr::set_names() %>% 
   purrr::map(function(.marker) {
+    .metric = "centroid_dist"
     # prepare data
     marker_values <- plt_df[[.marker]] %>% .[is.finite(.)]
     lab_min <- min(marker_values, na.rm = TRUE)
@@ -363,9 +726,7 @@ plt_list <-
     lab_range <- lab_max - lab_min
     
     .name <- stringr::str_replace(.metric, "_", " ") %>% stringr::str_to_title()
-    .y_lab <- dplyr::if_else(
-      .marker %in% cytokines, glue::glue("Log2  {.marker}"), .marker
-    )
+    .y_lab <- glue::glue("Log2  {.marker}")
     
     plt <- 
       plt_df %>%
@@ -373,7 +734,6 @@ plt_list <-
       tidyplots::tidyplot(
         x = !!dplyr::sym(.metric),
         y = !!dplyr::sym(.marker),
-        colour = treatment
       ) %>%
       tidyplots::add_data_points(alpha = 0.5) %>%
       tidyplots::add(geom_smooth(method = "lm", alpha = 0.1, formula = 'y ~ x')) %>%
@@ -390,12 +750,19 @@ plt_list <-
       tidyplots::adjust_x_axis_title(.name) %>% 
       tidyplots::adjust_x_axis(rotate_labels = 30) %>% 
       tidyplots::adjust_colors(tidyplots::colors_discrete_friendly) 
-    
+      
+      if (.metric == "gene_richness") {
+        plt <- plt %>% tidyplots::adjust_x_axis(labels = scales::scientific)
+      }
+  
       # save
       plt %>%
         tidyplots::adjust_size(width = 50, height = 40, unit = "mm") %>%
         tidyplots::save_plot(
-          here::here(out_dir, glue::glue("corr_{.metric}_{.marker}.pdf")),
+          here::here(
+            out_dir, 
+            glue::glue("spearman_scat/global_corr_{.metric}_{.marker}.pdf")
+          ),
           view_plot = FALSE
         )
       
@@ -420,15 +787,256 @@ names(plt_list) %>%
 
 :::
 
+### Spearman Correlations - By Treatment
+
+```{r}
+#| message: FALSE
+#| warning: FALSE
+plt_df <- colData(tse2) %>% tibble::as_tibble()
+plt_list <- 
+all_markers %>% 
+  purrr::set_names() %>% 
+  purrr::map(function(.marker) {
+    .metric = "centroid_dist"
+    
+    # prepare data
+    marker_values <- plt_df[[.marker]] %>% .[is.finite(.)]
+    lab_min <- min(marker_values, na.rm = TRUE)
+    lab_max <- max(marker_values, na.rm = TRUE)
+    lab_range <- lab_max - lab_min
+    
+    .name <- stringr::str_replace(.metric, "_", " ") %>% stringr::str_to_title()
+    .y_lab <- glue::glue("Log2  {.marker}")
+    
+    plt <- 
+      plt_df %>%
+      tidyr::drop_na(!!.metric, !!.marker) %>%
+      tidyplots::tidyplot(
+        x = !!dplyr::sym(.metric),
+        y = !!dplyr::sym(.marker),
+        colour = treatment
+      ) %>%
+      tidyplots::add_data_points(alpha = 0.5) %>%
+      tidyplots::add(geom_smooth(method = "lm", alpha = 0.1, formula = 'y ~ x')) %>%
+      tidyplots::add(ggpubr::stat_cor(
+        method = "spearman",
+        cor.coef.name = "rho",
+        label.y.npc = "bottom",
+        p.digits = 1,
+        label.y = c(lab_min - 0.05 * lab_range, lab_min - 0.15 * lab_range), 
+        size = 3
+      )) %>% 
+      tidyplots::adjust_legend_title("Treatment") %>%
+      tidyplots::adjust_y_axis_title(.y_lab) %>% 
+      tidyplots::adjust_x_axis_title(.name) %>% 
+      tidyplots::adjust_x_axis(rotate_labels = 30) %>% 
+      tidyplots::adjust_colors(tidyplots::colors_discrete_friendly) 
+      
+      if (.metric == "gene_richness") {
+        plt <- plt %>% tidyplots::adjust_x_axis(labels = scales::scientific)
+      }
+  
+      # save
+      plt %>%
+        tidyplots::adjust_size(width = 50, height = 40, unit = "mm") %>%
+        tidyplots::save_plot(
+          here::here(
+            out_dir, 
+            glue::glue("spearman_scat/corr_{.marker}.pdf")
+          ),
+          view_plot = FALSE
+        )
+      
+      plt
+  })
+```
+
+::: {.panel-tabset}
+
+```{r}
+#| results: asis
+#| fig.width: 12
+#| fig.height: 7
+#| warning: FALSE
+names(plt_list) %>% 
+  purrr::walk(~ {
+    cat("#### ", .x, "\n")
+    plot(plt_list[[.x]])
+    cat("\n\n")
+  })
+```
+
+:::
+
+### Repeated Measures Correlation Coefficient - Global
+
+```{r}
+#| warning: FALSE
+dir.create(here::here(out_dir, "rm_scat"), showWarnings = FALSE, recursive = TRUE)
+plt_list <- 
+  all_markers %>% 
+  purrr::set_names() %>% 
+  purrr::map(function(.marker) {
+    .metric = "centroid_dist"
+    it_data <- rmcorr_df_all %>% dplyr::filter(metric == .metric, marker == .marker)
+    plt_df <-
+      it_data$df %>%
+      purrr::list_rbind() %>%
+      dplyr::mutate(fitted_vals = it_data$rmcorr[[1]]$model$fitted.values)
+    
+    .y_lab <- glue::glue("Log2  {.marker}")
+    
+    plt <- 
+      plt_df %>% 
+      tidyplots::tidyplot(x = !!rlang::sym(.metric), y = !!rlang::sym(.marker), color = record_id) %>%
+      tidyplots::add_data_points(alpha = 0.4) %>%
+      tidyplots::add(geom_line(aes(y = fitted_vals, group = record_id), alpha = 0.8)) %>% 
+      tidyplots::adjust_x_axis_title(
+        .metric %>% stringr::str_replace_all("_", " ") %>% stringr::str_to_title()
+      )  %>% 
+      tidyplots::adjust_caption(fontsize = 7) %>%
+      tidyplots::adjust_y_axis_title(.y_lab) %>% 
+      tidyplots::adjust_x_axis(rotate_labels = 30) %>% 
+      tidyplots::adjust_colors(tidyplots::colors_discrete_friendly) %>% 
+      tidyplots::remove_legend() %>% 
+      tidyplots::add_caption(
+        caption = glue::glue(
+          "r: {round(it_data$cor, 2)}; ajd. P: {formatC(it_data$p_adj,
+           format = 'e', digits = 2)}; n = {nrow(plt_df)}"
+        )
+      )
+
+    if (.metric == "gene_richness") {
+      plt <- plt %>% tidyplots::adjust_x_axis(labels = scales::scientific)
+    }
+
+    # save
+    plt %>%
+      tidyplots::adjust_size(width = 50, height = 40, unit = "mm") %>%
+      tidyplots::save_plot(
+        here::here(
+          out_dir, 
+          glue::glue("rm_scat/global_corr_{.marker}.pdf")
+        ),
+        view_plot = FALSE
+      )
+    plt
+  })
+```
+
+::: {.panel-tabset}
+
+```{r}
+#| results: asis
+#| fig.width: 12
+#| fig.height: 7
+#| warning: FALSE
+names(plt_list) %>% 
+  purrr::walk(~ {
+    cat("#### ", .x, "\n")
+    plot(plt_list[[.x]] )
+    cat("\n\n")
+  })
+```
+
+:::
+
+### Repeated Measures Correlation Coefficient - by Treatment
+
+```{r}
+#| warning: FALSE
+plt_list <- 
+  all_markers %>% 
+  purrr::set_names() %>% 
+  purrr::map(function(.marker) {
+    .metric = "centroid_dist"
+    it_data <- rmcorr_df %>% dplyr::filter(metric == .metric, marker == .marker)
+    plt_df <-
+      it_data$df %>%
+      purrr::list_rbind() %>%
+      dplyr::mutate(
+        fitted_vals = c(
+          it_data$rmcorr[[1]]$model$fitted.values,
+          it_data$rmcorr[[2]]$model$fitted.values
+        )
+      )
+    
+    .y_lab <- glue::glue("Log2  {.marker}")
+    plt <- 
+      plt_df %>% 
+      tidyplots::tidyplot(x = !!rlang::sym(.metric), y = !!rlang::sym(.marker), color = treatment) %>%
+      tidyplots::add_data_points(alpha = 0.4) %>%
+      tidyplots::add(geom_line(aes(y = fitted_vals, group = record_id), alpha = 0.8)) %>% 
+      tidyplots::adjust_x_axis_title(
+        .metric %>% stringr::str_replace_all("_", " ") %>% stringr::str_to_title()
+      )  %>% 
+      tidyplots::adjust_caption(fontsize = 7) %>%
+      tidyplots::adjust_y_axis_title(.y_lab) %>% 
+      tidyplots::adjust_x_axis(rotate_labels = 30) %>% 
+      tidyplots::adjust_colors(tidyplots::colors_discrete_friendly) %>% 
+      tidyplots::remove_legend() %>% 
+      tidyplots::add_caption(
+        caption = glue::glue(
+          "r: {round(it_data$cor, 2)}; ajd. P: {formatC(it_data$p_adj,
+           format = 'e', digits = 2)}; n = {nrow(plt_df)}"
+        )
+      )
+
+    if (.metric == "gene_richness") {
+      plt <- plt %>% tidyplots::adjust_x_axis(labels = scales::scientific)
+    }
+
+    # save
+    plt %>%
+      tidyplots::adjust_size(width = 50, height = 40, unit = "mm") %>%
+      tidyplots::save_plot(
+        here::here(
+          out_dir, 
+          glue::glue("rm_scat/corr_{.marker}.pdf")
+        ),
+        view_plot = FALSE
+      )
+    plt
+  })
+```
+
+::: {.panel-tabset}
+
+```{r}
+#| results: asis
+#| fig.width: 12
+#| fig.height: 7
+#| warning: FALSE
+names(plt_list) %>% 
+  purrr::walk(~ {
+    cat("#### ", .x, "\n")
+    plot(plt_list[[.x]])
+    cat("\n\n")
+  })
+```
+
+:::
+
 ## Compute Premanova
 
 ```{r}
+# formula
+form_cov <- ~ treatment * time_point + gender + age + aids_event + cmv_negative + risk_group + HIV_VL
+
+# handling NA
+cd <- as.data.frame(colData(tse))
+mf <- model.frame(form_cov, data = cd, na.action = na.omit)
+tse_sub <- tse[, rownames(mf)]  
+
 # compute
 permanova_tbl <- 
   mia::getPERMANOVA(
-    tse, assay.type =  "relab", 
-    formula =  x ~ treatment + time_point + gender + age + aids_event + cmv_negative + risk_group + HIV_VL,
-    na.action = "na.omit"
+    tse_sub, 
+    assay.type =  "relab", 
+    formula =  x ~ treatment * time_point + gender + age + aids_event + cmv_negative + risk_group + HIV_VL,
+    na.action = "na.omit",
+    by = "terms", 
+    strata = colData(tse_sub)$record_id 
   ) %>% 
   purrr::pluck("permanova") %>% 
   broom::tidy() %>% 
@@ -436,6 +1044,7 @@ permanova_tbl <-
     term = stringr::str_replace_all(term, "_", " "), 
     term = dplyr::if_else(term == "HIV VL", term, stringr::str_to_title(term))
   ) %>% 
+  dplyr::arrange(p.value, -R2) %>% 
   gt::gt() %>% 
   gt::tab_spanner(label = "Permanova", columns = -term) %>% 
   gt::cols_label_with(fn = stringr::str_to_title) %>% 
