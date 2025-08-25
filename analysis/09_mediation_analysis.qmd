@@ -1,0 +1,128 @@
+---
+title: "Untitled"
+editor: visual
+---
+
+```{r}
+    # lmm
+    res <- rlang::try_fetch({
+      stats::as.formula(
+        glue::glue(
+          "scale({.y}) ~ scale({.x}) * time_point + gender + scale(age) ",
+          "+ risk_group + (1|record_id)"
+        )
+      ) %>%
+        lmerTest::lmer(data = f_df) %>%
+        broom.mixed::tidy(effects = "fixed", conf.int = TRUE) %>%
+        dplyr::filter(term == glue::glue("scale({.x})")) %>%
+        dplyr::select(term, estimate, std.error, conf.low, conf.high, p.value) %>%
+        dplyr::mutate(marker = .y, metric = .x)
+    }, error = function(cnd)
+      NULL, warning = function(cnd)
+        NULL)
+
+    res
+```
+
+## Mediation Analysis
+
+### Compute Correlations LMM
+
+```{r}
+lmm_corr_df2 <-
+  tidyr::expand_grid(all_markers, metric = c(metrics, "gene_richness")) %>%
+  purrr::pmap_dfr( ~ {
+    f_df <-
+      colData(tse) %>%
+      tibble::as_tibble() %>%
+      dplyr::select(dplyr::all_of(c(.x, .y, confounders))) %>%
+      tidyr::drop_na(dplyr::all_of(c(.x, .y))) %>%
+      dplyr::mutate(
+        dplyr::across(dplyr::where(is.character), as.factor),
+        treatment = factor(treatment, levels = c("DRV/r", "DTG"))
+      )
+
+    # Mediator model
+    med_model_brm <- brms::brm(
+      stats::as.formula(
+        glue::glue(
+          "scale({.x}) ~ treatment * time_point + gender + scale(age) + aids_event ",
+          "+ risk_group + scale(HIV_VL) + (1|record_id)"
+        )
+      ),
+      data = f_df,
+      chains = 4,
+      cores = 8
+    )
+
+    # Outcome model
+    out_model_brm <- brms::brm(
+      stats::as.formula(
+        glue::glue(
+          "scale({.y}) ~ scale({.x}) + treatment * time_point + gender + scale(age) + aids_event ",
+          "+ risk_group + scale(HIV_VL) + (1|record_id)"
+        )
+      ),
+      data = f_df,
+      chains = 4,
+      cores = 8,
+      control = list(adapt_delta = 0.95)
+    )
+
+    # Extract samples
+    post_m <- brms::as_draws_df(med_model_brm)
+    post_o <- brms::as_draws_df(out_model_brm)
+
+    # Coeficient names
+    treat_name <- paste0("b_treatment", levels(f_df$treatment)[2])
+    med_name <- paste0("b_scale", .x)
+
+    # Effects
+    a <- post_m[[treat_name]]
+    b <- post_o[[med_name]]
+    c_prime <- post_o[[treat_name]]
+
+    list(indirect = a * b, direct = c_prime, total = a * b + c_prime) %>%
+      purrr::imap_dfr(function(effect_vec, type) {
+        tibble::tibble(
+          mediator = .x,
+          outcome = .y,
+          effect_type = type,
+          mean = mean(effect_vec),
+          l95 = quantile(effect_vec, 0.025),
+          u95 = quantile(effect_vec, 0.975)
+        )
+      })
+
+  })
+
+
+
+lmm_corr_df2 %>%
+  dplyr::filter(effect_type == "total" & mediator == "CD4_nadir") %>%
+  tidyplots::tidyplot(x = mean, y = outcome, colour = mediator) %>%
+  tidyplots::add(geom_pointrange(
+    aes(xmin = l95, xmax = u95),
+    alpha = 0.8,
+    position = position_dodge(width = 0.6),
+    size = 2 / ggplot2::.pt
+  )) %>%
+  tidyplots::add_reference_lines(x = 0) %>%
+  tidyplots::adjust_size(50, 120)
+  tidyplots::add(geom_text(
+    aes(
+      x = conf.high * 1.2,
+      label = dplyr::if_else(adj.p.value.signif != "ns", adj.p.value.signif, "")
+    ),
+    position = position_dodge(width = 0.6),
+    size = 7,
+    hjust = 0,
+    colour = "black"
+  )) %>%
+  tidyplots::add(expand_limits(x = max(lon_contrast_df$conf.high, na.rm = TRUE) * 1.25)) %>%
+  tidyplots::adjust_x_axis_title("Δ log2(ratio) (later − earlier time point)") %>%
+  tidyplots::adjust_y_axis_title("Comparison of time points") %>%
+  tidyplots::adjust_legend_title("Treatment") %>%
+  tidyplots::remove_legend()
+
+```
