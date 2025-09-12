@@ -165,8 +165,7 @@ plt_list <-
   })
 ```
 
-::: {.panel-tabset}
-
+::: panel-tabset
 ```{r}
 #| results: asis
 names(plt_list) %>% 
@@ -176,7 +175,6 @@ names(plt_list) %>%
     cat("\n\n")
   })
 ```
-
 :::
 
 ### Using Linear Mixed Models
@@ -335,8 +333,7 @@ plt_list <-
   })
 ```
 
-::: {.panel-tabset}
-
+::: panel-tabset
 ```{r}
 #| results: asis
 names(plt_list) %>% 
@@ -346,17 +343,15 @@ names(plt_list) %>%
     cat("\n\n")
   })
 ```
-
 :::
 
 > Observed richness increased significantly over time in the DTG arm, while Shannon diversity showed a similar but non-significant trend. In line with this, dominance decreased over time in the DTG arm, whereas in the DRV/r arm dominance was significantly higher at week 96, indicating that communities remained skewed toward a few highly abundant taxa.
 
 > The increase in observed richness under DTG treatment suggests acquisition of additional taxa. Although Shannon diversity only showed a non-significant increasing trend, the concurrent decrease in dominance indicates that communities tended to become less skewed toward a few highly abundant species. In contrast, participants in the DRV/r arm exhibited significantly higher dominance at week 96, consistent with a community structure where a small number of taxa remained disproportionately abundant. These findings suggest that DTG may promote a more balanced microbial community structure over time, whereas DRV/r is associated with increasing dominance
 
-> Observed richness was consistently higher in the DTG arm at weeks 24, 48, and 96, with estimated differences of ~0.2–0.23 log2 ratio (≈15–18% increase) compared to DRV/r. While nominal p-values indicated significance at all three time points, these associations did not remain significant after global FDR adjustment (adjusted p ≈ 0.066).
+> Observed richness was consistently higher in the DTG arm at weeks 24, 48, and 96, with estimated differences of \~0.2–0.23 log2 ratio (≈15–18% increase) compared to DRV/r. While nominal p-values indicated significance at all three time points, these associations did not remain significant after global FDR adjustment (adjusted p ≈ 0.066).
 
-
-## Compute Correlations  
+## Compute Correlations
 
 ### Define Cytokines and Markers
 
@@ -624,8 +619,7 @@ plt_list <-
   })
 ```
 
-::: {.panel-tabset}
-
+::: panel-tabset
 ```{r}
 #| results: asis
 names(plt_list) %>% 
@@ -635,7 +629,6 @@ names(plt_list) %>%
     cat("\n\n")
   })
 ```
-
 :::
 
 ### Compute Repeated Measures Correlation Coefficient
@@ -745,9 +738,7 @@ plt_list <-
   })
 ```
 
-
-::: {.panel-tabset}
-
+::: panel-tabset
 ```{r}
 #| results: asis
 names(plt_list) %>% 
@@ -757,7 +748,6 @@ names(plt_list) %>%
     cat("\n\n")
   })
 ```
-
 :::
 
 ## Scatter Correlations
@@ -828,8 +818,7 @@ plt_list <-
   })
 ```
 
-::: {.panel-tabset}
-
+::: panel-tabset
 ```{r}
 #| results: asis
 #| fig.width: 12
@@ -846,7 +835,6 @@ names(plt_list) %>%
     cat("\n\n")
   })
 ```
-
 :::
 
 ### Spearman Correlations - By Treatment
@@ -915,8 +903,7 @@ plt_list <-
   })
 ```
 
-::: {.panel-tabset}
-
+::: panel-tabset
 ```{r}
 #| results: asis
 #| fig.width: 12
@@ -933,7 +920,6 @@ names(plt_list) %>%
     cat("\n\n")
   })
 ```
-
 :::
 
 ### Repeated Measures Correlation Coefficient - Global
@@ -995,8 +981,7 @@ plt_list <-
   })
 ```
 
-::: {.panel-tabset}
-
+::: panel-tabset
 ```{r}
 #| results: asis
 #| fig.width: 12
@@ -1013,7 +998,6 @@ names(plt_list) %>%
     cat("\n\n")
   })
 ```
-
 :::
 
 ### Repeated Measures Correlation Coefficient - by Treatment
@@ -1079,8 +1063,7 @@ plt_list <-
   })
 ```
 
-::: {.panel-tabset}
-
+::: panel-tabset
 ```{r}
 #| results: asis
 #| fig.width: 12
@@ -1097,7 +1080,6 @@ names(plt_list) %>%
     cat("\n\n")
   })
 ```
-
 :::
 
 ## Export TSE with Alpha Metrics
@@ -1116,6 +1098,6 @@ devtools::session_info()
 
 ### Contact
 
-- **Analysis Lead:** Francesc Català-Moll
-- **Email:** fcatala@irsicaixa.es
-- **Institution:** GEM - IrsiCaixa
+-   **Analysis Lead:** Francesc Català-Moll
+-   **Email:** fcatala\@irsicaixa.es
+-   **Institution:** GEM - IrsiCaixa
