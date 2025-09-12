@@ -96,6 +96,7 @@ After setting up the environment and downloading the required data:
    ```R
    quarto::quarto_render("analysis/01_alpha_diversity.qmd")
    ```
+   > **Note:** analyses files should be executed in order to avoid dependency issues.
 
 4. Output files
     
