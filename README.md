@@ -44,22 +44,22 @@ Analyses were conducted in **R(4.5.1)** with dependencies managed via `renv`. To
 
 1. Clone this repository:
 
-   ```bash
-   git clone https://github.com/MicrobialGenomics-IrsicaixaOrg/fcatala_advanz4.git
-   cd fcatala_advanz4
-    ```
+```bash
+git clone https://github.com/MicrobialGenomics-IrsicaixaOrg/fcatala_advanz4.git
+cd fcatala_advanz4
+```
 
 2. Open an R session and install `renv` (if not already installed).
 
-   ```R
-   install.packages("renv")
-   ```
+```R
+install.packages("renv")
+```
 
 3. Restore the project environment:
 
-   ```R
-    renv::restore()
-    ``` 
+```R
+renv::restore()
+``` 
 
 This will install all required packages in the versions used for the analyses at a local project library.
 
@@ -87,7 +87,7 @@ After setting up the environment and downloading the required data:
    ```
    
 > [!IMPORTANT]
-> Analyses files should be rendered separately and in numerical order (e.g. 01, 02, 03...) to avoid dependency issues.
+> Analyses files should be rendered separately and in numerical order (e.g. 01, 02, 03...) to avoid data dependency issues.
 
 3. Output files
     
@@ -95,7 +95,7 @@ After setting up the environment and downloading the required data:
 
     * Intermediate data files are saved in `data/processed/`.
 
-    * Generated figures are stored in `data/` under the corresponding analysis subdirectory (e.g., results from `02_alpha_diversity.qmd` will be saved in `data/alpha_diversity/`).
+    * Generated figures are stored in `data/` under the corresponding analysis subdirectory (e.g., results from `02_alpha_diversity.qmd` will be saved in `data/02_alpha_diversity/`).
 
 
 ## Citation 📜
