@@ -1,5 +1,7 @@
 ---
 title: "06 - Functional Analysis (Path Abundance)"
+execute: 
+  cache: true
 ---
 
 ## Define the input and output paths
@@ -13,6 +15,23 @@ abund_file <- here::here("data", "raw", "All_pathabun.tsv")
 # output
 out_dir <- here::here("data", "06_functional_analysis")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+
+# confounders 
+confounders <- c(
+  "treatment",
+  "time_point",
+  "gender",
+  "risk_group",
+  "record_id",
+  "age", 
+  "HIV_VL"
+)
+
+# filtering
+lfc_cutoff <- 0.5
+q_cutoff <- 0.05
+prev_cutoff <- 0.2
+cor_cutoof <- 0.3
 ```
 
 ## Set-up
@@ -62,19 +81,15 @@ tse <- TreeSummarizedExperiment::TreeSummarizedExperiment(
 ### DA Computation
 
 ```{r}
-if (file.exists(here::here(out_dir, "ancombc_results.rds"))) {
-  ancombc_results <- readr::read_rds(here::here(out_dir, "ancombc_results.rds"))
-} else {
-  ancombc_results <- ANCOMBC::ancombc2(
-    tse,
-    fix_formula = "treatment * time_point + gender + age + aids_event + risk_group + HIV_VL",
-    tax_level = "Species",
-    p_adj_method = "fdr",
-    group = "treatment",
-    prv_cut = 0.1,
-    n_cl = 8
-  )
-}
+ancombc_results <- ANCOMBC::ancombc2(
+  tse,
+  fix_formula = "treatment * time_point + gender + age + risk_group + HIV_VL",
+  tax_level = "Species",
+  p_adj_method = "fdr",
+  group = "treatment",
+  prv_cut = 0.1,
+  n_cl = 8
+)
 ```
 
 ### Preprocess Results
