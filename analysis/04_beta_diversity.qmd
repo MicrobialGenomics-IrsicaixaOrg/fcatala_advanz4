@@ -126,6 +126,103 @@ ggsave(
 combined_plot
 ```
 
+### Scatter Plot by Timepoint (NMDS1 vs NMDS2)
+
+```{r}
+plot_df <- tse %>% dplyr::select(treatment, time_point, dplyr::contains("NMD")) 
+
+# global axis limits
+p1 <- 
+  plot_df %>% 
+  ggplot(aes(NMDS1, NMDS2)) +
+  geom_point(aes(colour = treatment, shape = time_point), alpha = 0.7) +
+  stat_ellipse(aes(colour = treatment, linetype = time_point), alpha = 0.8) +
+  scale_fill_manual(values = c("#0072B2", "#D55E00")) +
+  scale_colour_manual(values = c("#0072B2", "#D55E00")) +
+  theme(legend.position = "bottom")
+
+# extract range to ensure align
+build_p1 <- ggplot_build(p1)
+x_limits <- build_p1$layout$panel_params[[1]]$x.range
+y_limits <- build_p1$layout$panel_params[[1]]$y.range
+
+# build the plot
+save_timepoint_plot <- function(tp_value, df, out_dir, x_limits, y_limits) {
+  df_tp <- df %>% dplyr::filter(time_point == tp_value)
+
+  # main
+  p_scatter <-
+    df_tp %>%
+    ggplot(aes(NMDS1, NMDS2)) +
+    geom_point(aes(colour = treatment), alpha = 0.7) +
+    stat_ellipse(aes(colour = treatment), alpha = 0.8) +
+    scale_colour_manual(values = c("#0072B2", "#D55E00")) +
+    coord_cartesian(xlim = x_limits, ylim = y_limits) +
+    theme_classic() +
+    theme(legend.position = "bottom") +
+    labs(title = paste("Timepoint:", tp_value), 
+         x = "NMDS1", 
+         y = "NMDS2",
+         colour = "Treatment")
+
+  # top boxplot (NMDS1)
+  p_box_x <-
+    df_tp %>%
+    ggplot(aes(x = treatment, y = NMDS1, colour = treatment)) +
+    geom_boxplot(alpha = 0.8, outlier.shape = NA) +
+    geom_jitter(width = 0.2, height = 0, size = 1.5, alpha = 0.4) +
+    scale_colour_manual(values = c("#0072B2", "#D55E00")) +
+    ggpubr::stat_compare_means(method = "wilcox.test",
+                               label = "p.signif", label.x = 2, size = 4) +
+    coord_flip(ylim = x_limits) +
+    theme_void() +
+    theme(legend.position  = "none") +
+    ggtitle("NMDS1 distribution")
+
+  # right boxplot (NMDS2)
+  p_box_y <-
+    df_tp %>%
+    ggplot(aes(x = treatment, y = NMDS2, colour = treatment)) +
+    geom_boxplot(alpha = 0.8, outlier.shape = NA) +
+    geom_jitter(width = 0.2, height = 0, size = 1.5, alpha = 0.4) +
+    scale_colour_manual(values = c("#0072B2", "#D55E00")) +
+    ggpubr::stat_compare_means(method = "wilcox.test",
+                               label = "p.signif", label.x = 1.75, size = 4) +
+    coord_cartesian(ylim = y_limits) +
+    theme_void() +
+    theme(legend.position = "none") +
+    ggtitle("NMDS2 distribution")
+
+  # assemble
+  combined <-
+    p_box_x + patchwork::plot_spacer() + p_scatter + p_box_y +
+    patchwork::plot_layout(
+      widths  = unit(c(60, 10), "mm"),
+      heights = unit(c(10, 60), "mm"),
+      ncol = 2
+    )
+    # compute panel-specific size
+  grob <- patchworkGrob(combined)
+  width_mm  <- grid::convertWidth(sum(grob$widths),  "mm", valueOnly = TRUE) * 1.5
+  height_mm <- grid::convertHeight(sum(grob$heights), "mm", valueOnly = TRUE)
+
+  # save PDF
+  out_pdf <- here::here(out_dir, paste0("nmds_scatter_timepoint_", tp_value, ".pdf"))
+  ggsave(plot = combined, filename = out_pdf, width = width_mm, height = height_mm, units = "mm")
+
+}
+
+unique(plot_df$time_point) %>%
+  purrr::walk(~ save_timepoint_plot(tp_value = .x,
+                             df = plot_df,
+                             out_dir = out_dir,
+                             x_limits = x_limits,
+                             y_limits = y_limits))
+
+
+```
+
+
 ## Centroid Distances Computation and Plot
 
 ```{r}
