@@ -36,6 +36,12 @@ mod_formula <- glue::glue(
 library(magrittr)
 library(patchwork)
 suppressPackageStartupMessages(library(tidySingleCellExperiment))
+
+# variables for correlation
+populations <- c("CD4+ T cells", "CD8+ T cells", "CD4+ T cell count nadir", "CD4+ CD38+ HLA-DR+ T cells", "CD8+ CD38+ HLA-DR+ T cells")
+cytokines <- c("CRP", "IL-6", "TNF-α", "sCD14")
+others <- c("HIV viral load", "BMI")
+
 ```
 
 ## Load TSE Object
@@ -43,24 +49,37 @@ suppressPackageStartupMessages(library(tidySingleCellExperiment))
 ```{r}
 tse <- readr::read_rds(tse_file)
 tse
+
+# expand abbreviations
+df <-
+  tse %>%
+  SummarizedExperiment::colData() %>%
+  tibble::as_tibble() %>%
+  dplyr::mutate(
+    "CD4+ T cells" = CD4,
+    "CD4+ T cell count nadir" = CD4_nadir,
+    "CD8+ T cells" = CD8,
+    "CD4+ CD38+ HLA-DR+ T cells" = CD4_CD38_DR,
+    "CD8+ CD38+ HLA-DR+ T cells" = CD8_CD38_DR,
+    "IL-6" = IL6,
+    "TNF-α" = TNFa,
+    "sCD14" = sCD14,
+    "HIV viral load" = HIV_VL) 
+
 ```
 
 ## Define Cytokines and Markers
 
 ```{r}
-populations <- c("CD4", "CD8", "CD4_nadir", "CD4_CD38_DR", "CD8_CD38_DR")
-cytokines <- c("CRP", "IL6", "TNFa", "sCD14")
-others <- c("HIV_VL", "BMI")
-
 all_markers <- 
   c(populations, cytokines, others) %>% 
   tibble::enframe(value = "marker") %>% 
   dplyr::mutate(unit = dplyr::case_when(
-    marker %in% populations ~ "Counts/mL", 
-    marker %in% c("IL6", "TNFa") ~ "pg/mL", 
+    marker %in% populations ~ "counts/mL", 
+    marker %in% c("IL-6", "TNF-α") ~ "pg/mL", 
     marker == "CRP" ~ "mg/mL", 
     marker == "sCD14" ~ "ng/mL", 
-    marker == "HIV_VL" ~ "copies/mL",
+    marker == "HIV viral load" ~ "copies/mL",
     marker == "BMI" ~ "kg/m2",
     TRUE ~ NA_character_
   ))
@@ -77,9 +96,8 @@ plt_list <-
     # prepare data
     .unit <- all_markers[all_markers$marker == .x, "unit"]
     plt_df <- 
-      colData(tse) %>% 
-      tibble::as_tibble() %>% 
-      tidyr::drop_na(!!.x) %>% 
+      df %>%
+      tidyr::drop_na(dplyr::all_of(.x)) %>% 
       dplyr::mutate(time_point = factor(time_point))
      
     # calculate stats
@@ -87,7 +105,7 @@ plt_list <-
       plt_df %>%
       rstatix::group_by(treatment) %>%
       rstatix::wilcox_test(
-        formula = formula(glue::glue("{.x} ~ time_point")),
+        formula = formula(glue::glue("`{.x}` ~ time_point")),
         p.adjust.method = "fdr", 
         detailed = TRUE
       ) %>%
@@ -155,8 +173,7 @@ plt_list <-
     # prepare data
     .unit <- all_markers[all_markers$marker == .x, "unit"]
     plt_df <- 
-      colData(tse) %>% 
-      tibble::as_tibble() %>%
+      df %>%
       dplyr::select(dplyr::all_of(c(confounders, .x))) %>% 
       dplyr::arrange(record_id, time_point) %>% 
       dplyr::group_by(record_id) %>% 

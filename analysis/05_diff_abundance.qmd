@@ -340,7 +340,19 @@ corr_df <-
     verbose = FALSE,
     show_warnings = FALSE
   ) %>% 
-  tibble::as_tibble()
+  tibble::as_tibble() %>%
+    dplyr::mutate(
+    Var2 = dplyr::case_when(
+      Var2 == "CD4" ~ "CD4+ T cells",
+      Var2 == "CD8" ~ "CD8+ T cells",
+      Var2 == "CD4_nadir" ~ "CD4+ T cell count nadir",
+      Var2 == "CD4_CD38_DR" ~ "CD4+ CD38+ HLA-DR+ T cells",
+      Var2 == "CD8_CD38_DR" ~ "CD8+ CD38+ HLA-DR+ T cells",
+      Var2 == "IL6" ~ "IL-6",
+      Var2 == "TNFa" ~ "TNF-α",
+      Var2 == "HIV_VL" ~ "HIV viral load"
+    )
+  ) 
 ```
 
 ### Plot Best Correlations (Not necessary DA taxa)
@@ -455,7 +467,7 @@ plt <-
 r_plt <-
   plt + plot_spacer() +
   plot_layout(
-    widths = ggplot2::unit(c(250, 1), "mm"),
+    widths = ggplot2::unit(c(200, 1), "mm"),
     heights = ggplot2::unit(75, "mm")
   )
 
