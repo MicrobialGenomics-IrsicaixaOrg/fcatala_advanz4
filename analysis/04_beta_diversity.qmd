@@ -37,6 +37,7 @@ mod_formula <- glue::glue(
 library(magrittr)
 library(patchwork)
 suppressPackageStartupMessages(library(tidySingleCellExperiment))
+source(here::here("R", "utils.R"))
 ```
 
 ## Load TSE Object and Transform
@@ -1064,7 +1065,7 @@ permanova_tbl
 ```{r}
 sample_order <- 
   mia::convertToPhyloseq(tse, assay.type = "relab") %>% 
-  metar:::get_sample_ordination(method = "NMDS", order_var = "MDS1", dist = "bray")
+  get_sample_ordination(method = "NMDS", order_var = "MDS1", dist = "bray")
 ```
 
 ### Alpha Diversity Plot

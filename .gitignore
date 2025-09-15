@@ -6,3 +6,4 @@
 /.quarto/
 /_*.local
 data/*
+analysis/*_cache/*
