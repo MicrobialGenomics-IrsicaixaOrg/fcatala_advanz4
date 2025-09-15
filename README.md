@@ -85,8 +85,8 @@ After setting up the environment and downloading the required data:
    ```R
    quarto::quarto_render("analysis/01_alpha_diversity.qmd")
    ```
-   > [!IMPORTANT]
    
+   > [!IMPORTANT]
    > Analyses files should be rendered separately and in numerical order (e.g. 01, 02, 03...) to avoid dependency issues.
 
 3. Output files
