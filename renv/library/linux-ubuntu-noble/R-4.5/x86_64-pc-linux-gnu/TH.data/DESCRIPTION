@@ -1,0 +1,28 @@
+Package: TH.data
+Title: TH's Data Archive
+Date: 2025-09-02
+Version: 1.1-4
+Authors@R: c(person("Torsten", "Hothorn", role = c("aut", "cre"),
+                    email = "Torsten.Hothorn@R-project.org"))
+Description: Contains data sets used in other packages Torsten Hothorn
+  maintains.
+Depends: R (>= 3.5.0), survival, MASS
+Suggests: trtf, tram, rms, coin, ATR, multcomp, gridExtra, vcd,
+        colorspace, lattice, knitr, dplyr, openxlsx, plyr
+LazyData: yes
+VignetteBuilder: knitr
+License: GPL-3
+NeedsCompilation: no
+Packaged: 2025-09-02 08:55:00 UTC; hothorn
+Author: Torsten Hothorn [aut, cre]
+Maintainer: Torsten Hothorn <Torsten.Hothorn@R-project.org>
+Repository: RSPM
+Date/Publication: 2025-09-02 11:30:09 UTC
+Encoding: UTF-8
+Built: R 4.5.0; ; 2025-09-03 16:43:06 UTC; unix
+RemoteType: standard
+RemotePkgRef: TH.data
+RemoteRef: TH.data
+RemoteRepos: https://packagemanager.posit.co/cran/__linux__/noble/latest
+RemotePkgPlatform: x86_64-pc-linux-gnu-ubuntu-24.04
+RemoteSha: 1.1-4

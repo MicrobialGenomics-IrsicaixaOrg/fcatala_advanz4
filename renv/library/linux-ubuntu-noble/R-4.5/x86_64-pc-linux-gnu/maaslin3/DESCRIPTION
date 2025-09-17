@@ -1,0 +1,36 @@
+Package: maaslin3
+Title: "Refining and extending generalized multivariate linear models
+        for meta-omic association discovery"
+Year: 2025
+Version: 1.0.0
+Authors@R: c(
+  person("William", "Nickols", email = "willnickols@g.harvard.edu", role = c("aut", "cre"), comment=c(ORCID="0000-0001-8214-9746")), 
+  person("Jacob", "Nearing", email = "nearing@broadinstitute.org", role = "aut")
+  )
+Depends: R (>= 4.4)
+Description: MaAsLin 3 refines and extends generalized multivariate linear models for meta-omicron association discovery. It finds abundance and prevalence associations between microbiome meta-omics features and complex metadata in population-scale epidemiological studies. The software includes multiple analysis methods (including support for multiple covariates, repeated measures, and ordered predictors), filtering, normalization, and transform options to customize analysis for your specific study.
+License: MIT + file LICENSE
+Imports: dplyr, plyr, pbapply, lmerTest, parallel, lme4, optparse,
+        logging, multcomp, ggplot2, RColorBrewer, patchwork, scales,
+        rlang, tibble, ggnewscale, survival, methods, BiocGenerics,
+        SummarizedExperiment, TreeSummarizedExperiment
+Suggests: knitr, testthat (>= 2.1.0), rmarkdown, markdown, kableExtra
+VignetteBuilder: knitr
+Collate: fit.R utility_scripts.R viz.R maaslin3.R
+URL: http://huttenhower.sph.harvard.edu/maaslin3
+biocViews: Metagenomics, Software, Microbiome, Normalization,
+        MultipleComparison
+BugReports: https://github.com/biobakery/maaslin3/issues
+NeedsCompilation: no
+Packaged: 2025-04-15 23:10:10 UTC; biocbuild
+git_url: https://git.bioconductor.org/packages/maaslin3
+git_branch: RELEASE_3_21
+git_last_commit: 7584c46
+git_last_commit_date: 2025-04-15
+Repository: Bioconductor 3.21
+Date/Publication: 2025-04-15
+Author: William Nickols [aut, cre] (ORCID:
+    <https://orcid.org/0000-0001-8214-9746>),
+  Jacob Nearing [aut]
+Maintainer: William Nickols <willnickols@g.harvard.edu>
+Built: R 4.5.1; ; 2025-09-17 06:52:14 UTC; unix

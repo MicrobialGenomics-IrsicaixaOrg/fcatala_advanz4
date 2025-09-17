@@ -55,7 +55,6 @@ tse <-
   mia::transformAssay(method = "log10", pseudocount = 1)
 
 tse
-
 ```
 
 ## NMDS Analysis 
@@ -377,7 +376,7 @@ spearman_corr_df <-
 # prepare data
 plt_df <- 
   spearman_corr_df %>%
-   dplyr::mutate(
+  dplyr::mutate(
     Var2 = dplyr::case_when(
       Var2 == "CD4" ~ "CD4+ T cells",
       Var2 == "CD8" ~ "CD8+ T cells",
@@ -385,9 +384,12 @@ plt_df <-
       Var2 == "CD4_CD38_DR" ~ "CD4+ CD38+ HLA-DR+ T cells",
       Var2 == "CD8_CD38_DR" ~ "CD8+ CD38+ HLA-DR+ T cells",
       Var2 == "IL6" ~ "IL-6",
+      Var2 == "CRP" ~ "CRP",
       Var2 == "TNFa" ~ "TNF-α",
-      Var2 == "HIV_VL" ~ "HIV viral load"
-    )
+      Var2 == "HIV_VL" ~ "HIV viral load", 
+      TRUE ~ Var2
+    ), 
+    Var2 = factor(Var2, levels = all_markers_long)
    ) %>%
    dplyr::mutate(
     sign = dplyr::case_when(
@@ -446,39 +448,51 @@ r_plt
 #| warning: FALSE
 
 # computes correlations
-rmcorr_df_all <- 
-  tidyr::expand_grid(metric = "centroid_dist", all_markers_abb) %>%
-  purrr::pmap_dfr( ~ {
-    # prepare data
-    f_df <-
-      colData(tse2) %>%
-      tibble::as_tibble() %>%
-      dplyr::select(dplyr::all_of(c(.x, .y, confounders))) %>%
-      dplyr::mutate(tp = as.character(time_point) %>% as.numeric()) %>% 
-      tidyr::drop_na(dplyr::all_of(c(.x, .y))) %>%
-      dplyr::mutate(
-        dplyr::across(dplyr::where(is.character), as.factor),
-        treatment = factor(treatment, levels = c("DRV/r", "DTG"))
+rmcorr_df_all <-
+  tidyr::expand_grid(metric = "centroid_dist", all_markers_long) %>%
+  purrr::pmap_dfr(
+    ~ {
+      # prepare data
+      f_df <-
+        colData(tse2) %>%
+        tibble::as_tibble() %>%
+        dplyr::mutate(
+          "CD4+ T cells" = CD4,
+          "CD8+ T cells" = CD8,
+          "CD4+ T cell count nadir" = CD4_nadir,
+          "CD4+ CD38+ HLA-DR+ T cells" = CD4_CD38_DR,
+          "CD8+ CD38+ HLA-DR+ T cells" = CD8_CD38_DR,
+          "IL-6" = IL6,
+          "TNF-α" = TNFa,
+          "HIV viral load" = HIV_VL
+        ) %>% 
+        dplyr::select(dplyr::all_of(c(.x, .y, confounders))) %>%
+        dplyr::mutate(tp = as.character(time_point) %>% as.numeric()) %>%
+        tidyr::drop_na(dplyr::all_of(c(.x, .y))) %>%
+        dplyr::mutate(
+          dplyr::across(dplyr::where(is.character), as.factor),
+          treatment = factor(treatment, levels = c("DRV/r", "DTG"))
+        )
+
+      # compute rmcorr
+      res <- rmcorr::rmcorr(
+        participant = "record_id",
+        measure1 = f_df[[.x]],
+        measure2 = f_df[[.y]],
+        dataset = f_df
       )
-    
-    # compute rmcorr
-    res <- rmcorr::rmcorr(
-      participant = "record_id",
-      measure1 = f_df[[.x]],
-      measure2 = f_df[[.y]],
-      dataset = f_df
-    )
-    
-    # create tibble 
-    tibble::tibble(
-      metric = .x,
-      marker = .y,
-      cor = res$r,
-      p = res$p,
-      df = list(f_df),
-      rmcorr = list(res),
-    )
-  }) %>% 
+
+      # create tibble
+      tibble::tibble(
+        metric = .x,
+        marker = .y,
+        cor = res$r,
+        p = res$p,
+        df = list(f_df),
+        rmcorr = list(res),
+      )
+    }
+  ) %>%
   dplyr::mutate(p_adj = p.adjust(p, method = "fdr"), .after = p) %>%
   dplyr::arrange(p_adj)
 
@@ -490,27 +504,37 @@ plt_df <-
       p_adj < 0.05 & abs(cor) > 0.2 ~ "< 0.05",
       dplyr::between(p_adj, 0.05, 0.1) & abs(cor) > 0.2 ~ "< 0.1",
       TRUE ~ "ns"
-    ), 
-    marker = factor(marker, levels = all_markers),
+    ),
+    marker = factor(marker, levels = all_markers_long)
   )
 
 # plot
 lim <- abs(plt_df$cor) %>% max() %>% round(digits = 1) * 1.2
 plt <-
   plt_df %>%
-  dplyr::mutate(lab = stringr::str_replace(metric, "_", " ") %>% stringr::str_to_sentence()) %>% 
+  dplyr::mutate(
+    lab = stringr::str_replace(metric, "_", " ") %>% stringr::str_to_sentence()
+  ) %>%
   ggplot(aes(x = marker, y = lab, fill = cor, colour = sign)) +
   geom_point(aes(size = abs(cor), alpha = sign), shape = 22, stroke = 1) +
   scale_fill_gradientn(
     colours = rev(RColorBrewer::brewer.pal(11, "PiYG")),
     limits = c(-lim, lim)
   ) +
-  scale_colour_manual(values = c("< 0.05" = "black", "< 0.1" = "#525252", "ns" = "white")) +
-  scale_alpha_manual(values = c("< 0.05" = 0.9, "< 0.1" = 0.9, "ns" = 0.6), guide = "none") +
+  scale_colour_manual(
+    values = c("< 0.05" = "black", "< 0.1" = "#525252", "ns" = "white")
+  ) +
+  scale_alpha_manual(
+    values = c("< 0.05" = 0.9, "< 0.1" = 0.9, "ns" = 0.6),
+    guide = "none"
+  ) +
   scale_size_continuous(range = c(2, 8), guide = "none") +
   theme_minimal() +
   labs(
-    x = "", y = "", fill = "Repeated Measures Correlation", colour = "q < 0.05"
+    x = "",
+    y = "",
+    fill = "Repeated Measures Correlation",
+    colour = "q < 0.05"
   ) +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1),
@@ -573,8 +597,10 @@ plt_df <-
       Var2 == "CD8_CD38_DR" ~ "CD8+ CD38+ HLA-DR+ T cells",
       Var2 == "IL6" ~ "IL-6",
       Var2 == "TNFa" ~ "TNF-α",
-      Var2 == "HIV_VL" ~ "HIV viral load"
-    )
+      Var2 == "HIV_VL" ~ "HIV viral load", 
+      TRUE ~ Var2
+    ), 
+    Var2 = factor(Var2, levels = all_markers_long)
    ) %>%
   dplyr::mutate(
     sign = dplyr::case_when(
@@ -634,12 +660,22 @@ r_plt
 rmcorr_df <- 
   mia::splitOn(tse2, "treatment") %>%
   purrr::map_dfr(function(.split) {
-    tidyr::expand_grid(metric = "centroid_dist", all_markers_abb) %>%
+    tidyr::expand_grid(metric = "centroid_dist", all_markers_long) %>%
       purrr::pmap_dfr( ~ {
         # prepare data
         f_df <-
           colData(.split) %>%
           tibble::as_tibble() %>%
+          dplyr::mutate(
+            "CD4+ T cells" = CD4,
+            "CD8+ T cells" = CD8,
+            "CD4+ T cell count nadir" = CD4_nadir,
+            "CD4+ CD38+ HLA-DR+ T cells" = CD4_CD38_DR,
+            "CD8+ CD38+ HLA-DR+ T cells" = CD8_CD38_DR,
+            "IL-6" = IL6,
+            "TNF-α" = TNFa,
+            "HIV viral load" = HIV_VL
+          ) %>% 
           dplyr::select(dplyr::all_of(c(.x, .y, confounders))) %>%
           tidyr::drop_na(dplyr::all_of(c(.x, .y))) %>%
           dplyr::mutate(
@@ -678,7 +714,7 @@ plt_df <-
       dplyr::between(p_adj, 0.05, 0.1) & abs(cor) > 0.2 ~ "< 0.1",
       TRUE ~ "ns"
     ), 
-    marker = factor(marker, levels = all_markers_abb)
+    marker = factor(marker, levels = all_markers_long)
   )
       
 # plot
@@ -736,9 +772,22 @@ plt
 #| message: FALSE
 #| warning: FALSE
 dir.create(here::here(out_dir, "spearman_scat"), showWarnings = FALSE, recursive = TRUE)
-plt_df <- colData(tse2) %>% tibble::as_tibble()
+plt_df <- 
+  colData(tse2) %>% 
+  tibble::as_tibble() %>% 
+  dplyr::rename(
+    "CD4+ T cells" = CD4,
+    "CD8+ T cells" = CD8,
+    "CD4+ T cell count nadir" = CD4_nadir,
+    "CD4+ CD38+ HLA-DR+ T cells" = CD4_CD38_DR,
+    "CD8+ CD38+ HLA-DR+ T cells" = CD8_CD38_DR,
+    "IL-6" = IL6,
+    "TNF-α" = TNFa,
+    "HIV viral load" = HIV_VL
+  )
+
 plt_list <- 
-  all_markers %>% 
+  all_markers_long %>% 
   purrr::set_names() %>% 
   purrr::map(function(.marker) {
     .metric = "centroid_dist"
@@ -815,22 +864,8 @@ names(plt_list) %>%
 ```{r}
 #| message: FALSE
 #| warning: FALSE
-plt_df <- 
-  SummarizedExperiment::colData(tse2) %>%
-  tibble::as_tibble() %>%
-  dplyr::mutate(
-    "CD4+ T cells" = CD4,
-    "CD4+ T cell count nadir" = CD4_nadir,
-    "CD8+ T cells" = CD8,
-    "CD4+ CD38+ HLA-DR+ T cells" = CD4_CD38_DR,
-    "CD8+ CD38+ HLA-DR+ T cells" = CD8_CD38_DR,
-    "IL-6" = IL6,
-    "TNF-α" = TNFa,
-    "sCD14" = sCD14,
-    "HIV viral load" = HIV_VL) 
-  
 plt_list <- 
-all_markers_long %>% 
+  all_markers_long %>% 
   purrr::set_names() %>% 
   purrr::map(function(.marker) {
     .metric = "centroid_dist"
@@ -861,7 +896,7 @@ all_markers_long %>%
         p.digits = 1,
         label.y = c(lab_min - 0.05 * lab_range, lab_min - 0.15 * lab_range), 
         size = 3
-      )) %>% 
+      )) %>%
       tidyplots::adjust_legend_title("Treatment") %>%
       tidyplots::adjust_y_axis_title(.y_lab) %>% 
       tidyplots::adjust_x_axis_title(.name) %>% 
@@ -914,7 +949,25 @@ plt_list <-
   purrr::set_names() %>% 
   purrr::map(function(.marker) {
     .metric = "centroid_dist"
-    it_data <- rmcorr_df_all %>% dplyr::filter(metric == .metric, marker == .marker)
+    it_data <- 
+      rmcorr_df_all %>% 
+      dplyr::mutate(
+        marker = dplyr::case_when(
+          marker == "CD4" ~ "CD4+ T cells",
+          marker == "CD8" ~ "CD8+ T cells",
+          marker == "CD4_nadir" ~ "CD4+ T cell count nadir",
+          marker == "CD4_CD38_DR" ~ "CD4+ CD38+ HLA-DR+ T cells",
+          marker == "CD8_CD38_DR" ~ "CD8+ CD38+ HLA-DR+ T cells",
+          marker == "IL6" ~ "IL-6",
+          marker == "CRP" ~ "CRP",
+          marker == "TNFa" ~ "TNF-α",
+          marker == "HIV_VL" ~ "HIV viral load", 
+          TRUE ~ marker
+        ), 
+        marker = factor(marker, levels = all_markers_long)
+      ) %>% 
+      dplyr::filter(metric == .metric, marker == .marker)
+
     plt_df <-
       it_data$df %>%
       purrr::list_rbind() %>%
@@ -982,7 +1035,7 @@ names(plt_list) %>%
 ```{r}
 #| warning: FALSE
 plt_list <- 
-  all_markers %>% 
+  all_markers_long %>% 
   purrr::set_names() %>% 
   purrr::map(function(.marker) {
     .metric = "centroid_dist"

@@ -7,3 +7,4 @@
 /_*.local
 data/*
 analysis/*_cache/*
+renv/*
