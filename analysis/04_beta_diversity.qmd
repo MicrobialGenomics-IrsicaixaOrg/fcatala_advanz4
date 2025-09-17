@@ -37,12 +37,12 @@ mod_formula <- glue::glue(
 library(magrittr)
 library(patchwork)
 suppressPackageStartupMessages(library(tidySingleCellExperiment))
+source(here::here("R", "utils.R"))
 
 # variables for correlation
 all_markers_abb <- c("CD4", "CD8", "CD4_nadir", "CD4_CD38_DR", "CD8_CD38_DR", "CRP", "IL6", "TNFa", "sCD14", "HIV_VL", "BMI")
 
 all_markers_long <- c("CD4+ T cells", "CD8+ T cells", "CD4+ T cell count nadir", "CD4+ CD38+ HLA-DR+ T cells", "CD8+ CD38+ HLA-DR+ T cells", "CRP", "IL-6", "TNF-α", "sCD14", "HIV viral load", "BMI")
-
 
 ```
 
@@ -1101,7 +1101,7 @@ permanova_tbl
 ```{r}
 sample_order <- 
   mia::convertToPhyloseq(tse, assay.type = "relab") %>% 
-  metar:::get_sample_ordination(method = "NMDS", order_var = "MDS1", dist = "bray")
+  get_sample_ordination(method = "NMDS", order_var = "MDS1", dist = "bray")
 ```
 
 ### Alpha Diversity Plot

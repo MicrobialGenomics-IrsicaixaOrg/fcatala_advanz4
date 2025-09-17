@@ -1,7 +1,5 @@
 ---
 title: "06 - Functional Analysis (Path Abundance)"
-execute: 
-  cache: true
 ---
 
 ## Define the input and output paths
@@ -56,6 +54,7 @@ path_ab <-
   dplyr::filter(!stringr::str_detect(`# Pathway`, "[|]")) %>% 
   dplyr::rename_with(~ stringr::str_remove_all(.x, "_Abundance")) %>%
   dplyr::select(1, dplyr::all_of(tse$SampleID)) %>% 
+  dplyr::filter(!stringr::str_detect(`# Pathway`, "UNMAPPED|UNINTEGRATED")) %>% 
   data.frame(row.names = 1) %>% 
   as.matrix()
 
@@ -65,6 +64,7 @@ row_dat <-
   dplyr::filter(!stringr::str_detect(`# Pathway`, "[|]")) %>% 
   dplyr::select(pathway_ = `# Pathway`) %>%
   dplyr::mutate(Species = pathway_) %>% 
+  dplyr::filter(!stringr::str_detect(pathway_, "UNMAPPED|UNINTEGRATED")) %>% 
   data.frame() %>% 
   as.matrix()
 
@@ -95,62 +95,32 @@ ancombc_results <- ANCOMBC::ancombc2(
 ### Preprocess Results
 
 ```{r}
-pre_df <- ancombc_results %>% purrr::pluck("res") %>% tibble::as_tibble()
-
-# lfc_df
-lfc_df <- 
-  pre_df %>% 
-  dplyr::select(taxon, dplyr::starts_with("lfc_treatmentDTG")) %>% 
-  dplyr::rename_with(.cols = dplyr::starts_with("lfc"), .fn = ~ {
-    stringr::str_remove_all(.x, ".*point") %>% 
-      stringr::str_replace_all("lfc_treatmentDTG", "0")
-  }) %>% 
-  dplyr::mutate(`24` = `24` + `0`, `48` = `48` + `0`, `96` = `96` + `0`) %>% 
-  tidyr::pivot_longer(cols = -taxon, names_to = "time_point", values_to = "lfc") 
-
-# pval_df
-pval_df <- 
-  pre_df %>% 
-  dplyr::select(taxon, dplyr::starts_with("p_treatmentDTG")) %>% 
-  dplyr::rename_with(.cols = dplyr::starts_with("p_"), .fn = ~ {
-    stringr::str_remove_all(.x, ".*point") %>% 
-      stringr::str_replace_all("p_treatmentDTG", "0")
-  }) %>% 
-  tidyr::pivot_longer(cols = -taxon, names_to = "time_point", values_to = "pval")
-
-# qval_df
-qval_df <- 
-  pre_df %>% 
-  dplyr::select(taxon, dplyr::starts_with("q_treatmentDTG")) %>% 
-  dplyr::rename_with(.cols = dplyr::starts_with("q_"), .fn = ~ {
-    stringr::str_remove_all(.x, ".*point") %>% 
-      stringr::str_replace_all("q_treatmentDTG", "0")
-  }) %>% 
-  tidyr::pivot_longer(cols = -taxon, names_to = "time_point", values_to = "qval")
-
-# passed DTG
-passed_df <- 
-  pre_df %>% 
-  dplyr::select(taxon, dplyr::starts_with("passed_ss_treatmentDTG")) %>% 
-  dplyr::rename_with(.cols = dplyr::starts_with("p"), .fn = ~ {
-    stringr::str_remove_all(.x, ".*point") %>% 
-      stringr::str_replace_all("passed_ss_treatmentDTG", "0")
-  }) %>% 
-  tidyr::pivot_longer(cols = -taxon, names_to = "time_point", values_to = "passed")
-
-# prepare annot
-annot_df <- 
-  rowData(tse) %>%
-  tibble::as_tibble(rownames = "taxon") %>% 
-  dplyr::select(taxon, Species)
-
-# combine
 res_df <- 
-  lfc_df %>% 
-  dplyr::left_join(pval_df, by = c("taxon", "time_point")) %>% 
-  dplyr::left_join(qval_df, by = c("taxon", "time_point")) %>% 
-  dplyr::left_join(passed_df, by = c("taxon", "time_point")) %>% 
-  dplyr::left_join(annot_df, by = "taxon")
+  ancombc_results %>% 
+  purrr::pluck("res") %>% 
+  tibble::as_tibble() %>% 
+  dplyr::select(taxon, dplyr::contains("DTG")) %>% 
+  tidyr::pivot_longer(
+    cols = -taxon,
+    names_to   = c("metric", "comparison"),
+    names_pattern = "^(lfc|se|W|p|q|diff_robust|diff|passed_ss)_(.+)$",
+    values_to  = "value"
+  ) %>% 
+  dplyr::mutate(comparison = sub("^robust_", "", comparison)) %>% 
+  tidyr::pivot_wider(names_from = metric, values_from = value) %>% 
+  dplyr::rename(qval = q) %>% 
+  dplyr::mutate(
+    time_point = case_when(
+      comparison == "treatmentDTG" ~ 0,
+      stringr::str_ends(comparison, "time_point24") ~ 24, 
+      stringr::str_ends(comparison, "time_point48") ~ 48, 
+      stringr::str_ends(comparison, "time_point96") ~ 96, 
+      TRUE ~ NA_integer_
+    ), 
+    time_point = factor(time_point), 
+    comparison = "DTG vs RAL", 
+    .after = 1
+  )
 
 # add prevalence
 res_df <- 
@@ -159,7 +129,14 @@ res_df <-
   tidyr::pivot_longer(cols = -taxon, names_to = "SampleID", values_to = "ab") %>%
   dplyr::group_by(taxon) %>% 
   dplyr::summarise(prevalence = round(sum(ab > 0) / dplyr::n(), 2)) %>% 
-  dplyr::left_join(res_df, ., by = "taxon")
+  dplyr::left_join(
+    rowData(tse) %>% tibble::as_tibble(rownames = "taxon"), 
+    by = "taxon"
+  ) %>% 
+  dplyr::select(taxon, Species, prevalence) %>% 
+  dplyr::left_join(res_df, ., relationship = "many-to-many", by = "taxon")
+
+res_df
 ```
 
 ### Volcano Plot
@@ -169,101 +146,192 @@ res_df <-
 plot_df <- 
   res_df %>% 
   dplyr::mutate(
-    candidate = abs(lfc) >= 0.5 & qval < 0.05 & passed & prevalence > 0.1 & time_point != "0",
+    candidate = abs(lfc) >= lfc_cutoff & qval < q_cutoff & passed_ss == 1 & prevalence > prev_cutoff,
     time_point = factor(time_point), 
     neg_log10_qval = -log10(qval)
   )
 
 # prepare plot
-volc_plt <- 
-  plot_df %>% 
-  tidyr::drop_na(lfc, neg_log10_qval) %>%
-  tidyplot(lfc, neg_log10_qval, color = time_point, size = neg_log10_qval) %>% 
-  add(geom_point(
-    data = filter_rows(!candidate), 
-    color = "lightgrey", 
-    aes(size = neg_log10_qval)
-  )) %>%
-  add(geom_point(data = filter_rows(candidate), aes(size = neg_log10_qval))) %>%
-  add(scale_size_continuous(range = c(0.5, 3))) %>%
-  add_reference_lines(x = c(-0.5, 0.5), y = -log10(0.05)) %>% 
-  adjust_x_axis_title("$Log[2]~fold~change$") %>% 
-  adjust_y_axis_title("$-Log[10]~italic(P)~adjusted$") %>% 
-  adjust_legend_title("Time Point") %>% 
-  adjust_size(width = 50, height = 50)
+tp_palette <- c("#0072B2", "#009E73", "#E69F00", "#D55E00")
+max_x_val <- plot_df$lfc %>% abs() %>% max(na.rm = TRUE) * 1.1
+max_y_val <- plot_df$neg_log10_qval %>% max(na.rm = TRUE) * 1.1
+volcano_plts <- 
+  plot_df$time_point %>% 
+  levels() %>% 
+  purrr::map2(tp_palette, ~ {
+    volc_plt <- 
+      plot_df %>% 
+      dplyr::filter(time_point == .x) %>% 
+      tidyr::drop_na(lfc, neg_log10_qval) %>%
+      tidyplot(lfc, neg_log10_qval, size = neg_log10_qval) %>% 
+      add(geom_point(
+        data = filter_rows(!candidate), 
+        color = "lightgrey", 
+        aes(size = neg_log10_qval)
+      )) %>%
+      add(geom_point(
+        data = filter_rows(candidate), 
+        colour = .y, 
+        aes(size = neg_log10_qval)
+      )) %>%
+      add(scale_size_continuous(range = c(0.5, 3), limits = c(0, max_y_val))) %>%
+      add_reference_lines(x = c(-0.5, 0.5), y = -log10(0.05)) %>% 
+      adjust_x_axis_title("$Log[2]~fold~change$") %>% 
+      adjust_y_axis_title("$-Log[10]~italic(P)~adjusted$") %>% 
+      adjust_legend_title("Time Point") %>% 
+      adjust_x_axis(limits = c(-max_x_val, max_x_val)) %>% 
+      adjust_y_axis(limits = c(0, max_y_val))
 
-# save plot
-save_plot(volc_plt, here::here(out_dir, "volcano_plot.pdf"), view_plot = FALSE)
+    # save plot
+    volc_plt %>% 
+      adjust_size(width = 50, height = 50) %>% 
+      save_plot(
+        here::here(out_dir, glue::glue("volcano_plot_{.x}.pdf")), 
+        view_plot = FALSE
+      )
 
-volc_plt
+    volc_plt %>% 
+      adjust_caption(glue::glue("Time Point: {.x}")) %>% 
+      adjust_font(fontsize = 12)
+
+  })
+
+wrap_plots(volcano_plts)
 ```
 
 ### Bar Plot of Top Candidates
 
 ```{r}
+#| message: FALSE
+#| warning: FALSE
+
 # prepare plot
-bar_plt <- 
-  plot_df %>% 
-  dplyr::filter(candidate) %>% 
-  dplyr::group_by(Species) %>% 
-  # dplyr::filter(abs(lfc) == max(abs(lfc))) %>% 
-  dplyr::ungroup() %>%
-  dplyr::mutate(
-    abs_lfc = abs(lfc), 
-    sign = dplyr::if_else(lfc > 0, "Up DTG", "Down DTG"), 
-    Species = stringr::str_c(Species, "_", time_point, "w"), 
-    Species = forcats::fct_reorder(Species, lfc)
-  ) %>% 
-  tidyplot(abs_lfc, Species, color = sign) %>%
-  add_reference_lines(x = c(0.5)) %>% 
-  add(geom_col(width = 0.75, alpha = 0.6)) %>% 
-  add(geom_text(aes(label = prevalence), hjust = 1.2, size = 3, colour = "black")) %>%
-  adjust_y_axis_title(NULL) %>% 
-  adjust_x_axis_title("Absolute Log2 Fold Change") %>%
-  adjust_colors(c("#FFE577", "#7CC9E5")) %>%
-  adjust_size(width = 75, height = 75)
+bar_plts <- 
+  plot_df$time_point %>% 
+  levels() %>% 
+  purrr::set_names() %>% 
+  purrr::map(~ {
+    bar_plt <- 
+      plot_df %>% 
+      dplyr::filter(candidate) %>% 
+      dplyr::filter(time_point == .x) %>% 
+      dplyr::group_by(Species) %>% 
+      # dplyr::filter(abs(lfc) == max(abs(lfc))) %>% 
+      dplyr::ungroup() %>%
+      dplyr::mutate(
+        abs_lfc = abs(lfc), 
+        sign = dplyr::if_else(lfc > 0, "Up DTG", "Down DTG"), 
+        Species = forcats::fct_reorder(Species, lfc)
+      ) %>% 
+      tidyplot(abs_lfc, Species, color = sign) %>%
+      add_reference_lines(x = c(0.5)) %>% 
+      add(geom_col(width = 0.75, alpha = 0.6)) %>% 
+      add(geom_text(aes(label = prevalence), hjust = 1.2, size = 3, colour = "black")) %>%
+      adjust_y_axis_title(NULL) %>% 
+      adjust_x_axis_title("Absolute Log2 Fold Change") %>%
+      adjust_colors(c("#FFE577", "#7CC9E5")) 
 
-# save plot
-save_plot(bar_plt, here::here(out_dir, "barplot_plot.pdf"), view_plot = FALSE)
+    # save plot
+    bar_plt %>% 
+      adjust_size(width = 50, height = 75) %>% 
+      save_plot(
+        here::here(out_dir, glue::glue("bar_plot_{.x}.pdf")), 
+        view_plot = FALSE
+      )
 
-bar_plt
+    bar_plt %>% 
+      adjust_caption(glue::glue("Time Point: {.x}")) %>% 
+      adjust_font(fontsize = 10) %>% 
+      adjust_size(width = 50, height = 150) 
+
+  })
 ```
+
+::: panel-tabset
+
+```{r}
+#| results: asis
+#| warning: FALSE
+#| fig.height: 10
+names(bar_plts) %>% 
+  purrr::walk(~ {
+    cat("#### ", .x, "\n")
+    plot(bar_plts[[.x]])
+    cat("\n\n")
+  })
+```
+
+:::
+
 
 ### Lolliplot Of Top Candidates
 
 ```{r}
-lolli_plt <- 
-  plot_df %>% 
-  dplyr::filter(candidate) %>% 
-  dplyr::group_by(Species) %>% 
-  # dplyr::filter(abs(lfc) == max(abs(lfc))) %>% 
-  dplyr::ungroup() %>%
-  dplyr::mutate(
-    abs_lfc = abs(lfc), 
-    sign = dplyr::if_else(lfc > 0, "Up DTG", "Down DTG"), 
-    Species = stringr::str_c(Species, "_", time_point, "w"), 
-    Species = forcats::fct_reorder(Species, lfc)
-  ) %>% 
-  tidyplot(abs_lfc, Species, color = sign, size = prevalence) %>% 
-  add(geom_point(alpha = 1)) %>% 
-  add_reference_lines(x = c(0.5)) %>% 
-  add_mean_bar(width = 0.2, alpha = 0.7) %>% 
-  adjust_size(width = 75, height = 75) %>% 
-  adjust_x_axis_title("Absolute Log2 Fold Change") %>%
-  adjust_colors(c("Down DTG" = "#FFE577", "Up DTG" = "#7CC9E5")) %>%
-  add(scale_size_continuous(range = c(4, 8), breaks = c(0.2, 0.4, 0.6, 0.8))) %>%
-  adjust_y_axis_title(NULL)  %>%
-  add(geom_text(aes(label = prevalence), hjust = -1, size = 3)) %>%
-  add(scale_x_continuous(limits = c(0, 2.4))) %>%
-  adjust_size(width = 75, height = 75)
+lolli_plts <-
+  plot_df$time_point %>%
+  levels() %>%
+  purrr::set_names() %>%
+  purrr::map(~ {
+    lolli_plt <-
+      plot_df %>%
+      dplyr::filter(candidate) %>%
+      dplyr::filter(time_point == .x) %>% 
+      dplyr::group_by(Species) %>%
+      # dplyr::filter(abs(lfc) == max(abs(lfc))) %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate(
+        abs_lfc = abs(lfc),
+        sign = dplyr::if_else(lfc > 0, "Up DTG", "Down DTG"),
+        Species = stringr::str_c(Species, "_", time_point, "w"),
+        Species = forcats::fct_reorder(Species, lfc)
+      ) %>%
+      tidyplot(abs_lfc, Species, color = sign, size = prevalence) %>%
+      add(geom_point(alpha = 1)) %>%
+      add_reference_lines(x = c(0.5)) %>%
+      add_mean_bar(width = 0.2, alpha = 0.7) %>%
+      adjust_x_axis_title("Absolute Log2 Fold Change") %>%
+      adjust_colors(c("Down DTG" = "#FFE577", "Up DTG" = "#7CC9E5")) %>%
+      add(scale_size_continuous(range = c(4, 8), breaks = c(0.2, 0.4, 0.6, 0.8))) %>%
+      adjust_y_axis_title(NULL) %>%
+      add(geom_text(aes(label = prevalence), hjust = -1, size = 3)) %>%
+      add(scale_x_continuous(limits = c(0, 1.5))) %>%
+      adjust_size(width = 75, height = 100)
 
-# save plot
-save_plot(lolli_plt, here::here(out_dir, "lolli_plot.pdf"), view_plot = FALSE)
+    # save plot
+    save_plot(
+      lolli_plt,
+      here::here(out_dir, glue::glue("lolli_plot_{.x}.pdf")),
+      view_plot = FALSE
+    )
 
-lolli_plt
+    lolli_plt
+  })
+
 ```
 
+::: panel-tabset
+
 ```{r}
+#| results: asis
+#| warning: FALSE
+#| fig.height: 10
+names(lolli_plts) %>% 
+  purrr::walk(~ {
+    cat("#### ", .x, "\n")
+    plot(lolli_plts[[.x]])
+    cat("\n\n")
+  })
+```
+
+:::
+
+### Evolution Plot
+
+```{r}
+#| message: FALSE
+#| warning: FALSE
+#| fig.width: 10
+
 plot_df_2 <-
   plot_df %>%
   dplyr::group_by(Species) %>%
@@ -274,9 +342,9 @@ plot_df_2 <-
 evolution_plt <- 
   plot_df_2 %>% 
   ggplot(aes(time_point, lfc, colour = Species, group = Species)) +
-  geom_line(size = 1, alpha = 0.8) +
+  geom_line(linewidth = 1, alpha = 0.8) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") + 
-  theme_minimal() +
+  theme_minimal(base_size = 18) +
   theme(legend.position = "none") +
   geom_point(data = plot_df_2 %>% dplyr::filter(candidate), shape = 8, size = 2) +
   ggrepel::geom_text_repel(
@@ -284,25 +352,26 @@ evolution_plt <-
     aes(label = Species),
     fontface = "bold", size = 3, direction = "y", xlim = c(100, NA), hjust = 0.5,
     segment.size = .7, segment.alpha = .5, segment.linetype = "dotted", box.padding = .2,
-    segment.curvature = -0.2, segment.ncp = 3, segment.angle = 20
+    segment.curvature = -0.2, segment.ncp = 3, segment.angle = 20, max.overlaps = 25
   ) +
-  coord_cartesian(clip = "off", ylim = c(-1, 2)) +
-  scale_colour_manual(values = 
-    c("#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02", "#A6761D", 
-      "#666666", "#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#000000", 
-      "#A65628", "#F781BF", "#999999"
-    )
-  ) +
-  scale_x_continuous(expand = c(0, 0), limits = c(0, 180),breaks = c(0, 24, 48, 96)) +
+  coord_cartesian(clip = "off") +
+  # scale_colour_manual(values = 
+  #   c("#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02", "#A6761D", 
+  #     "#666666", "#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#000000", 
+  #     "#A65628", "#F781BF", "#999999"
+  #   )
+  # ) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 140),breaks = c(0, 24, 48, 96)) +
   scale_y_continuous(expand = c(0, 0), breaks = seq(-3, 3, by = 1)) +
   labs(x = "Time Point (weeks)", y = "Log2 Fold Change")
   
+
 # save plot
 ggsave(
   plot = evolution_plt,
   filename = here::here(out_dir, "evolution_plot.pdf"), 
-  width = 275,
-  height = 100,
+  width = 300,
+  height = 200,
   units = "mm"
 )
 
@@ -372,28 +441,34 @@ corr_df <-
   ) 
 ```
 
-### Plot Correlations 
+### Plot Best Correlations (Not necessary DA taxa)
 
 ```{r}
 #| message: FALSE
 #| warning: FALSE
+#| fig.width: 10
 
 # prepare data
-sig_taxa <- plot_df %>% dplyr::filter(candidate) %>% dplyr::pull(taxon)
 plt_df <- 
   corr_df %>% 
-  dplyr::filter(Var1 %in% sig_taxa) %>% 
-  dplyr::mutate(sign = p_adj < 0.05 & abs(cor) >= 0.1) 
+  dplyr::mutate(sign = p_adj < 0.05 & abs(cor) >= cor_cutoof) %>% 
+  dplyr::group_by(Var1) %>% 
+  dplyr::filter(any(sign)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::left_join(
+    rowData(tse2) %>% 
+      tibble::as_tibble(rownames = "Var1") %>% 
+      dplyr::select(Var1, Species)
+  )
 
 # plot
-lim <- abs(plt_df$cor) %>% max() %>% round(digits = 1)
-lim <- 0.3
+lim <- 0.42
 plt <-
   plt_df %>%
-  ggplot(aes(x = Var1, y = Var2, fill = cor, colour = sign)) +
+  ggplot(aes(x = Species, y = Var2, fill = cor, colour = sign)) +
   geom_point(aes(size = abs(cor), alpha = sign), shape = 22, stroke = 1) +
   scale_fill_gradientn(
-    colours = rev(RColorBrewer::brewer.pal(11, "PiYG")),
+    colours = rev(RColorBrewer::brewer.pal(11, "RdYlGn")),
     limits = c(-lim, lim)
   ) +
   scale_colour_manual(values = c("TRUE" = "black", "FALSE" = "white")) +
@@ -415,13 +490,258 @@ plt <-
 r_plt <-
   plt + plot_spacer() +
   plot_layout(
-    widths = ggplot2::unit(c(120, 1), "mm"),
+    widths = ggplot2::unit(c(75), "mm"),
     heights = ggplot2::unit(60, "mm")
   )
 
 tidyplots::save_plot(
   r_plt,
-  here::here(out_dir, glue::glue("corr_diff_functions.pdf")),
+  here::here(out_dir, glue::glue("corr_best.pdf")),
+  view_plot = FALSE
+)
+
+r_plt
+```
+
+### Plot Best Correlations for DA taxas
+
+```{r}
+#| message: FALSE
+#| warning: FALSE
+
+# prepare data
+sig_taxa <- plot_df %>% dplyr::filter(candidate) %>% dplyr::pull(taxon)
+plt_df <- 
+  corr_df %>% 
+  dplyr::mutate(sign = p_adj < 0.05) %>% 
+  dplyr::filter(Var1 %in% sig_taxa) %>% 
+  dplyr::group_by(Var1) %>% 
+  dplyr::filter(any(sign)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::left_join(
+    rowData(tse2) %>% 
+      tibble::as_tibble(rownames = "Var1") %>% 
+      dplyr::select(Var1, Species)
+  )
+
+# plot
+lim <- 0.42
+plt <-
+  plt_df %>%
+  ggplot(aes(x = Species, y = Var2, fill = cor, colour = sign)) +
+  geom_point(aes(size = abs(cor), alpha = sign), shape = 22, stroke = 1) +
+  scale_fill_gradientn(
+    colours = rev(RColorBrewer::brewer.pal(11, "RdYlGn")),
+    limits = c(-lim, lim)
+  ) +
+  scale_colour_manual(values = c("TRUE" = "black", "FALSE" = "white")) +
+  scale_alpha_manual(values = c("TRUE" = 0.9, "FALSE" = 0.6), guide = "none") +
+  scale_size_continuous(range = c(2, 8), guide = "none") +
+  theme_minimal() +
+  labs(
+    x = "", y = "", fill = "Spearman Correlation", colour = "q < 0.05"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "top",
+    legend.title.position = "top",
+    legend.title = element_text(hjust = 0.5),
+    legend.key.height = unit(0.5, "cm")
+  )
+
+# Resize and save
+r_plt <-
+  plt + plot_spacer() +
+  plot_layout(
+    widths = ggplot2::unit(c(75, 1), "mm"),
+    heights = ggplot2::unit(75, "mm")
+  )
+
+tidyplots::save_plot(
+  r_plt,
+  here::here(out_dir, glue::glue("corr_diff_taxa.pdf")),
+  view_plot = FALSE
+)
+
+r_plt
+```
+
+## Compute Repeated Measures Correlation Coefficient Species vs Markers 
+
+### Plot Best Correlations
+
+```{r}
+#| message: FALSE
+#| warning: FALSE
+#| fig.width: 15
+#| fig.high: 12
+
+# computes correlations
+rmcorr_df_all <-
+  tidyr::expand_grid(taxas = rownames(assay(tse2)), all_markers) %>%
+  purrr::pmap_dfr( ~ {
+    # prepare data
+    tax_ab <-
+      tse2[.x, ] %>%
+      assay("clr") %>%
+      tibble::as_tibble() %>%
+      tidyr::pivot_longer(
+        cols = dplyr::everything(),
+      names_to = "SampleID",
+      values_to = .x
+    )
+
+    f_df <-
+      colData(tse2) %>%
+      tibble::as_tibble() %>%
+      dplyr::select(SampleID, dplyr::all_of(c(.y, confounders))) %>%
+      dplyr::left_join(tax_ab, by = "SampleID") %>%
+      tidyr::drop_na(dplyr::all_of(c(.x, .y))) %>%
+      dplyr::mutate(
+        dplyr::across(dplyr::where(is.character), as.factor),
+        treatment = factor(treatment, levels = c("DRV/r", "DTG"))
+    )
+
+    # compute rmcorr
+    res <- rmcorr::rmcorr(
+      participant = "record_id",
+      measure1 = f_df[[.x]],
+      measure2 = f_df[[.y]],
+      dataset = f_df
+    )
+
+    # create tibble
+    tibble::tibble(
+      taxa = .x,
+      marker = .y,
+      cor = res$r,
+      p = res$p,
+      df = list(f_df),
+      rmcorr = list(res)
+    )
+  }) %>%
+  dplyr::mutate(p_adj = p.adjust(p, method = "fdr"), .after = p) %>%
+  dplyr::arrange(p_adj) %>%
+  dplyr::left_join(
+    rowData(tse2) %>% tibble::as_tibble(rownames = "taxa"), by = "taxa"
+  )
+
+# prepare data
+plt_df <-
+  rmcorr_df_all %>%
+  dplyr::mutate(
+    sign = p_adj < 0.05 & abs(cor) >= cor_cutoof,
+    marker = factor(marker, levels = all_markers),
+  ) %>%
+  dplyr::group_by(taxa) %>%
+  dplyr::filter(any(sign)) %>%
+  dplyr::ungroup()
+
+# plot
+lim <- abs(plt_df$cor) %>% max(na.rm = T) %>% round(digits = 1) * 1.1
+plt <-
+  plt_df %>%
+  ggplot(aes(x = Species, y = marker, fill = cor, colour = sign)) +
+  geom_point(aes(size = abs(cor), alpha = sign), shape = 22, stroke = 1) +
+  scale_fill_gradientn(
+    colours = rev(RColorBrewer::brewer.pal(11, "RdYlGn")),
+    limits = c(-lim, lim)
+  ) +
+  scale_colour_manual(values = c("TRUE" = "black", "FALSE" = "white")) +
+  scale_alpha_manual(values = c("TRUE" = 0.9, "FALSE" = 0.6), guide = "none") +
+  scale_size_continuous(range = c(2, 8), guide = "none") +
+  theme_minimal() +
+  labs(
+    x = "",
+    y = "",
+    fill = "Repeated Measures Correlation",
+    colour = "q < 0.05"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "top",
+    legend.title.position = "top",
+    legend.title = element_text(hjust = 0.5),
+    legend.key.height = unit(0.5, "cm"),
+  )
+
+# Resize and save
+r_plt <-
+  plt +
+  plot_spacer() +
+  plot_layout(
+    widths = ggplot2::unit(c(300, 1), "mm"),
+    heights = ggplot2::unit(100, "mm")
+  )
+
+tidyplots::save_plot(
+  r_plt,
+  here::here(out_dir, glue::glue("rm_top_correlation.pdf")),
+  view_plot = FALSE
+)
+
+r_plt
+```
+
+### Plot Correlations for DA Taxas
+
+```{r}
+#| message: FALSE
+#| warning: FALSE
+#| fig.width: 10
+
+# prepare data
+plt_df <-
+  rmcorr_df_all %>%
+  dplyr::filter(taxa %in% sig_taxa) %>%
+  dplyr::mutate(
+    sign = p_adj < 0.05,
+    marker = factor(marker, levels = all_markers),
+  ) %>%
+  dplyr::group_by(taxa) %>%
+  dplyr::filter(any(sign)) %>%
+  dplyr::ungroup()
+
+# plot
+lim <- abs(plt_df$cor) %>% max(na.rm = TRUE) %>% round(digits = 1) * 1.2
+plt <-
+  plt_df %>%
+  ggplot(aes(x = Species, y = marker, fill = cor, colour = sign)) +
+  geom_point(aes(size = abs(cor), alpha = sign), shape = 22, stroke = 1) +
+  scale_fill_gradientn(
+    colours = rev(RColorBrewer::brewer.pal(11, "RdYlGn")),
+    limits = c(-lim, lim)
+  ) +
+  scale_colour_manual(values = c("TRUE" = "black", "FALSE" = "white")) +
+  scale_alpha_manual(values = c("TRUE" = 0.9, "FALSE" = 0.6), guide = "none") +
+  scale_size_continuous(range = c(2, 8), guide = "none") +
+  theme_minimal() +
+  labs(
+    x = "",
+    y = "",
+    fill = "Repeated Measures Correlation",
+    colour = "q < 0.05"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "top",
+    legend.title.position = "top",
+    legend.title = element_text(hjust = 0.5),
+    legend.key.height = unit(0.5, "cm"),
+  )
+
+# Resize and save
+r_plt <-
+  plt +
+  plot_spacer() +
+  plot_layout(
+    widths = ggplot2::unit(c(150, 1), "mm"),
+    heights = ggplot2::unit(75, "mm")
+  )
+
+tidyplots::save_plot(
+  r_plt,
+  here::here(out_dir, glue::glue("rm_DA_correlation.pdf")),
   view_plot = FALSE
 )
 
