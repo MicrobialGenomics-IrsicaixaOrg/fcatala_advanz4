@@ -1,0 +1,127 @@
+---
+title: "Baseline Cohort Characteristics by Treatment"
+editor-options:
+    chunk_output_type: console
+---
+## Set-up
+
+```{r}
+# load libraries
+library(magrittr)
+library(gtsummary)
+suppressPackageStartupMessages(library(tidySingleCellExperiment))
+
+# define theme
+gtsummary::theme_gtsummary_compact()
+
+```
+
+
+## Define input and output paths
+
+```{r}
+# input
+tse_file <- here::here("data", "processed", "tse_alpha.rds")
+
+out_dir <- here::here("data", "09_baseline_table")
+dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+
+```
+
+## Load metadata
+
+```{r}
+tse <- readr::read_rds(tse_file) %>% 
+        SummarizedExperiment::colData() %>%
+        tibble::as_tibble() %>%
+        dplyr::filter(time_point == 0)
+```
+
+## Clean and format metadata
+
+```{r}
+# rows to include in the table
+features <- c("group", "age", "gender", "ethnic_group", "risk_group", "center", "BMI",
+          "CD4", "CD4_nadir", "CD8", "CD4_CD38_DR", "CD8_CD38_DR", "IL6", "TNFa",
+          "sCD14", "CRP", "HIV_VL", "cmv_bl", "cmv_negative", "gene_richness")
+
+# format column names and values, calculate `BMI class`
+tse_tbl <- tse %>%
+  dplyr::select(all_of(features)) %>%
+  dplyr::rename("Treatment" = group,
+                "Age (years)" = age,
+                "Gender" = gender,
+                "Ethnic group" = ethnic_group,
+                "Risk group" = risk_group,
+                "Center" = center,
+                "CD4+ T cells (cells/mm³)" = CD4,
+                "CD4+ T cell count nadir (cells/mm³)" = CD4_nadir,
+                "CD8+ T cells (cells/mm³)" = CD8,
+                "CD4+ CD38+ HLA-DR+ T cells (cells/mm³)" = CD4_CD38_DR,
+                "CD8+ CD38+ HLA-DR+ T cells (cells/mm³)" = CD8_CD38_DR,
+                "IL-6 (pg/mL)" = IL6,
+                "TNF-α (pg/mL)" = TNFa,
+                "sCD14 (pg/mL)" = sCD14,
+                "CRP (mg/L)" = CRP,
+                "HIV viral load (copies/mL)" = HIV_VL,
+                "CMV viral load (copies/mL)" = cmv_bl,
+                "CMV status" = cmv_negative,
+                "Gene richness" = gene_richness) %>%
+    dplyr::mutate("Treatment" = dplyr::case_when(
+                    `Treatment` == "bDRV" ~ "Darunavir/ritonavir (DRV/r)",
+                    `Treatment` == "DTG" ~ "Dolutegravir (DTG)"),
+                  "Ethnic group" = stringr::str_to_title(`Ethnic group`),
+                  "Gender" = stringr::str_to_title(`Gender`),
+                  "Risk group" = dplyr::if_else(
+                    `Risk group` == "unknown",
+                    stringr::str_to_title(`Risk group`),
+                    stringr::str_to_upper(`Risk group`)),
+                  "Center" = stringr::str_squish(stringr::str_replace_all(`Center`, "[\\r\\n\\t]", " ")),
+                  "Center" = sprintf("%02d", match(`Center`, unique(`Center`))),
+                  "BMI class" = dplyr::case_when(
+                    `BMI` >= 18.5 & `BMI` < 25 ~ "Healthy weight (18.5-24.9)",
+                    `BMI` >= 25 & `BMI` <= 29.9 ~ "Overweight (25-29.9)",
+                    `BMI` < 18.5 ~ "Underweight (<18.5)"),
+                    .after = BMI,
+                  "CMV status" = dplyr::case_when(
+                    `CMV status` == "yes" ~ "Positive",
+                    `CMV status` == "no" ~ "Negative"
+                  )
+
+    )
+
+```
+
+## Generate summary table
+
+```{r}
+# create table
+tbl1 <- 
+  tse_tbl %>%
+  gtsummary::tbl_summary(
+    by = "Treatment") %>%
+  gtsummary::add_n() %>%
+  gtsummary::add_overall() %>%
+  gtsummary::add_p() %>%
+  gtsummary::add_stat_label()
+
+tbl1
+
+# save table
+summary_tbl <- gtsummary::as_gt(tbl1)
+gt::gtsave(
+    data = summary_tbl, 
+    filename = here::here("data", "09_baseline_table", "baseline_table.html")
+    )
+```
+
+## Export as PDF
+
+```{r}
+gt::gtsave(
+    data = summary_tbl, 
+    filename = here::here("data", "09_baseline_table", "baseline_table.pdf")
+    )
+
+```
+
