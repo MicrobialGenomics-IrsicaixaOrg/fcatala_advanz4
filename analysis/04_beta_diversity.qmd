@@ -38,6 +38,11 @@ library(magrittr)
 library(patchwork)
 suppressPackageStartupMessages(library(tidySingleCellExperiment))
 source(here::here("R", "utils.R"))
+
+# variables for correlation
+all_markers_abb <- c("CD4", "CD8", "CD4_nadir", "CD4_CD38_DR", "CD8_CD38_DR", "CRP", "IL6", "TNFa", "sCD14", "HIV_VL", "BMI")
+
+all_markers_long <- c("CD4+ T cells", "CD8+ T cells", "CD4+ T cell count nadir", "CD4+ CD38+ HLA-DR+ T cells", "CD8+ CD38+ HLA-DR+ T cells", "CRP", "IL-6", "TNF-α", "sCD14", "HIV viral load", "BMI")
 ```
 
 ## Load TSE Object and Transform
@@ -133,6 +138,103 @@ ggsave(
 
 combined_plot
 ```
+
+### Scatter Plot by Timepoint (NMDS1 vs NMDS2)
+
+```{r}
+plot_df <- tse %>% dplyr::select(treatment, time_point, dplyr::contains("NMD")) 
+
+# global axis limits
+p1 <- 
+  plot_df %>% 
+  ggplot(aes(NMDS1, NMDS2)) +
+  geom_point(aes(colour = treatment, shape = time_point), alpha = 0.7) +
+  stat_ellipse(aes(colour = treatment, linetype = time_point), alpha = 0.8) +
+  scale_fill_manual(values = c("#0072B2", "#D55E00")) +
+  scale_colour_manual(values = c("#0072B2", "#D55E00")) +
+  theme(legend.position = "bottom")
+
+# extract range to ensure align
+build_p1 <- ggplot_build(p1)
+x_limits <- build_p1$layout$panel_params[[1]]$x.range
+y_limits <- build_p1$layout$panel_params[[1]]$y.range
+
+# build the plot
+save_timepoint_plot <- function(tp_value, df, out_dir, x_limits, y_limits) {
+  df_tp <- df %>% dplyr::filter(time_point == tp_value)
+
+  # main
+  p_scatter <-
+    df_tp %>%
+    ggplot(aes(NMDS1, NMDS2)) +
+    geom_point(aes(colour = treatment), alpha = 0.7) +
+    stat_ellipse(aes(colour = treatment), alpha = 0.8) +
+    scale_colour_manual(values = c("#0072B2", "#D55E00")) +
+    coord_cartesian(xlim = x_limits, ylim = y_limits) +
+    theme_classic() +
+    theme(legend.position = "bottom") +
+    labs(title = paste("Timepoint:", tp_value), 
+         x = "NMDS1", 
+         y = "NMDS2",
+         colour = "Treatment")
+
+  # top boxplot (NMDS1)
+  p_box_x <-
+    df_tp %>%
+    ggplot(aes(x = treatment, y = NMDS1, colour = treatment)) +
+    geom_boxplot(alpha = 0.8, outlier.shape = NA) +
+    geom_jitter(width = 0.2, height = 0, size = 1.5, alpha = 0.4) +
+    scale_colour_manual(values = c("#0072B2", "#D55E00")) +
+    ggpubr::stat_compare_means(method = "wilcox.test",
+                               label = "p.signif", label.x = 2, size = 4) +
+    coord_flip(ylim = x_limits) +
+    theme_void() +
+    theme(legend.position  = "none") +
+    ggtitle("NMDS1 distribution")
+
+  # right boxplot (NMDS2)
+  p_box_y <-
+    df_tp %>%
+    ggplot(aes(x = treatment, y = NMDS2, colour = treatment)) +
+    geom_boxplot(alpha = 0.8, outlier.shape = NA) +
+    geom_jitter(width = 0.2, height = 0, size = 1.5, alpha = 0.4) +
+    scale_colour_manual(values = c("#0072B2", "#D55E00")) +
+    ggpubr::stat_compare_means(method = "wilcox.test",
+                               label = "p.signif", label.x = 1.75, size = 4) +
+    coord_cartesian(ylim = y_limits) +
+    theme_void() +
+    theme(legend.position = "none") +
+    ggtitle("NMDS2 distribution")
+
+  # assemble
+  combined <-
+    p_box_x + patchwork::plot_spacer() + p_scatter + p_box_y +
+    patchwork::plot_layout(
+      widths  = unit(c(60, 10), "mm"),
+      heights = unit(c(10, 60), "mm"),
+      ncol = 2
+    )
+  # compute panel-specific size
+  grob <- patchworkGrob(combined)
+  width_mm  <- grid::convertWidth(sum(grob$widths),  "mm", valueOnly = TRUE) * 1.5
+  height_mm <- grid::convertHeight(sum(grob$heights), "mm", valueOnly = TRUE)
+
+  # save PDF
+  out_pdf <- here::here(out_dir, paste0("nmds_scatter_timepoint_", tp_value, ".pdf"))
+  ggsave(plot = combined, filename = out_pdf, width = width_mm, height = height_mm, units = "mm")
+
+}
+
+unique(plot_df$time_point) %>%
+  purrr::walk(~ save_timepoint_plot(tp_value = .x,
+                             df = plot_df,
+                             out_dir = out_dir,
+                             x_limits = x_limits,
+                             y_limits = y_limits))
+
+
+```
+
 
 ## Centroid Distances Computation and Plot - wilcox
 
@@ -349,36 +451,46 @@ f_plt
 ### Define Cytokines and Markers
 
 ```{r}
-populations <- c("CD4", "CD8", "CD4_CD38_DR", "CD8_CD38_DR")
-cytokines <- c("CRP", "IL6", "TNFa", "sCD14")
-others <- c("HIV_VL", "BMI")
-
-all_markers <- c(populations, cytokines, others)
-
 # Log2 Transformation
-tse2 <- tse %>% dplyr::mutate(dplyr::across(dplyr::all_of(all_markers), ~ log2(.x + 1e-6)))
+tse2 <- tse %>% dplyr::mutate(dplyr::across(dplyr::all_of(all_markers_abb), ~ log2(.x + 1e-6)))
 ```
 
 ### Compute Sperman Correlations
 
 ```{r}
 #| warning: FALSE
-sparman_corr_df <-
+spearman_corr_df <-
   mia::getCrossAssociation(
     tse2,
     tse2,
     col.var1 = "centroid_dist",
-    col.var2 = all_markers,
+    col.var2 = all_markers_abb,
     method = "spearman",
     p_adj_method = "fdr",
     test.signif = TRUE,
     verbose = FALSE,
     show_warnings = FALSE
-  )
+  ) %>%
+  dplyr::mutate(
+    Var2 = dplyr::case_when(
+      Var2 == "CD4" ~ "CD4+ T cells",
+      Var2 == "CD8" ~ "CD8+ T cells",
+      Var2 == "CD4_nadir" ~ "CD4+ T cell count nadir",
+      Var2 == "CD4_CD38_DR" ~ "CD4+ CD38+ HLA-DR+ T cells",
+      Var2 == "CD8_CD38_DR" ~ "CD8+ CD38+ HLA-DR+ T cells",
+      Var2 == "IL6" ~ "IL-6",
+      Var2 == "CRP" ~ "CRP",
+      Var2 == "TNFa" ~ "TNF-α",
+      Var2 == "HIV_VL" ~ "HIV viral load", 
+      TRUE ~ Var2
+    ), 
+    Var2 = factor(Var2, levels = all_markers_long)
+   )
+
 
 # prepare data
 plt_df <- 
-  sparman_corr_df %>% 
+  spearman_corr_df %>%
    dplyr::mutate(
     sign = dplyr::case_when(
       p_adj < 0.05 & abs(cor) > 0.2 ~ "< 0.05",
@@ -437,12 +549,22 @@ r_plt
 
 # computes correlations
 rmcorr_df_all <- 
-  tidyr::expand_grid(metric = "centroid_dist", all_markers) %>%
+  tidyr::expand_grid(metric = "centroid_dist", all_markers_long) %>%
   purrr::pmap_dfr( ~ {
     # prepare data
     f_df <-
       colData(tse2) %>%
       tibble::as_tibble() %>%
+      dplyr::mutate(
+        "CD4+ T cells" = CD4,
+        "CD8+ T cells" = CD8,
+        "CD4+ T cell count nadir" = CD4_nadir,
+        "CD4+ CD38+ HLA-DR+ T cells" = CD4_CD38_DR,
+        "CD8+ CD38+ HLA-DR+ T cells" = CD8_CD38_DR,
+        "IL-6" = IL6,
+        "TNF-α" = TNFa,
+        "HIV viral load" = HIV_VL
+      ) %>%
       dplyr::select(dplyr::all_of(c(.x, .y, confounders))) %>%
       dplyr::mutate(tp = as.character(time_point) %>% as.numeric()) %>% 
       tidyr::drop_na(dplyr::all_of(c(.x, .y))) %>%
@@ -481,7 +603,7 @@ plt_df <-
       dplyr::between(p_adj, 0.05, 0.1) & abs(cor) > 0.2 ~ "< 0.1",
       TRUE ~ "ns"
     ), 
-    marker = factor(marker, levels = all_markers),
+    marker = factor(marker, levels = all_markers_long),
   )
 
 # plot
@@ -541,7 +663,7 @@ spearman_corr_df <-
       .x,
       .x,
       col.var1 = "centroid_dist",
-      col.var2 = all_markers,
+      col.var2 = all_markers_abb,
       method = "spearman",
       p_adj_method = "fdr",
       test.signif = TRUE, 
@@ -554,6 +676,21 @@ spearman_corr_df <-
 # prepare data
 plt_df <-
   spearman_corr_df %>%
+  dplyr::mutate(
+    Var2 = dplyr::case_when(
+      Var2 == "CD4" ~ "CD4+ T cells",
+      Var2 == "CD8" ~ "CD8+ T cells",
+      Var2 == "CD4_nadir" ~ "CD4+ T cell count nadir",
+      Var2 == "CD4_CD38_DR" ~ "CD4+ CD38+ HLA-DR+ T cells",
+      Var2 == "CD8_CD38_DR" ~ "CD8+ CD38+ HLA-DR+ T cells",
+      Var2 == "IL6" ~ "IL-6",
+      Var2 == "CRP" ~ "CRP",
+      Var2 == "TNFa" ~ "TNF-α",
+      Var2 == "HIV_VL" ~ "HIV viral load", 
+      TRUE ~ Var2
+    ), 
+    Var2 = factor(Var2, levels = all_markers_long)
+   ) %>%
   dplyr::mutate(
     sign = dplyr::case_when(
       p_adj < 0.05 & abs(cor) > 0.2 ~ "< 0.05",
@@ -612,12 +749,22 @@ r_plt
 rmcorr_df <- 
   mia::splitOn(tse2, "treatment") %>%
   purrr::map_dfr(function(.split) {
-    tidyr::expand_grid(metric = "centroid_dist", all_markers) %>%
+    tidyr::expand_grid(metric = "centroid_dist", all_markers_long) %>%
       purrr::pmap_dfr( ~ {
         # prepare data
         f_df <-
           colData(.split) %>%
           tibble::as_tibble() %>%
+          dplyr::mutate(
+            "CD4+ T cells" = CD4,
+            "CD8+ T cells" = CD8,
+            "CD4+ T cell count nadir" = CD4_nadir,
+            "CD4+ CD38+ HLA-DR+ T cells" = CD4_CD38_DR,
+            "CD8+ CD38+ HLA-DR+ T cells" = CD8_CD38_DR,
+            "IL-6" = IL6,
+            "TNF-α" = TNFa,
+            "HIV viral load" = HIV_VL
+          ) %>%
           dplyr::select(dplyr::all_of(c(.x, .y, confounders))) %>%
           tidyr::drop_na(dplyr::all_of(c(.x, .y))) %>%
           dplyr::mutate(
@@ -656,7 +803,7 @@ plt_df <-
       dplyr::between(p_adj, 0.05, 0.1) & abs(cor) > 0.2 ~ "< 0.1",
       TRUE ~ "ns"
     ), 
-    marker = factor(marker, levels = all_markers)
+    marker = factor(marker, levels = all_markers_long)
   )
       
 # plot
@@ -714,9 +861,21 @@ plt
 #| message: FALSE
 #| warning: FALSE
 dir.create(here::here(out_dir, "spearman_scat"), showWarnings = FALSE, recursive = TRUE)
-plt_df <- colData(tse2) %>% tibble::as_tibble()
+plt_df <- colData(tse2) %>%
+ tibble::as_tibble() %>%
+ dplyr::mutate(
+  "CD4+ T cells" = CD4,
+  "CD8+ T cells" = CD8,
+  "CD4+ T cell count nadir" = CD4_nadir,
+  "CD4+ CD38+ HLA-DR+ T cells" = CD4_CD38_DR,
+  "CD8+ CD38+ HLA-DR+ T cells" = CD8_CD38_DR,
+  "IL-6" = IL6,
+  "TNF-α" = TNFa,
+  "HIV viral load" = HIV_VL
+  )
+
 plt_list <- 
-  all_markers %>% 
+  all_markers_long %>% 
   purrr::set_names() %>% 
   purrr::map(function(.marker) {
     .metric = "centroid_dist"
@@ -793,9 +952,8 @@ names(plt_list) %>%
 ```{r}
 #| message: FALSE
 #| warning: FALSE
-plt_df <- colData(tse2) %>% tibble::as_tibble()
 plt_list <- 
-all_markers %>% 
+all_markers_long %>% 
   purrr::set_names() %>% 
   purrr::map(function(.marker) {
     .metric = "centroid_dist"
@@ -875,7 +1033,7 @@ names(plt_list) %>%
 #| warning: FALSE
 dir.create(here::here(out_dir, "rm_scat"), showWarnings = FALSE, recursive = TRUE)
 plt_list <- 
-  all_markers %>% 
+  all_markers_long %>% 
   purrr::set_names() %>% 
   purrr::map(function(.marker) {
     .metric = "centroid_dist"
@@ -947,7 +1105,7 @@ names(plt_list) %>%
 ```{r}
 #| warning: FALSE
 plt_list <- 
-  all_markers %>% 
+  all_markers_long %>% 
   purrr::set_names() %>% 
   purrr::map(function(.marker) {
     .metric = "centroid_dist"
