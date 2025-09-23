@@ -1269,7 +1269,7 @@ p2 <-
     if (.x == "centroid_dist") {
       p <- p + scale_fill_gradientn(colours = col)
     } else {
-      p <- p + scale_fill_manual(values = col)
+      p <- p + scale_fill_manual(values = as.vector(col))
     }
     p
   }) %>% wrap_plots(ncol = 1)
