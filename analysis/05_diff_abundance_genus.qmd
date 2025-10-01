@@ -25,10 +25,16 @@ confounders <- c(
   "HIV_VL"
 )
 
+# fix formula
+fix_formula <- "treatment * time_point + gender + age + risk_group + HIV_VL"
+
+# random formula 
+rand_formula <- "(1 | record_id)"
+
 # filtering
 lfc_cutoff <- 0.5
 q_cutoff <- 0.05
-prev_cutoff <- 0.3
+prev_cutoff <- 0.1
 cor_cutoof <- 0.3
 ```
 
@@ -39,6 +45,7 @@ cor_cutoof <- 0.3
 library(magrittr)
 library(patchwork)
 library(tidyplots)
+source(here::here("R", "utils.R"))
 suppressPackageStartupMessages(library(tidySingleCellExperiment))
 ```
 
@@ -60,9 +67,10 @@ tse
 ### DA Computation
 
 ```{r}
-ancombc_results <- ANCOMBC::ancombc2(
+ancombc_results <- ancombc2(
   tse,
-  fix_formula = "treatment * time_point + gender + age + risk_group + HIV_VL",
+  fix_formula = fix_formula, 
+  rand_formula = rand_formula, 
   tax_level = "Genus",
   p_adj_method = "fdr",
   group = "treatment",
