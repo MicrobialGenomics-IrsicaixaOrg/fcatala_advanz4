@@ -1,0 +1,369 @@
+---
+title: "Untitled"
+format: html
+---
+
+## Define the input and output paths
+
+```{r}
+# output
+out_dir <- here::here("data", "11_metahiv_integration")
+dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
+
+# input
+metadata_file <- here::here(out_dir, "merged_metadata.rds")
+s3_object <- "s3://mistral-wp6-advanz4/metagenome/WMGS/taxprofiler_metahiv/metaphlan/metaphlan_db1_combined_reports.txt"
+```
+
+## Set-Up
+
+```{r}
+# load libraries
+library(magrittr)
+library(patchwork)
+suppressPackageStartupMessages(library(tidySingleCellExperiment))
+```
+
+## Load Data and transform to tse
+
+### Load metadata
+
+```{r}
+metadata_df <- readr::read_rds(metadata_file)
+metadata_df
+```
+
+### Load Metaphlan table
+
+```{r}
+mpa_df <- aws.s3::s3read_using(
+  readr::read_tsv, 
+  object = s3_object, 
+  skip = 1, 
+  show_col_types = FALSE
+)
+
+mpa_df
+```
+
+### Prepare assay table
+
+```{r}
+assay_mtx <- 
+  mpa_df %>% 
+  dplyr::filter(stringr::str_detect(clade_name, "t__")) %>% 
+  dplyr::rename_all(~ stringr::str_remove_all(.x, "_metahiv.*|_advanz.*")) %>% 
+  dplyr::mutate(clade_name = stringr::str_remove_all(clade_name, ".*[|]")) %>%
+  dplyr::select(clade_name, dplyr::all_of(metadata_df$SampleID)) %>% 
+  data.frame(row.names = 1) %>% 
+  as.matrix()
+```
+
+### Prepare rowData
+
+```{r}
+it <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Taxon")
+rowdata <- 
+  mpa_df %>% 
+  dplyr::select(clade_name) %>% 
+  dplyr::filter(stringr::str_detect(clade_name, "t__")) %>% 
+  tidyr::separate(clade_name, into = it, sep = "\\|") %>%
+  dplyr::mutate(id = Taxon, .before = 1) %>%
+  data.frame(row.names = 1) 
+```
+
+### TSE construction
+
+```{r}
+tse <- TreeSummarizedExperiment::TreeSummarizedExperiment(
+  assays = list(relab = assay_mtx), 
+  rowData = rowdata,
+  colData = metadata_df
+)
+
+tse <- tse %>% mia::agglomerateByRank(rank = "Species")
+tse
+```
+
+## Dissimilarity Analysis 
+
+### Compute
+
+```{r}
+tse <- 
+  tse %>% 
+  mia::addDissimilarity(assay.type = "relab" , method = "bray") %>% 
+  dplyr::mutate(Profile = dplyr::case_when(
+    time_point == "0" ~ Profile,
+    time_point != "0" ~ paste0(Profile, "_", time_point), 
+    TRUE ~ NA_character_
+    )
+  )
+
+bray_mat <- metadata(tse)[["bray"]] %>% as.matrix()
+meta <- as.data.frame(colData(tse))
+idx_neg <- which(meta$Profile == "negative")
+meta$dist_to_negative <- vapply(
+  seq_len(nrow(meta)),
+  function(i) mean(bray_mat[i, idx_neg], na.rm = TRUE),
+  numeric(1)
+)
+```
+
+### Plot dissimilarity distributions
+
+```{r}
+#| fig-height: 7
+
+profile_cols <- c(
+  "DRV/r"               = "#0072B2",
+  "DRV/r_24"            = "#3390C3",
+  "DRV/r_48"            = "#66AED4",
+  "DRV/r_96"            = "#99CCE5",
+  "DTG"                 = "#D55E00",
+  "DTG_24"              = "#E27F33",
+  "DTG_48"              = "#EFA066",
+  "DTG_96"              = "#FBC199",
+  "concordant"          = "#CC79A7",
+  "discordant"          = "#E8A6CA",
+  "early_treated"       = "#F0E442",
+  "elite_controllers"   = "#F7E985",
+  "late_presenters"     = "#F18E6B",
+  "naive"               = "#B9CF6A",
+  "negative"            = "#999999",
+  "viremic_controllers" = "#C2B0E2"
+)
+
+plt <- 
+  meta %>% 
+  dplyr::mutate(
+    Profile = forcats::fct_reorder(Profile, dist_to_negative, .fun = median),
+  ) %>% 
+  tidyplots::tidyplot(x = Profile, y = dist_to_negative, colour = Profile) %>% 
+  tidyplots::add_boxplot(show_outliers = FALSE) %>%
+  tidyplots::add_data_points_jitter(alpha = 0.4, jitter_width = 0.6) %>%
+  tidyplots::adjust_size(width = 100, height = 100, unit = "mm") %>% 
+  tidyplots::adjust_x_axis(rotate_labels = TRUE) %>% 
+  tidyplots::adjust_x_axis_title(NULL) %>%
+  tidyplots::remove_legend() %>% 
+  tidyplots::adjust_y_axis_title("Mean Bray-Curtis dissimilarity to HIV-negative samples") %>% 
+  tidyplots::adjust_colors(profile_cols) %>% 
+  tidyplots::adjust_font(fontsize = 12)
+      
+# save
+plt %>%
+  tidyplots::save_plot(
+    here::here(out_dir, glue::glue("dissimilarity_metahiv.pdf")),
+    view_plot = FALSE
+  )
+
+plt 
+```
+
+### Test differences to negative with lmm
+
+```{r}
+# prepare data
+plot_df <- 
+  meta %>% 
+  lme4::lmer(dist_to_negative ~ Profile + (1 | record_id), data = .) %>% 
+  emmeans::emmeans(~ Profile) %>% 
+  emmeans::contrast(method = "trt.vs.ctrl", ref = "negative") %>% 
+  broom.mixed::tidy(conf.int = TRUE) %>% 
+  rstatix::add_significance(p.col = "adj.p.value") %>% 
+  dplyr::mutate(
+    contrast = stringr::str_remove_all(contrast, " .*|[(]|[)]"), 
+    contrast = forcats::fct_reorder(contrast, estimate)
+  ) 
+
+# plot
+plt <- 
+  plot_df %>% 
+  tidyplots::tidyplot(x = estimate, y = contrast) %>%
+  tidyplots::add(geom_pointrange(
+    aes(xmin = conf.low, xmax = conf.high),
+    alpha = 0.8,
+    position = position_dodge(width = 0.6),
+    size = 2 / ggplot2::.pt,
+    colour = "#252525"
+  )) %>%
+  tidyplots::add_reference_lines(x = 0) %>%
+  tidyplots::adjust_x_axis_title("Estimated difference in Bray-Curtis dissimilarity vs HIV-negative") %>%
+  tidyplots::adjust_y_axis_title(NULL) 
+
+# save
+plt %>%
+  tidyplots::adjust_size(width = 60, height = 50, unit = "mm") %>% 
+  tidyplots::save_plot(
+    here::here(out_dir, glue::glue("dissimilarity_forest_metahiv.pdf")),
+    view_plot = FALSE
+  )
+
+plt %>% 
+  tidyplots::adjust_size(width = 75, height = 75, unit = "mm") %>% 
+  tidyplots::adjust_font(fontsize = 10)
+```
+
+## NMDS Analysis 
+
+### Commpute NMDS 
+
+```{r}
+tse <- mia::runNMDS(
+  tse,
+  assay.type = "relab",
+  method = "bray",
+  nmds.fun = "monoMDS",
+  keep.dist = TRUE
+)
+```
+
+### Scatter Plot (NMDS1 vs NMDS2)
+
+```{r}
+#| fig-height: 7
+
+plot_df <- 
+  tse %>% 
+  dplyr::select(HIV_Status, Profile, study, time_point, dplyr::contains("NMD")) 
+
+# main scatterplot (NMDS1 vs NMDS2)
+plt <- 
+  plot_df %>% 
+  tidyplots::tidyplot(x = NMDS1, y = NMDS2, colour = Profile, linetype = time_point) %>% 
+  tidyplots::add_data_points(size = 2) %>% 
+  tidyplots::add_ellipse(type = "norm") %>% 
+  tidyplots::adjust_size(100, 100) %>% 
+  tidyplots::adjust_font(fontsize = 10) %>% 
+  tidyplots::adjust_colors(profile_cols)
+
+
+# save
+plt %>%
+  tidyplots::save_plot(
+    here::here(out_dir, glue::glue("nmds_scater_metahiv.pdf")),
+    view_plot = FALSE
+  )
+
+plt
+```
+
+## Centroid Distances 
+
+### Computation 
+
+```{r}
+# negative centorid
+neg_centroid <- 
+  tse %>%
+  dplyr::select(SampleID, HIV_Status, dplyr::contains("NMD")) %>% 
+  dplyr::filter(HIV_Status == "negative") %>% 
+  dplyr::summarise(
+    neg_NMDS1 = mean(NMDS1, na.rm = TRUE),
+    neg_NMDS2 = mean(NMDS2, na.rm = TRUE)
+  )
+
+# compute distances to negative centorid
+tse <- 
+  tse %>%
+  dplyr::mutate(
+    dist_to_negative_centroid = sqrt(
+      (NMDS1 - neg_centroid$neg_NMDS1)^2 +
+      (NMDS2 - neg_centroid$neg_NMDS2)^2
+    )
+  ) 
+```
+
+### Plot centroid distances to negatives
+
+```{r}
+#| fig-height: 7
+
+# plot
+plt <- 
+  colData(tse) %>%
+  tibble::as_tibble() %>% 
+  dplyr::mutate(
+    Profile = forcats::fct_reorder(Profile, dist_to_negative_centroid, .fun = median, na.rm = TRUE)
+  ) %>% 
+  tidyplots::tidyplot(x = Profile, y = dist_to_negative_centroid, colour = Profile) %>% 
+  tidyplots::add_boxplot(show_outliers = FALSE) %>%
+  tidyplots::add_data_points_jitter(alpha = 0.4) %>%
+  tidyplots::adjust_size(width = 100, height = 100, unit = "mm") %>% 
+  tidyplots::adjust_x_axis(rotate_labels = TRUE) %>% 
+  tidyplots::adjust_x_axis_title(NULL) %>%
+  tidyplots::remove_legend() %>% 
+  tidyplots::adjust_y_axis_title("Distance to HIV1 Negative Centroid") %>% 
+  tidyplots::adjust_colors(profile_cols) %>% 
+  tidyplots::adjust_font(fontsize = 12)
+      
+# save
+plt %>%
+  tidyplots::save_plot(
+    here::here(out_dir, glue::glue("centroid_distance_metahiv.pdf")),
+    view_plot = FALSE
+  )
+
+plt 
+```
+
+### Test differences to negative with lmm
+
+```{r}
+# prepare data
+plot_df <- 
+  colData(tse) %>%
+  tibble::as_tibble() %>% 
+  lme4::lmer(dist_to_negative_centroid ~ Profile + (1 | record_id), data = .) %>% 
+  emmeans::emmeans(~ Profile) %>% 
+  emmeans::contrast(method = "trt.vs.ctrl", ref = "negative") %>% 
+  broom.mixed::tidy(conf.int = TRUE) %>% 
+  rstatix::add_significance(p.col = "adj.p.value") %>% 
+  dplyr::mutate(
+    contrast = stringr::str_remove_all(contrast, " .*|[(]|[)]"), 
+    contrast = forcats::fct_reorder(contrast, estimate)
+  ) 
+
+# plot
+plt <- 
+  plot_df %>% 
+  tidyplots::tidyplot(x = estimate, y = contrast) %>%
+  tidyplots::add(geom_pointrange(
+    aes(xmin = conf.low, xmax = conf.high),
+    alpha = 0.8,
+    position = position_dodge(width = 0.6),
+    size = 2 / ggplot2::.pt,
+    colour = "#252525"
+  )) %>%
+  tidyplots::add_reference_lines(x = 0) %>%
+  tidyplots::adjust_x_axis_title(
+    "Estimated difference in distance to HIV-negative centroid"
+  ) %>%
+  tidyplots::adjust_y_axis_title(NULL) 
+
+# save
+plt %>%
+  tidyplots::adjust_size(width = 60, height = 50, unit = "mm") %>% 
+  tidyplots::save_plot(
+    here::here(out_dir, glue::glue("dist_centroid_forest_metahiv.pdf")),
+    view_plot = FALSE
+  )
+
+plt %>% 
+  tidyplots::adjust_size(width = 75, height = 75, unit = "mm") %>% 
+  tidyplots::adjust_font(fontsize = 10)
+```
+
+## Appendix
+
+### Session Info
+
+```{r}
+devtools::session_info()
+```
+
+### Contact
+
+- **Analysis Lead:** Francesc Català-Moll
+- **Email:** fcatala@irsicaixa.es
+- **Institution:** GEM - IrsiCaixa

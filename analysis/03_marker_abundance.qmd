@@ -24,8 +24,7 @@ confounders <- c(
 
 # formula
 mod_formula <- glue::glue(
-  "log_ratio ~ treatment * time_point + gender + scale(age) + risk_group + ", 
-  "(1|record_id)"
+  "ly ~ treatment * time_point + gender + scale(age, center = TRUE, scale = FALSE) + (1|record_id)"
 )
 ```
 
@@ -39,7 +38,7 @@ suppressPackageStartupMessages(library(tidySingleCellExperiment))
 
 # variables for correlation
 populations <- c("CD4+ T cells", "CD8+ T cells", "CD4+ T cell count nadir", "CD4+ CD38+ HLA-DR+ T cells", "CD8+ CD38+ HLA-DR+ T cells")
-cytokines <- c("CRP", "IL-6", "TNF-α", "sCD14")
+cytokines <- c("CRP", "IL-6", "TNF-a", "sCD14")
 others <- c("HIV viral load", "BMI")
 ```
 
@@ -61,9 +60,10 @@ plt_df <-
     "CD4+ CD38+ HLA-DR+ T cells" = CD4_CD38_DR,
     "CD8+ CD38+ HLA-DR+ T cells" = CD8_CD38_DR,
     "IL-6" = IL6,
-    "TNF-α" = TNFa,
+    "TNF-a" = TNFa,
     "sCD14" = sCD14,
-    "HIV viral load" = HIV_VL) 
+    "HIV viral load" = HIV_VL
+  ) 
 ```
 
 ## Define Cytokines and Markers
@@ -74,7 +74,7 @@ all_markers <-
   tibble::enframe(value = "marker") %>% 
   dplyr::mutate(unit = dplyr::case_when(
     marker %in% populations ~ "counts/mL", 
-    marker %in% c("IL-6", "TNF-α") ~ "pg/mL", 
+    marker %in% c("IL-6", "TNF-a") ~ "pg/mL", 
     marker == "CRP" ~ "mg/mL", 
     marker == "sCD14" ~ "ng/mL", 
     marker == "HIV viral load" ~ "copies/mL",
@@ -95,7 +95,7 @@ plt_list <-
     .unit <- all_markers[all_markers$marker == .x, "unit"]
     plt_df <- 
       plt_df %>%
-      tidyr::drop_na(!!.x) %>% 
+      tidyr::drop_na(dplyr::all_of(.x))%>% 
       dplyr::mutate(time_point = factor(time_point))
      
     # calculate stats
@@ -118,10 +118,10 @@ plt_list <-
       tidyplots::add_boxplot(show_outliers = FALSE) %>%
       tidyplots::add_data_points_jitter(alpha = 0.4) %>%
       tidyplots::add_test_asterisks(
-        method = "wilcox_test", hide_info = TRUE, bracket.nudge.y = 0.05, tip.length = 0.01
+        method = "wilcox_test", hide_info = TRUE, bracket.nudge.y = 0.05, tip.length = 0.01, hide.ns = FALSE
       ) %>%
       tidyplots::add(ggpubr::stat_pvalue_manual(
-        stats_2, label = "p.adj.signif", hide.ns = TRUE, tip.length = 0.01,
+        stats_2, label = "p.adj.signif", hide.ns = FALSE, tip.length = 0.01
       )) %>% 
       tidyplots::adjust_x_axis_title("Time Point (weeks)") %>%
       tidyplots::adjust_legend_title("Treatment") %>%
@@ -138,7 +138,7 @@ plt_list <-
         view_plot = FALSE
       )
     
-    plt
+    plt %>% tidyplots::adjust_size(75, 75) %>% tidyplots::adjust_font(8)
   })
 ```
 
@@ -146,8 +146,6 @@ plt_list <-
 
 ```{r}
 #| results: asis
-#| fig.width: 12
-#| fig.height: 7
 #| warning: FALSE
 names(plt_list) %>% 
   purrr::walk(~ {
@@ -159,102 +157,41 @@ names(plt_list) %>%
 
 :::
 
-## Calculate Pseudocount
+### Plot Zooms
 
 ```{r}
-min_df <- plt_df %>%
-  dplyr::summarise(dplyr::across(
-    dplyr::all_of(all_markers$marker),
-    \(x) {
-      y <- x[!is.na(x) & x > 0]
-      if (length(y)) min(y) else NA_real_
-    }
-  ))
+plt_list <- list(
+  CRP = plt_list[["CRP"]] %>% tidyplots::add(ggforce::facet_zoom(y = CRP < 2)), 
+  IL6 = plt_list[["IL-6"]] %>% tidyplots::add(ggforce::facet_zoom(y = `IL-6` < 60)), 
+  HIV_VL = plt_list[["HIV viral load"]] %>% tidyplots::add(ggforce::facet_zoom(ylim = c(0, 500))), 
+  TNFa = plt_list[["TNF-a"]] %>% tidyplots::add(ggforce::facet_zoom(y = `TNF-a` < 30)), 
+  CD4 = plt_list[["CD4+ T cells"]] %>% tidyplots::add(ggforce::facet_zoom(ylim = c(0, 350)))
+)
 
-pc <- min(unlist(min_df), na.rm = TRUE) %>%
-  {./10} %>%
-  {./2}
-```
-
-
-## Plot Global Evolution - Log2(x + pc) Transformation
-
-```{r}
-#| message: false
-plt_list <- 
-  all_markers$marker %>% 
-  purrr::set_names() %>% 
-  purrr::map(~ {
-    # prepare data
-    .unit <- all_markers[all_markers$marker == .x, "unit"]
-    plt_df <- 
-      plt_df %>%
-      tidyr::drop_na(dplyr::all_of(.x)) %>% 
-      dplyr::mutate(time_point = factor(time_point)) %>%
-      dplyr::mutate(!!dplyr::sym(.x) := log2(!!dplyr::sym(.x)+pc))
-     
-    # calculate stats
-    stats_2 <-
-      plt_df %>%
-      rstatix::group_by(treatment) %>%
-      rstatix::wilcox_test(
-        formula = formula(glue::glue("`{.x}` ~ time_point")),
-        p.adjust.method = "fdr", 
-        detailed = TRUE
-      ) %>%
-      rstatix::add_significance(output.col = "p.adj.signif") %>%
-      rstatix::add_xy_position(x = "time_point", group = "treatment")
-      
-    # plot
-    plt <- 
-      plt_df %>% 
-      tidyr::drop_na(!!dplyr::sym(.x)) %>% 
-      tidyplots::tidyplot(x = time_point, y = !!dplyr::sym(.x), colour = treatment) %>% 
-      tidyplots::add_boxplot(show_outliers = FALSE) %>%
-      tidyplots::add_data_points_jitter(alpha = 0.4) %>%
-      tidyplots::add_test_asterisks(
-        method = "wilcox_test", hide_info = TRUE, bracket.nudge.y = 0.05, tip.length = 0.01) %>%
-      tidyplots::add(ggpubr::stat_pvalue_manual(
-        stats_2, label = "p.adj.signif", hide.ns = TRUE, tip.length = 0.01, step.increase = 0.15
-      )) %>% 
-      tidyplots::adjust_x_axis_title("Time Point (weeks)") %>%
-      tidyplots::adjust_legend_title("Treatment") %>%
-      tidyplots::adjust_y_axis_title(
-        glue::glue("{.x} ({.unit}, log2(x + {pc}))")
-      ) %>% 
-      tidyplots::add(theme(
-        axis.title.x = element_text(size = 6),
-        axis.text.x = element_text(size = 6),
-        axis.text.y = element_text(size = 6),
-        axis.title.y = element_text(size = 6),
-        legend.title = element_text(size = 6),
-        legend.text = element_text(size = 5)
-      )) %>%
-      tidyplots::adjust_colors(tidyplots::colors_discrete_friendly) 
-      
-    # save
-    plt %>%
-      tidyplots::adjust_size(width = 40, height = 45, unit = "mm") %>%
+names(plt_list) %>% 
+  purrr::walk(~ {
+    plt_list[[.x]] %>%
+      tidyplots::adjust_size(width = 75, height = 50, unit = "mm") %>%
       tidyplots::save_plot(
-        here::here(out_dir, glue::glue("temp_abundance_{.x}.pdf")),
+        here::here(out_dir, glue::glue("zoom_temp_abundance_{.x}.pdf")),
         view_plot = FALSE
       )
-    
-    plt
   })
+
 ```
 
 ::: {.panel-tabset}
 
 ```{r}
 #| results: asis
-#| fig.width: 12
-#| fig.height: 7
 #| warning: FALSE
 names(plt_list) %>% 
   purrr::walk(~ {
     cat("#### ", .x, "\n")
-    plot(plt_list[[.x]])
+    plt <- 
+      plt_list[[.x]] %>% 
+      tidyplots::adjust_size(width = 75, height = 50, unit = "mm")
+    plot(plt)
     cat("\n\n")
   })
 ```
@@ -265,91 +202,77 @@ names(plt_list) %>%
 
 ```{r}
 #| message: false
-plt_list <- 
-  all_markers$marker[-3] %>% 
-  purrr::set_names() %>% 
+plt_list <-
+  all_markers$marker[-3] %>%
+  purrr::set_names() %>%
   purrr::map(~ {
+    .marker <- rlang::sym(.x)
+    baseline_tp = "0"
+
     # prepare data
-    .unit <- all_markers[all_markers$marker == .x, "unit"]
-    plt_df <- 
-      plt_df %>%  
-      dplyr::select(dplyr::all_of(c(confounders, .x))) %>% 
-      dplyr::arrange(record_id, time_point) %>% 
-      dplyr::group_by(record_id) %>% 
+    plt_df <-
+      plt_df %>%
+      dplyr::select(dplyr::all_of(c(confounders, .x))) %>%
+      dplyr::arrange(record_id, time_point) %>%
       tidyr::drop_na() %>%
       dplyr::mutate(
         dplyr::across(dplyr::where(is.character), as.factor),
         treatment = factor(treatment, levels = c("DRV/r", "DTG")),
-        tp = as.character(time_point) %>% as.numeric(),
-        ratio = (.data[[.x]] + 0.00001 ) / (.data[[.x]][tp == min(tp)][1] + 0.00001),
-        log_ratio = log2(ratio)
-      ) %>% 
-      dplyr::ungroup()
-     
+        time_point = factor(time_point), 
+        ly = log2(!!dplyr::sym(.x) + 1e-6)
+      )
+
+    # contrasts
+    tp_levels <- levels(plt_df$time_point)
+    contr_list <- setNames(
+      lapply(tp_levels[tp_levels != baseline_tp], function(tp) {
+        w <- setNames(rep(0, length(tp_levels)), tp_levels)
+        w[tp] <- 1; w[baseline_tp] <- -1
+        w
+      }),
+      paste0(tp_levels[tp_levels != baseline_tp], " - ", baseline_tp)
+    )
+
     # lmm 
     lmm_res <- 
       stats::as.formula(mod_formula) %>% 
       lmerTest::lmer(data = plt_df) 
     
-    # emmeans longitudinal
-    emm <- lmm_res %>% emmeans::emmeans(~ time_point | treatment)
-    lon_emm_df <- emm %>% broom.mixed::tidy(conf.int = TRUE)
+    # emmeans: changes vs basal inside each treatment
     lon_contrast_df <- 
-      emm %>% 
-      emmeans::contrast(method = "revpairwise", adjust = "fdr") %>% 
-      broom.mixed::tidy(conf.int = TRUE)
-    
-    if (!"adj.p.value" %in% names(lon_contrast_df)) {
-      lon_contrast_df <- 
-        lon_contrast_df %>% 
-        dplyr::mutate(`adj.p.value` = p.adjust(p.value, method = "fdr"))
-    }
+      lmm_res %>% 
+      emmeans::emmeans(~ time_point | treatment) %>% 
+      emmeans::contrast(contr_list, adjust = "fdr") %>% 
+      broom.mixed::tidy(conf.int = TRUE) %>%
+      dplyr::mutate(
+        contrast_clean = stringr::str_remove_all(contrast, "time_point"),
+        time_point = readr::parse_number(contrast_clean) %>% as.character() %>% as.factor()
+      )
+
+    # stub de basal a 0 sin IC 
+    baseline_stub <- 
+      emmeans::emmeans(lmm_res, ~ time_point | treatment) %>% 
+      broom.mixed::tidy() %>% 
+      dplyr::filter(time_point == baseline_tp) %>% 
+      dplyr::transmute(
+        treatment, 
+        estimate = 0, 
+        conf.low = 0, 
+        conf.high = 0, 
+        adj.p.value = NA_real_, 
+        time_point = baseline_tp
+      )
+
+    lon_contrast_df <- dplyr::bind_rows(baseline_stub, lon_contrast_df)
     
     # emmeand by group
-    emm <- lmm_res %>% emmeans::emmeans(~ treatment | time_point)
-    group_emm_df <- emm %>% broom.mixed::tidy(conf.int = TRUE)
     group_contrast_df <- 
-      emm %>% 
-      emmeans::contrast(method = "revpairwise", adjust = "tukey") %>% 
+      lmm_res %>% 
+      emmeans::emmeans(~ treatment | time_point) %>% 
+      emmeans::contrast(method = "revpairwise", adjust = "fdr") %>% 
       broom.mixed::tidy(conf.int = TRUE) %>% 
       dplyr::mutate(p.adj.global = p.adjust(p.value, method = "fdr"))
       
-    # forest plot longitudinal
-    forest_plt_longitudinal <- 
-      lon_contrast_df %>%
-      rstatix::add_significance(p.col = "adj.p.value") %>%
-      dplyr::mutate(
-        contrast_clean = stringr::str_remove_all(contrast, "time_point"),
-        t1 = as.numeric(stringr::str_extract(contrast_clean, "^[0-9]+")),
-        t2 = as.numeric(stringr::str_extract(contrast_clean, "(?<=- )[0-9]+")),
-        treatment = factor(treatment, levels = c("DRV/r", "DTG"))
-      ) %>%
-      dplyr::arrange(t2, t1) %>%
-      dplyr::mutate(contrast = factor(contrast_clean, levels = unique(contrast_clean))) %>% 
-      tidyplots::tidyplot(x = estimate, y = contrast, colour = treatment) %>%
-      tidyplots::add(geom_pointrange(
-        aes(xmin = conf.low, xmax = conf.high),
-        alpha = 0.8, 
-        position = position_dodge(width = 0.6),
-        size = 2/ggplot2::.pt
-      )) %>% 
-      tidyplots::add_reference_lines(x = 0) %>% 
-      tidyplots::add(geom_text(
-        aes(
-          x = conf.high * 1.2,
-          label = dplyr::if_else(adj.p.value.signif != "ns", adj.p.value.signif, "")
-        ),
-        position = position_dodge(width = 0.6),
-        size = 7,
-        hjust = 0, 
-        colour = "black"
-      )) %>% 
-      tidyplots::add(expand_limits(x = max(lon_contrast_df$conf.high, na.rm = TRUE) * 1.25)) %>% 
-      tidyplots::adjust_x_axis_title("Δ log2(ratio) (later − earlier time point)") %>%
-      tidyplots::adjust_y_axis_title("Comparison of time points") %>%
-      tidyplots::adjust_legend_title("Treatment") %>% 
-      tidyplots::remove_legend()
-    
     # forest plot by group
     forest_plt_group <- 
       group_contrast_df %>%
@@ -359,7 +282,8 @@ plt_list <-
         aes(xmin = conf.low, xmax = conf.high),
         alpha = 0.8, 
         position = position_dodge(width = 0.6),
-        size = 2/ggplot2::.pt
+        size = 2/ggplot2::.pt, 
+        colour = "#252525"
       )) %>% 
       tidyplots::add_reference_lines(x = 0) %>% 
       tidyplots::add(geom_text(
@@ -373,50 +297,53 @@ plt_list <-
         colour = "black"
       )) %>% 
       tidyplots::add(expand_limits(x = max(group_contrast_df$conf.high, na.rm = TRUE) * 1.25)) %>% 
-      tidyplots::adjust_x_axis_title("Δ log2 ratio (DTG - DRV/r)") %>%
-      tidyplots::adjust_y_axis_title("Time point (weeks)") 
+      tidyplots::adjust_x_axis_title(glue::glue("Δ log2({.x}) (DTG - DRV/r)")) %>%
+      tidyplots::adjust_y_axis_title("Time point (weeks)") %>% 
+      tidyplots::adjust_size(75, 75) %>% 
+      tidyplots::adjust_font(8)
     
     # Trajectory plot
     traj_plt <- 
-      lon_emm_df %>%
-      dplyr::mutate(
-        time_point = as.numeric(as.character(time_point)),
-        treatment = factor(treatment, levels = c("DRV/r", "DTG"))
+      lon_contrast_df %>%
+      tidyplots::tidyplot(
+        x = time_point, 
+        y = estimate, 
+        colour = treatment, 
+        group = treatment
       ) %>%
-      tidyplots::tidyplot(x = time_point, y = estimate, colour = treatment, group = treatment) %>%
       tidyplots::add(geom_pointrange(
-        aes(y = estimate, ymin = conf.low, ymax = conf.high),
+        aes(ymin = conf.low, ymax = conf.high),
         alpha = 0.8, 
-        position = position_dodge(width = 50/ggplot2::.pt),
-        size = 2 / ggplot2::.pt
+        size = 2/ggplot2::.pt, 
+        position = position_dodge(width = 1/ggplot2::.pt)
       )) %>% 
       tidyplots::add_line() %>% 
       tidyplots::add_reference_lines(y = 0) %>% 
       tidyplots::adjust_x_axis_title("Time Point (weeks)") %>%
-      tidyplots::adjust_y_axis_title("Estimated Change in Log2 Ratio") %>%
-      tidyplots::adjust_legend_title("Treatment") 
+      tidyplots::adjust_y_axis_title(glue::glue("Δ log2({.x}) vs basal")) %>%
+      tidyplots::adjust_legend_title("Treatment") %>% 
+      tidyplots::adjust_size(75, 75) %>% 
+      tidyplots::adjust_font(8)
     
     # plt list
-    plt_list <- list(
-      traj_plt = traj_plt,
-      forest_plt_longitudinal = forest_plt_longitudinal,
-      forest_plt_group = forest_plt_group
-    )
+    plt_list <- list(traj_plt = traj_plt, forest_plt_group = forest_plt_group)
       
     # save
     showtext::showtext_auto()
     names(plt_list) %>% 
-      purrr::walk(function(.plt) {
-        plt_list[[.plt]] %>%
+      purrr::walk(~ {
+        plt_list[[.x]] %>%
           tidyplots::adjust_size(width = 40, height = 40, unit = "mm") %>%
+          tidyplots::adjust_font(7) %>% 
           tidyplots::save_plot(
-            here::here(out_dir, glue::glue("lmm_{.plt}_{.x}.pdf")),
+            here::here(out_dir, glue::glue("lmm_{.x}_{.marker}.pdf")),
             view_plot = FALSE
           )
       })
     
     f_plt <- wrap_plots(plt_list) + plot_layout(guides = "collect")
-  })
+    }
+  )
 ```
 
 ## Plot 
@@ -425,8 +352,6 @@ plt_list <-
 
 ```{r}
 #| results: asis
-#| fig.width: 12
-#| fig.height: 7
 #| warning: FALSE
 names(plt_list) %>% 
   purrr::walk(~ {

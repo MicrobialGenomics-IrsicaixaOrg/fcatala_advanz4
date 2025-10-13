@@ -6,6 +6,9 @@ editor_options:
 
 ## Define the input and output paths
 
+> [!IMPORTANT]
+> Because this was a randomized clinical trial, randomization ensures that baseline characteristics are, on average, balanced across treatment arms, minimizing the risk of confounding. Therefore, all analyses were performed using treatment assignment as the primary exposure variable. Adjustment for baseline covariates (age, sex, and risk group) was included solely to increase precision and account for inter-individual variability, not to control for confounding. Only baseline values were used for these covariates, as post-baseline measurements could be affected by treatment or follow-up time and would therefore not be appropriate for adjustment.
+
 ```{r}
 # input
 tse_file <- here::here("data", "processed", "tse_cleaned.rds")
@@ -22,14 +25,12 @@ confounders <- c(
   "gender",
   "risk_group",
   "record_id",
-  "age", 
-  "HIV_VL"
+  "age"
 )
 
 # formula
 mod_formula <- glue::glue(
-  "log_ratio ~ treatment * time_point + gender + scale(age) + risk_group + ", 
-  "log1p(HIV_VL) + (1|record_id)"
+  "ly ~ treatment * time_point + gender + scale(age, center = TRUE, scale = FALSE) + (1|record_id)"
 )
 ```
 
@@ -78,8 +79,6 @@ tse <- tse %>% dplyr::left_join(igc_df, by = "SampleID")
 
 # transform
 tse <- mia::transformAssay(tse, method = "relab")
-
-
 ```
 
 ### Compute Alpha Diversity Metrics
@@ -166,6 +165,7 @@ plt_list <-
 ```
 
 ::: panel-tabset
+
 ```{r}
 #| results: asis
 names(plt_list) %>% 
@@ -175,6 +175,7 @@ names(plt_list) %>%
     cat("\n\n")
   })
 ```
+
 :::
 
 ### Using Linear Mixed Models
@@ -187,82 +188,73 @@ plt_list <-
   purrr::set_names() %>% 
   purrr::map( ~ {
     .metric <- rlang::sym(.x)
-   
+    baseline_tp = "0"
+
     # prepare data
     plt_df <- 
       colData(tse) %>% 
       tibble::as_tibble() %>%
       dplyr::select(dplyr::all_of(c(confounders, .x))) %>% 
       dplyr::arrange(record_id, time_point) %>% 
-      dplyr::group_by(record_id) %>% 
       tidyr::drop_na(dplyr::all_of(.metric)) %>%
       dplyr::mutate(
         dplyr::across(dplyr::where(is.character), as.factor),
         treatment = factor(treatment, levels = c("DRV/r", "DTG")),
         tp = as.character(time_point) %>% as.numeric(),
-        ratio = .data[[.x]] / .data[[.x]][tp == min(tp)][1],
-        log_ratio = log2(ratio)
-      ) %>% 
-      dplyr::ungroup() 
+        ly = log2(!!dplyr::sym(.x) + 1e-6)
+      ) 
+
+    # contrasts
+    tp_levels <- levels(plt_df$time_point)
+    contr_list <- setNames(
+      lapply(tp_levels[tp_levels != baseline_tp], function(tp) {
+        w <- setNames(rep(0, length(tp_levels)), tp_levels)
+        w[tp] <- 1; w[baseline_tp] <- -1
+        w
+      }),
+      paste0(tp_levels[tp_levels != baseline_tp], " - ", baseline_tp)
+    )
 
     # lmm 
     lmm_res <- 
       stats::as.formula(mod_formula) %>% 
       lmerTest::lmer(data = plt_df) 
     
-    # emmeans longitudinal
-    emm <- lmm_res %>% emmeans::emmeans(~ time_point | treatment)
-    lon_emm_df <- emm %>% broom.mixed::tidy(conf.int = TRUE)
+    # emmeans: changes vs basal inside each treatment
     lon_contrast_df <- 
-      emm %>% 
-      emmeans::contrast(method = "revpairwise", adjust = "fdr") %>% 
-      broom.mixed::tidy(conf.int = TRUE)
+      lmm_res %>% 
+      emmeans::emmeans(~ time_point | treatment) %>% 
+      emmeans::contrast(contr_list, adjust = "fdr") %>% 
+      broom.mixed::tidy(conf.int = TRUE) %>%
+      dplyr::mutate(
+        contrast_clean = stringr::str_remove_all(contrast, "time_point"),
+        time_point = readr::parse_number(contrast_clean) %>% as.character()
+      )
+
+    # stub de basal a 0 sin IC 
+    baseline_stub <- 
+      emmeans::emmeans(lmm_res, ~ time_point | treatment) %>% 
+      broom.mixed::tidy() %>% 
+      dplyr::filter(time_point == baseline_tp) %>% 
+      dplyr::transmute(
+        treatment, 
+        estimate = 0, 
+        conf.low = 0, 
+        conf.high = 0, 
+        adj.p.value = NA_real_, 
+        time_point = baseline_tp
+      )
+
+    lon_contrast_df <- dplyr::bind_rows(baseline_stub, lon_contrast_df)
     
     # emmeand by group
-    emm <- lmm_res %>% emmeans::emmeans(~ treatment | time_point)
-    group_emm_df <- emm %>% broom.mixed::tidy(conf.int = TRUE)
     group_contrast_df <- 
-      emm %>% 
+      lmm_res %>% 
+      emmeans::emmeans(~ treatment | time_point) %>% 
       emmeans::contrast(method = "revpairwise", adjust = "fdr") %>% 
       broom.mixed::tidy(conf.int = TRUE) %>% 
       dplyr::mutate(p.adj.global = p.adjust(p.value, method = "fdr"))
       
-    # forest plot longitudinal
-    forest_plt_longitudinal <- 
-      lon_contrast_df %>%
-      rstatix::add_significance(p.col = "adj.p.value") %>%
-      dplyr::mutate(
-        contrast_clean = stringr::str_remove_all(contrast, "time_point"),
-        t1 = as.numeric(stringr::str_extract(contrast_clean, "^[0-9]+")),
-        t2 = as.numeric(stringr::str_extract(contrast_clean, "(?<=- )[0-9]+")),
-        treatment = factor(treatment, levels = c("DRV/r", "DTG"))
-      ) %>%
-      dplyr::arrange(t2, t1) %>%
-      dplyr::mutate(contrast = factor(contrast_clean, levels = unique(contrast_clean))) %>% 
-      tidyplots::tidyplot(x = estimate, y = contrast, colour = treatment) %>%
-      tidyplots::add(geom_pointrange(
-        aes(xmin = conf.low, xmax = conf.high),
-        alpha = 0.8, 
-        position = position_dodge(width = 0.6),
-        size = 2/ggplot2::.pt
-      )) %>% 
-      tidyplots::add_reference_lines(x = 0) %>% 
-      tidyplots::add(geom_text(
-        aes(
-          x = conf.high * 1.2,
-          label = dplyr::if_else(adj.p.value.signif != "ns", adj.p.value.signif, "")
-        ),
-        position = position_dodge(width = 0.6),
-        size = 7,
-        hjust = 0, 
-        colour = "black"
-      )) %>% 
-      tidyplots::add(expand_limits(x = max(lon_contrast_df$conf.high, na.rm = TRUE) * 1.25)) %>% 
-      tidyplots::adjust_x_axis_title("Δ log2(ratio) (later − earlier time point)") %>%
-      tidyplots::adjust_y_axis_title("Comparison of time points") %>%
-      tidyplots::adjust_legend_title("Treatment") %>% 
-      tidyplots::remove_legend()
-    
     # forest plot by group
     forest_plt_group <- 
       group_contrast_df %>%
@@ -292,30 +284,28 @@ plt_list <-
     
     # Trajectory plot
     traj_plt <- 
-      lon_emm_df %>%
-      dplyr::mutate(
-        time_point = as.numeric(as.character(time_point)),
-        treatment = factor(treatment, levels = c("DRV/r", "DTG"))
+      lon_contrast_df %>%
+      dplyr::mutate(teatment = factor(treatment, levels = c("DRV/r", "DTG"))) %>%
+      tidyplots::tidyplot(
+        x = time_point, 
+        y = estimate, 
+        colour = treatment, 
+        group = treatment
       ) %>%
-      tidyplots::tidyplot(x = time_point, y = estimate, colour = treatment, group = treatment) %>%
       tidyplots::add(geom_pointrange(
-        aes(y = estimate, ymin = conf.low, ymax = conf.high),
+        aes(ymin = conf.low, ymax = conf.high),
         alpha = 0.8, 
-        position = position_dodge(width = 50/ggplot2::.pt),
-        size = 2 / ggplot2::.pt
+        size = 2/ggplot2::.pt, 
+        position = position_dodge(width = 1/ggplot2::.pt)
       )) %>% 
       tidyplots::add_line() %>% 
       tidyplots::add_reference_lines(y = 0) %>% 
       tidyplots::adjust_x_axis_title("Time Point (weeks)") %>%
-      tidyplots::adjust_y_axis_title("Estimated Change in Log2 Ratio") %>%
-      tidyplots::adjust_legend_title("Treatment") 
+      tidyplots::adjust_y_axis_title("Δ log2(outcome) vs baseline") %>%
+      tidyplots::adjust_legend_title("Treatment")
     
     # plt list
-    plt_list <- list(
-      traj_plt = traj_plt,
-      forest_plt_longitudinal = forest_plt_longitudinal,
-      forest_plt_group = forest_plt_group
-    )
+    plt_list <- list(traj_plt = traj_plt, forest_plt_group = forest_plt_group)
       
     # save
     showtext::showtext_auto()
@@ -334,6 +324,7 @@ plt_list <-
 ```
 
 ::: panel-tabset
+
 ```{r}
 #| results: asis
 names(plt_list) %>% 
@@ -343,13 +334,18 @@ names(plt_list) %>%
     cat("\n\n")
   })
 ```
+
 :::
+
+> The trajectory plot shows the estimated mean change (Δ log₂) from baseline for each treatment group over time. A value of 0 indicates no change relative to baseline. Points represent model-adjusted estimates from the linear mixed model, and vertical bars indicate 95% confidence intervals. Differences between groups at a given visit are visualized by divergence of the trajectories.
+
+> The forest plot displays the adjusted mean differences (Δ log₂) between treatments (DTG − DRV/r) at each visit. Positive estimates indicate higher values in the DTG arm, while negative estimates indicate higher values in the DRV/r arm. Error bars represent 95% confidence intervals; intervals crossing zero denote non-significant differences after FDR correction.
 
 > Observed richness increased significantly over time in the DTG arm, while Shannon diversity showed a similar but non-significant trend. In line with this, dominance decreased over time in the DTG arm, whereas in the DRV/r arm dominance was significantly higher at week 96, indicating that communities remained skewed toward a few highly abundant taxa.
 
 > The increase in observed richness under DTG treatment suggests acquisition of additional taxa. Although Shannon diversity only showed a non-significant increasing trend, the concurrent decrease in dominance indicates that communities tended to become less skewed toward a few highly abundant species. In contrast, participants in the DRV/r arm exhibited significantly higher dominance at week 96, consistent with a community structure where a small number of taxa remained disproportionately abundant. These findings suggest that DTG may promote a more balanced microbial community structure over time, whereas DRV/r is associated with increasing dominance
 
-> Observed richness was consistently higher in the DTG arm at weeks 24, 48, and 96, with estimated differences of \~0.2–0.23 log2 ratio (≈15–18% increase) compared to DRV/r. While nominal p-values indicated significance at all three time points, these associations did not remain significant after global FDR adjustment (adjusted p ≈ 0.066).
+> Observed richness was consistently higher in the DTG arm at weeks 24, 48, and 96, with estimated differences of ~0.2–0.23 log2 ratio (≈15–18% increase) compared to DRV/r. While nominal p-values indicated significance at all three time points, these associations did not remain significant after global FDR adjustment (adjusted p ≈ 0.066).
 
 ## Compute Correlations
 
@@ -358,7 +354,7 @@ names(plt_list) %>%
 ```{r}
 populations <- c("CD4", "CD8", "CD4_CD38_DR", "CD8_CD38_DR")
 cytokines <- c("CRP", "IL6", "TNFa", "sCD14")
-others <- c("HIV_VL", "BMI")
+others <- c("BMI")
 
 all_markers <- c(populations, cytokines, others)
 
@@ -386,13 +382,7 @@ sparman_corr_df <-
 # prepare data
 plt_df <- 
   sparman_corr_df %>% 
-   dplyr::mutate(
-    sign = dplyr::case_when(
-      p_adj < 0.05 & abs(cor) > 0.2 ~ "< 0.05",
-      dplyr::between(p_adj, 0.05, 0.1) & abs(cor) > 0.2 ~ "< 0.1",
-      TRUE ~ "ns"
-    )
-  )
+   dplyr::mutate(sign = dplyr::case_when(p_adj < 0.05  ~ "< 0.05", TRUE ~ "ns"))
 
 # plot
 lim <- abs(plt_df$cor) %>% max() %>% round(digits = 1) * 1.05
@@ -405,8 +395,8 @@ plt <-
     colours = rev(RColorBrewer::brewer.pal(11, "PiYG")),
     limits = c(-lim, lim)
   ) +
-  scale_colour_manual(values = c("< 0.05" = "black", "< 0.1" = "#525252", "ns" = "white")) +
-  scale_alpha_manual(values = c("< 0.05" = 0.9, "< 0.1" = 0.9, "ns" = 0.6), guide = "none") +
+  scale_colour_manual(values = c("< 0.05" = "black", "ns" = "white")) +
+  scale_alpha_manual(values = c("< 0.05" = 0.9, "ns" = 0.6), guide = "none") +
   scale_size_continuous(range = c(2, 8), guide = "none") +
   theme_minimal() +
   labs(
@@ -483,8 +473,7 @@ plt_df <-
   rmcorr_df_all %>%
   dplyr::mutate(
     sign = dplyr::case_when(
-      p_adj < 0.05 & abs(cor) > 0.2 ~ "< 0.05",
-      dplyr::between(p_adj, 0.05, 0.1) & abs(cor) > 0.2 ~ "< 0.1",
+      p_adj < 0.05 ~ "< 0.05",
       TRUE ~ "ns"
     ), 
     marker = factor(marker, levels = all_markers),
@@ -501,8 +490,8 @@ plt <-
     colours = rev(RColorBrewer::brewer.pal(11, "PiYG")),
     limits = c(-lim, lim)
   ) +
-  scale_colour_manual(values = c("< 0.05" = "black", "< 0.1" = "#525252", "ns" = "white")) +
-  scale_alpha_manual(values = c("< 0.05" = 0.9, "< 0.1" = 0.9, "ns" = 0.6), guide = "none") +
+  scale_colour_manual(values = c("< 0.05" = "black", "ns" = "white")) +
+  scale_alpha_manual(values = c("< 0.05" = 0.9, "ns" = 0.6), guide = "none") +
   scale_size_continuous(range = c(2, 8), guide = "none") +
   theme_minimal() +
   labs(
@@ -566,8 +555,7 @@ plt_list <-
       dplyr::filter(Var1 == .x) %>%
       dplyr::mutate(
         sign = dplyr::case_when(
-          p_adj < 0.05 & abs(cor) > 0.2 ~ "< 0.05",
-          dplyr::between(p_adj, 0.05, 0.1) & abs(cor) > 0.2 ~ "< 0.1",
+          p_adj < 0.05 ~ "< 0.05",
           TRUE ~ "ns"
         )
       )
@@ -583,8 +571,8 @@ plt_list <-
         colours = rev(RColorBrewer::brewer.pal(11, "PiYG")),
         limits = c(-lim, lim)
       ) +
-      scale_colour_manual(values = c("< 0.05" = "black", "< 0.1" = "#525252", "ns" = "white")) +
-      scale_alpha_manual(values = c("< 0.05" = 0.9, "< 0.1" = 0.9, "ns" = 0.6), guide = "none") +
+      scale_colour_manual(values = c("< 0.05" = "black", "ns" = "white")) +
+      scale_alpha_manual(values = c("< 0.05" = 0.9, "ns" = 0.6), guide = "none") +
       scale_size_continuous(range = c(2, 8), guide = "none") +
       theme_minimal() +
       labs(
@@ -684,8 +672,7 @@ plt_list <-
       dplyr::filter(metric == .x) %>%
       dplyr::mutate(
         sign = dplyr::case_when(
-          p_adj < 0.05 & abs(cor) > 0.2 ~ "< 0.05",
-          dplyr::between(p_adj, 0.05, 0.1) & abs(cor) > 0.2 ~ "< 0.1",
+          p_adj < 0.05 ~ "< 0.05",
           TRUE ~ "ns"
         ), 
         marker = factor(marker, levels = all_markers)
@@ -693,17 +680,17 @@ plt_list <-
       
     # plot
     .name <- stringr::str_replace(.x, "_", " ") %>% stringr::str_to_title()
-    lim <- abs(plt_df$cor) %>% max() %>% round(digits = 1) * 1.2
+    lim <- 0.6
     plt <- 
       plt_df %>% 
       ggplot(aes(x = marker, y = treatment, fill = cor, colour = sign)) +
       geom_point(aes(size = abs(cor), alpha = sign), shape = 22, stroke = 1) +
       scale_fill_gradientn(
         colours = rev(RColorBrewer::brewer.pal(11, "PiYG")),
-        limits = c(-lim, lim)
+        limits = c(-lim, lim), breaks = seq(-lim, lim, by = 0.6), 
       ) +
-      scale_colour_manual(values = c("< 0.05" = "black", "< 0.1" = "#525252", "ns" = "white")) +
-      scale_alpha_manual(values = c("< 0.05" = 0.9, "< 0.1" = 0.9, "ns" = 0.6), guide = "none") +
+      scale_colour_manual(values = c("< 0.05" = "black", "ns" = "white")) +
+      scale_alpha_manual(values = c("< 0.05" = 0.9, "ns" = 0.6), guide = "none") +
       scale_size_continuous(range = c(2, 8), guide = "none") +
       theme_minimal() +
       labs(
@@ -717,7 +704,7 @@ plt_list <-
         legend.position = "top", 
         legend.title.position = "top", 
         legend.title = element_text(hjust = 0.5), 
-        legend.key.height = unit(0.5, "cm"),
+        legend.key.height = unit(0.5, "cm")
       ) 
     
     # Resize and save
@@ -739,6 +726,7 @@ plt_list <-
 ```
 
 ::: panel-tabset
+
 ```{r}
 #| results: asis
 names(plt_list) %>% 
@@ -748,6 +736,7 @@ names(plt_list) %>%
     cat("\n\n")
   })
 ```
+
 :::
 
 ## Scatter Correlations

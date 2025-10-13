@@ -60,6 +60,7 @@ tse
 ancombc_results <- ANCOMBC::ancombc2(
   tse,
   fix_formula = "treatment * time_point + gender + age + risk_group + HIV_VL",
+  rand_formula = "(1 | record_id)", 
   tax_level = "Species",
   p_adj_method = "fdr",
   group = "treatment", 
@@ -113,7 +114,40 @@ res_df <-
   dplyr::select(taxon, Species, Genus, prevalence) %>% 
   dplyr::left_join(res_df, ., relationship = "many-to-many", by = "taxon")
 
+# add ci
+res_df <- 
+  res_df %>% 
+  dplyr::mutate(
+    ci_low  = lfc - 1.96 * se,
+    ci_high = lfc + 1.96 * se
+  )
+
 res_df
+```
+
+### Top 20 Taxas
+
+```{r}
+res_df %>%
+  dplyr::filter(ci_low > 0 | ci_high < 0) %>%
+  dplyr::filter(prevalence > 0.1) %>% 
+  # dplyr::group_by(time_point) %>% 
+  dplyr::slice_min(qval, n = 40) %>% 
+  # dplyr::ungroup() %>% 
+  dplyr::mutate(Species = forcats::fct_reorder(Species, lfc)) %>%
+  tidyplots::tidyplot(x = lfc, y = Species) %>%
+  tidyplots::add(geom_pointrange(
+    aes(xmin = ci_low, xmax = ci_high),
+    alpha = 0.8,
+    position = position_dodge(width = 0.6),
+    size = 2 / ggplot2::.pt,
+    colour = "#252525"
+  )) %>%
+  tidyplots::add_reference_lines(x = 0) %>% 
+  # tidyplots::adjust_x_axis(limits = c(-3, 3)) %>% 
+  tidyplots::adjust_font(fontsize = 15) %>% 
+  tidyplots::adjust_size(100, 100) %>%
+  tidyplots::split_plot(time_point, guides = "collect")
 ```
 
 ### Volcano Plot

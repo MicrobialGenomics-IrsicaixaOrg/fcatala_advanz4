@@ -1,0 +1,153 @@
+---
+title: "11 - MetaHIV Integration / Prepare for taxprofiler"
+format: html
+---
+
+## Define the input and output paths
+
+```{r}
+# input
+tse_file_aleix <- here::here("data", "processed", "tse_alpha.rds")
+metahiv_object <- "s3://mnoguera-newbucket/Work/Projects/MetaHIV-Pheno-WGS-Redux/SpeciesQuantification/Metaphlan3/Metaphlan3_psObject.rds"
+
+# bucket info
+bucket_a <- "s3://mistral-wp6-advanz4"
+prefix_a <- "metagenome/WMGS/RawData"
+bucket_m <- "s3://mnoguera-newbucket"
+prefix_m <- "Work/Projects/MetaHIV-Pheno-WGS-Redux/RawData"
+
+# output
+out_dir <- here::here("data", "11_metahiv_integration")
+dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
+```
+
+## Set-up
+
+```{r}
+# load libraries
+library(magrittr)
+library(patchwork)
+library(tidyplots)
+suppressPackageStartupMessages(library(tidySingleCellExperiment))
+```
+
+## Prepare SampleSheets
+
+```{r}
+# MetaHIV
+ssheet_metahiv <- 
+  aws.s3::get_bucket_df(bucket_m, prefix = prefix_m, max = Inf) %>% 
+  tibble::as_tibble() %>% 
+  dplyr::select(Key) %>% 
+  dplyr::filter(stringr::str_ends(Key, ".fastq.gz")) %>% 
+  dplyr::filter(stringr::str_detect(Key, "R1")) %>% 
+  dplyr::mutate(
+    sample = stringr::str_remove_all(Key, ".*/|_R.*"), 
+    run_accession = "metahiv", 
+    instrument_platform = "ILLUMINA", 
+    fastq_1 = glue::glue("{bucket_m}/{Key}"), 
+    fastq_2 = stringr::str_replace_all(fastq_1, "R1", "R2"), 
+    fasta = NA_character_
+  ) %>% 
+  dplyr::select(-Key)
+  
+ssheet_metahiv
+
+# ADVANZ4
+ssheet_advanz <- 
+  aws.s3::get_bucket_df(bucket_a, prefix = prefix_a, max = Inf) %>% 
+  tibble::as_tibble() %>% 
+  dplyr::select(Key) %>% 
+  dplyr::filter(stringr::str_ends(Key, ".fastq.gz")) %>% 
+  dplyr::filter(stringr::str_detect(Key, "R1")) %>% 
+  dplyr::mutate(
+    sample = stringr::str_remove_all(Key, ".*/|_R.*"), 
+    run_accession = "advanz", 
+    instrument_platform = "ILLUMINA", 
+    fastq_1 = glue::glue("{bucket_a}/{Key}"), 
+    fastq_2 = stringr::str_replace_all(fastq_1, "R1", "R2"), 
+    fasta = NA_character_
+  ) %>% 
+  dplyr::select(-Key)
+
+ssheet_advanz
+
+# Merge
+ssheet <- dplyr::bind_rows(ssheet_metahiv, ssheet_advanz)
+readr::write_csv(
+  ssheet, here::here(out_dir, "taxprofiler_metahiv_samplesheet.csv"), na = ""
+)
+```
+
+## DB samplesheet
+
+```{r}
+tibble::tibble(
+  tool = "metaphlan", 
+  db_name = "db1", 
+  db_params = NA_character_, 
+  db_path = "s3://nfcore-pipelines/taxprofiler/databases/metaphlan_databases/"
+) %>% 
+  readr::write_csv(here::here(out_dir, "taxprofiler_database.csv"), na = "")
+```
+
+## Merged Metadata
+
+### Prepare MetaHIV metadata
+
+```{r}
+phy <- aws.s3::s3read_using(readr::read_rds, object = metahiv_object)
+metahiv_meta <- 
+  phyloseq::sample_data(phy) %>% 
+  tibble::as_tibble() %>% 
+  dplyr::select(SampleID, HIV_Status, Profile) %>% 
+  dplyr::mutate(
+    study = "metahiv", 
+    time_point = "0", 
+    dplyr::across(dplyr::everything(), as.factor), 
+    record_id = paste0("metahiv_", 1:dplyr::n())
+  )
+
+metahiv_meta
+```
+
+### Prepare Aelix metadata
+
+```{r}
+tse <- readr::read_rds(tse_file_aleix) 
+aelix_meta <- 
+  colData(tse) %>% 
+  tibble::as_tibble() %>% 
+  dplyr::mutate(HIV_Status = "positive", Profile = treatment, study = "aelix") %>% 
+  dplyr::select(names(metahiv_meta)) %>% 
+  dplyr::mutate(dplyr::across(dplyr::everything(), as.factor))
+
+aelix_meta
+```
+
+### Merge and Export
+
+```{r}
+dplyr::bind_rows(aelix_meta, metahiv_meta) %>% 
+  dplyr::glimpse() %>% 
+  readr::write_rds(here::here(out_dir, "merged_metadata.rds"))
+```
+
+
+## Run nf-core/taxprofiler
+
+In nf-tower using metaphlan4
+
+## Appendix
+
+### Session Info
+
+```{r}
+devtools::session_info()
+```
+
+### Contact
+
+- **Analysis Lead:** Francesc Català-Moll
+- **Email:** fcatala@irsicaixa.es
+- **Institution:** GEM - IrsiCaixa

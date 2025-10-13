@@ -7,7 +7,7 @@ get_abundance_df <- function(phy, row_name = "RTC", transpose = TRUE) {
 }
 
 
-get_sample_ordination <- function(phy, method = "NMDS", order_var = "MDS1", dist = "bray") {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           ancombc2 <- function(tse, fix_formula, rand_formula, tax_level, p_adj_method, group, prv_cut, n_cl) { ANCOMBC::ancombc2(tse, fix_formula = fix_formula, tax_level = "Genus", p_adj_method = "fdr", group = "treatment", prv_cut = 0.1, n_cl = 8L) }
+get_sample_ordination <- function(phy, method = "NMDS", order_var = "MDS1", dist = "bray") {   
   dist_ <- NULL
   if (dist == "unifrac") {
     dist_ <- phyloseq::UniFrac(phy)
