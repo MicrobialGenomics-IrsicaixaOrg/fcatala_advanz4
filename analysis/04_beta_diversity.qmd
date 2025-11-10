@@ -695,8 +695,8 @@ plt <-
     colours = rev(RColorBrewer::brewer.pal(11, "PiYG")),
     limits = c(-lim, lim)
   ) +
-  scale_colour_manual(values = c("< 0.05" = "black", "< 0.1" = "#525252", "ns" = "white")) +
-  scale_alpha_manual(values = c("< 0.05" = 0.9, "< 0.1" = 0.9, "ns" = 0.6), guide = "none") +
+  scale_colour_manual(values = c("< 0.05" = "black", "ns" = "white")) +
+  scale_alpha_manual(values = c("< 0.05" = 0.9, "ns" = 0.6), guide = "none") +
   scale_size_continuous(range = c(2, 8), guide = "none") +
   theme_minimal() +
   labs(
@@ -783,7 +783,6 @@ plt_df <-
   dplyr::mutate(
     sign = dplyr::case_when(
       p_adj < 0.05 & abs(cor) > 0.2 ~ "< 0.05",
-      dplyr::between(p_adj, 0.05, 0.1) & abs(cor) > 0.2 ~ "< 0.1",
       TRUE ~ "ns"
     ), 
     marker = factor(marker, levels = all_markers_long)
@@ -801,10 +800,10 @@ plt <-
     colours = rev(RColorBrewer::brewer.pal(11, "PiYG")),
     limits = c(-lim, lim)
   ) +
-  scale_colour_manual(values = c("< 0.05" = "black", "< 0.1" = "#525252", "ns" = "white")) +
-  scale_alpha_manual(values = c("< 0.05" = 0.9, "< 0.1" = 0.9, "ns" = 0.6), guide = "none") +
+  scale_colour_manual(values = c("< 0.05" = "black", "ns" = "white")) +
+  scale_alpha_manual(values = c("< 0.05" = 0.9, "ns" = 0.6), guide = "none") +
   scale_size_continuous(range = c(2, 8), guide = "none") +
-  theme_minimal() +
+  theme_minimal(base_size = 8) +
   labs(
     x = "",
     y = "Treatment", 

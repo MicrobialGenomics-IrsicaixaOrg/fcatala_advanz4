@@ -171,7 +171,7 @@ plt_list <- list(
 names(plt_list) %>% 
   purrr::walk(~ {
     plt_list[[.x]] %>%
-      tidyplots::adjust_size(width = 75, height = 50, unit = "mm") %>%
+      tidyplots::adjust_size(width = 70, height = 40, unit = "mm") %>%
       tidyplots::save_plot(
         here::here(out_dir, glue::glue("zoom_temp_abundance_{.x}.pdf")),
         view_plot = FALSE

@@ -41,6 +41,7 @@ tbl <-
   dplyr::rename_with(~ stringr::str_remove_all(.x, "_Abundance.*")) %>% 
   dplyr::rename("function_id" = 1) %>% 
   dplyr::filter(!stringr::str_detect(function_id, "[|]")) %>% 
+  dplyr::filter(!stringr::str_detect(`# Pathway`, "UNMAPPED|UNINTEGRATED")) %>% 
   dplyr::select(function_id, rownames(m_data)) %>% 
   data.frame(row.names = 1)
 
@@ -68,7 +69,8 @@ humann_se <- readr::read_rds(here::here(out_dir, "humann_se.rds"))
 ancombc_results <- ANCOMBC::ancombc2(
   assay(humann_se, "humann"),
   meta_data = colData(humann_se),
-  fix_formula = "treatment * time_point + gender + age + aids_event + risk_group + HIV_VL",
+  fix_formula = "treatment * time_point + gender + age + risk_group",
+  rand_formula = "(1 | record_id)", 
   p_adj_method = "fdr",
   group = "treatment",
   prv_cut = 0.1,

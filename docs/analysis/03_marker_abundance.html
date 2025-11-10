@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Francesc Català-Moll">
-<meta name="dcterms.date" content="2025-10-10">
+<meta name="dcterms.date" content="2025-11-07">
 
 <title>03 - Marker Abundance Temporal Evolution</title>
 <style>
@@ -2219,14 +2219,14 @@ vertical-align: -.125em;
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 10, 2025</p>
+      <p class="date">November 7, 2025</p>
     </div>
   </div>
   
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">October 10, 2025</p>
+      <p class="date-modified">November 7, 2025</p>
     </div>
   </div>
     
@@ -2447,7 +2447,7 @@ colTree: NULL</code></pre>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(plt_list) <span class="sc">%&gt;%</span> </span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">walk</span>(<span class="sc">~</span> {</span>
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    plt_list[[.x]] <span class="sc">%&gt;%</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>      tidyplots<span class="sc">::</span><span class="fu">adjust_size</span>(<span class="at">width =</span> <span class="dv">75</span>, <span class="at">height =</span> <span class="dv">50</span>, <span class="at">unit =</span> <span class="st">&quot;mm&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>      tidyplots<span class="sc">::</span><span class="fu">adjust_size</span>(<span class="at">width =</span> <span class="dv">70</span>, <span class="at">height =</span> <span class="dv">40</span>, <span class="at">unit =</span> <span class="st">&quot;mm&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>      tidyplots<span class="sc">::</span><span class="fu">save_plot</span>(</span>
 <span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>        here<span class="sc">::</span><span class="fu">here</span>(out_dir, glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">&quot;zoom_temp_abundance_{.x}.pdf&quot;</span>)),</span>
 <span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">view_plot =</span> <span class="cn">FALSE</span></span>
@@ -2693,7 +2693,7 @@ colTree: NULL</code></pre>
  collate  en_US.UTF-8
  ctype    en_US.UTF-8
  tz       Europe/Madrid
- date     2025-10-10
+ date     2025-11-07
  pandoc   3.6.3 @ /usr/share/positron/resources/app/quarto/bin/tools/x86_64/ (via rmarkdown)
  quarto   1.7.32 @ /usr/share/positron/resources/app/quarto/bin/quarto
 
@@ -2702,12 +2702,12 @@ colTree: NULL</code></pre>
  P abind                      1.4-8      2024-09-12 [?] RSPM (R 4.5.0)
  P ape                        5.8-1      2024-12-16 [?] RSPM (R 4.5.0)
  P backports                  1.5.0      2024-05-23 [?] RSPM (R 4.5.0)
- P Biobase                  * 2.68.0     2025-04-15 [?] Bioconductor 3.21 (R 4.5.0)
- P BiocGenerics             * 0.54.0     2025-04-15 [?] Bioconductor 3.21 (R 4.5.0)
+   Biobase                  * 2.70.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
+   BiocGenerics             * 0.56.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
  P BiocManager                1.30.26    2025-06-05 [?] RSPM
-   BiocParallel               1.42.2     2025-09-14 [1] Bioconductor 3.21 (R 4.5.1)
- P Biostrings                 2.76.0     2025-04-15 [?] Bioconductor 3.21 (R 4.5.0)
- P boot                       1.3-32     2025-08-29 [?] RSPM (R 4.5.0)
+   BiocParallel               1.44.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
+   Biostrings                 2.78.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
+   boot                       1.3-32     2025-08-29 [1] RSPM (R 4.5.0)
  P broom                      1.0.10     2025-09-13 [?] RSPM (R 4.5.0)
  P broom.mixed                0.2.9.6    2024-10-15 [?] RSPM (R 4.5.0)
  P cachem                     1.1.0      2024-05-16 [?] RSPM
@@ -2718,12 +2718,12 @@ colTree: NULL</code></pre>
  P codetools                  0.2-20     2024-03-31 [?] CRAN (R 4.5.1)
  P crayon                     1.5.3      2024-06-20 [?] RSPM (R 4.5.0)
  P data.table                 1.17.8     2025-07-10 [?] RSPM (R 4.5.0)
- P DelayedArray               0.34.1     2025-04-17 [?] Bioconductor 3.21 (R 4.5.0)
- P devtools                   2.4.5      2022-10-11 [?] RSPM (R 4.5.0)
+   DelayedArray               0.36.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
+   devtools                   2.4.6      2025-10-03 [1] RSPM (R 4.5.0)
  P digest                     0.6.37     2024-08-19 [?] RSPM (R 4.5.0)
  P dplyr                    * 1.1.4      2023-11-17 [?] RSPM (R 4.5.0)
  P ellipsis                   0.3.2      2021-04-29 [?] RSPM (R 4.5.0)
- P emmeans                    1.11.2-8   2025-08-27 [?] RSPM (R 4.5.0)
+   emmeans                    2.0.0      2025-10-29 [1] RSPM (R 4.5.0)
  P estimability               1.5.1      2024-05-12 [?] RSPM (R 4.5.0)
    evaluate                   1.0.5      2025-08-27 [1] RSPM (R 4.5.0)
  P fansi                      1.0.6      2023-12-08 [?] RSPM (R 4.5.0)
@@ -2735,43 +2735,37 @@ colTree: NULL</code></pre>
  P furrr                      0.3.1      2022-08-15 [?] RSPM (R 4.5.0)
  P future                     1.67.0     2025-07-29 [?] RSPM (R 4.5.0)
  P generics                 * 0.1.4      2025-05-09 [?] RSPM (R 4.5.0)
-   GenomeInfoDb             * 1.44.3     2025-09-21 [1] Bioconductor 3.21 (R 4.5.1)
- P GenomeInfoDbData           1.2.14     2025-03-27 [?] Bioconductor
- P GenomicRanges            * 1.60.0     2025-04-15 [?] Bioconductor 3.21 (R 4.5.0)
+   GenomicRanges            * 1.62.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
    ggforce                    0.5.0      2025-06-18 [1] RSPM
  P ggplot2                  * 4.0.0      2025-09-11 [?] RSPM (R 4.5.0)
- P ggpubr                     0.6.1      2025-06-27 [?] RSPM (R 4.5.0)
+   ggpubr                     0.6.2      2025-10-17 [1] RSPM (R 4.5.0)
  P ggsignif                   0.6.4      2022-10-13 [?] RSPM (R 4.5.0)
  P globals                    0.18.0     2025-05-08 [?] RSPM (R 4.5.0)
  P glue                       1.8.0      2024-09-30 [?] RSPM (R 4.5.0)
  P gtable                     0.3.6      2024-10-25 [?] RSPM (R 4.5.0)
  P here                       1.0.2      2025-09-15 [?] CRAN (R 4.5.1)
- P hms                        1.1.3      2023-03-21 [?] RSPM (R 4.5.0)
+   hms                        1.1.4      2025-10-17 [1] RSPM (R 4.5.0)
  P htmltools                  0.5.8.1    2024-04-04 [?] RSPM
  P htmlwidgets                1.6.4      2023-12-06 [?] RSPM (R 4.5.0)
- P httpuv                     1.6.16     2025-04-16 [?] RSPM (R 4.5.0)
  P httr                       1.4.7      2023-08-15 [?] RSPM (R 4.5.0)
- P IRanges                  * 2.42.0     2025-04-15 [?] Bioconductor 3.21 (R 4.5.0)
+   IRanges                  * 2.44.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
  P jsonlite                   2.0.0      2025-03-27 [?] RSPM (R 4.5.0)
  P knitr                      1.50       2025-03-16 [?] RSPM
  P labeling                   0.4.3      2023-08-29 [?] RSPM (R 4.5.0)
- P later                      1.4.4      2025-08-27 [?] RSPM (R 4.5.0)
  P lattice                    0.22-7     2025-04-02 [?] CRAN (R 4.5.1)
  P lazyeval                   0.2.2      2019-03-15 [?] RSPM (R 4.5.0)
  P lifecycle                  1.0.4      2023-11-07 [?] RSPM (R 4.5.0)
- P listenv                    0.9.1      2024-01-29 [?] RSPM (R 4.5.0)
+   listenv                    0.10.0     2025-11-02 [1] RSPM (R 4.5.0)
  P lme4                       1.1-37     2025-03-26 [?] RSPM (R 4.5.0)
  P lmerTest                   3.1-3      2020-10-23 [?] RSPM (R 4.5.0)
  P magrittr                 * 2.0.4      2025-09-12 [?] RSPM (R 4.5.0)
  P MASS                       7.3-65     2025-02-28 [?] CRAN (R 4.5.1)
- P Matrix                     1.7-4      2025-08-28 [?] RSPM (R 4.5.0)
- P MatrixGenerics           * 1.20.0     2025-04-15 [?] Bioconductor 3.21 (R 4.5.0)
+   Matrix                     1.7-4      2025-08-28 [1] RSPM (R 4.5.0)
+   MatrixGenerics           * 1.22.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
  P matrixStats              * 1.5.0      2025-01-07 [?] RSPM (R 4.5.0)
  P memoise                    2.0.1      2021-11-26 [?] RSPM
- P mime                       0.13       2025-03-17 [?] RSPM (R 4.5.0)
- P miniUI                     0.1.2      2025-04-17 [?] RSPM (R 4.5.0)
  P minqa                      1.2.8      2024-08-17 [?] RSPM (R 4.5.0)
- P multcomp                   1.4-28     2025-01-29 [?] RSPM (R 4.5.0)
+   multcomp                   1.4-29     2025-10-20 [1] RSPM (R 4.5.0)
  P mvtnorm                    1.3-3      2025-01-10 [?] RSPM (R 4.5.0)
  P nlme                       3.1-168    2025-03-31 [?] CRAN (R 4.5.1)
  P nloptr                     2.2.1      2025-03-17 [?] RSPM (R 4.5.0)
@@ -2785,9 +2779,7 @@ colTree: NULL</code></pre>
    pkgload                    1.4.1      2025-09-23 [1] RSPM (R 4.5.0)
  P plotly                     4.11.0     2025-06-19 [?] RSPM (R 4.5.0)
    polyclip                   1.10-7     2024-07-23 [1] RSPM
- P profvis                    0.4.0      2024-09-20 [?] RSPM (R 4.5.0)
- P promises                   1.3.3      2025-05-29 [?] RSPM (R 4.5.0)
- P purrr                      1.1.0      2025-07-10 [?] RSPM (R 4.5.0)
+   purrr                      1.2.0      2025-11-04 [1] RSPM (R 4.5.0)
  P R6                         2.6.1      2025-02-15 [?] RSPM (R 4.5.0)
  P ragg                       1.5.0      2025-09-02 [?] RSPM (R 4.5.0)
  P rappdirs                   0.3.3      2021-01-31 [?] RSPM
@@ -2796,52 +2788,50 @@ colTree: NULL</code></pre>
  P Rcpp                       1.1.0      2025-07-02 [?] RSPM (R 4.5.0)
  P Rdpack                     2.6.4      2025-04-09 [?] RSPM (R 4.5.0)
  P readr                      2.1.5      2024-01-10 [?] RSPM (R 4.5.0)
- P reformulas                 0.4.1      2025-04-30 [?] RSPM (R 4.5.0)
+   reformulas                 0.4.2      2025-10-28 [1] RSPM (R 4.5.0)
  P remotes                    2.5.0      2024-03-17 [?] RSPM (R 4.5.0)
    renv                       1.1.5      2025-07-24 [1] RSPM (R 4.5.1)
  P rlang                      1.1.6      2025-04-11 [?] RSPM (R 4.5.0)
    rmarkdown                  2.30       2025-09-28 [1] RSPM (R 4.5.0)
  P rprojroot                  2.1.1      2025-08-26 [?] RSPM (R 4.5.0)
- P rstatix                    0.7.2      2023-02-01 [?] RSPM (R 4.5.0)
- P S4Arrays                   1.8.1      2025-06-01 [?] Bioconductor 3.21 (R 4.5.0)
- P S4Vectors                * 0.46.0     2025-04-15 [?] Bioconductor 3.21 (R 4.5.0)
+   rstatix                    0.7.3      2025-10-18 [1] RSPM (R 4.5.0)
+   S4Arrays                   1.10.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
+   S4Vectors                * 0.48.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
  P S7                         0.2.0      2024-11-07 [?] RSPM (R 4.5.0)
  P sandwich                   3.1-1      2024-09-15 [?] RSPM (R 4.5.0)
  P scales                     1.4.0      2025-04-24 [?] RSPM (R 4.5.0)
+   Seqinfo                  * 1.0.0      2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
  P sessioninfo                1.2.3      2025-02-05 [?] RSPM (R 4.5.0)
- P shiny                      1.11.1     2025-07-03 [?] RSPM (R 4.5.0)
  P showtext                   0.9-7      2024-03-02 [?] RSPM (R 4.5.0)
  P showtextdb                 3.0        2020-06-04 [?] RSPM (R 4.5.0)
- P SingleCellExperiment     * 1.30.1     2025-05-07 [?] Bioconductor 3.21 (R 4.5.0)
- P SparseArray                1.8.1      2025-07-23 [?] Bioconductor 3.21 (R 4.5.1)
+   SingleCellExperiment     * 1.32.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
+   SparseArray                1.10.1     2025-10-31 [1] Bioconductor 3.22 (R 4.5.1)
  P stringi                    1.8.7      2025-03-27 [?] RSPM (R 4.5.0)
- P stringr                    1.5.2      2025-09-08 [?] RSPM (R 4.5.0)
- P SummarizedExperiment     * 1.38.1     2025-04-30 [?] Bioconductor 3.21 (R 4.5.0)
+   stringr                    1.6.0      2025-11-04 [1] RSPM (R 4.5.0)
+   SummarizedExperiment     * 1.40.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
  P survival                   3.8-3      2024-12-17 [?] CRAN (R 4.5.1)
  P sysfonts                   0.8.9      2024-03-02 [?] RSPM (R 4.5.0)
-   systemfonts                1.3.0      2025-09-30 [1] CRAN (R 4.5.1)
- P textshaping                1.0.3      2025-09-02 [?] RSPM (R 4.5.0)
+   systemfonts                1.3.1      2025-10-01 [1] RSPM (R 4.5.0)
+   textshaping                1.0.4      2025-10-10 [1] RSPM (R 4.5.0)
  P TH.data                    1.1-4      2025-09-02 [?] RSPM (R 4.5.0)
  P tibble                     3.3.0      2025-06-08 [?] RSPM (R 4.5.0)
- P tidyplots                  0.3.1      2025-07-02 [?] RSPM (R 4.5.0)
+   tidyplots                  0.3.1      2025-07-02 [1] RSPM
  P tidyr                    * 1.3.1      2024-01-24 [?] RSPM (R 4.5.0)
  P tidyselect                 1.2.1      2024-03-11 [?] RSPM (R 4.5.0)
- P tidySingleCellExperiment * 1.18.1     2025-05-11 [?] Bioconductor 3.21 (R 4.5.0)
+   tidySingleCellExperiment * 1.20.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
  P tidytree                   0.4.6      2023-12-12 [?] RSPM (R 4.5.0)
- P treeio                     1.32.0     2025-04-15 [?] Bioconductor 3.21 (R 4.5.0)
- P TreeSummarizedExperiment   2.16.1     2025-05-11 [?] Bioconductor 3.21 (R 4.5.0)
+   treeio                     1.34.0     2025-10-30 [1] Bioconductor 3.22 (R 4.5.1)
+   TreeSummarizedExperiment   2.18.0     2025-10-30 [1] Bioconductor 3.22 (R 4.5.1)
  P ttservice                * 0.5.3      2025-07-10 [?] RSPM (R 4.5.0)
    tweenr                     2.0.3      2024-02-26 [1] RSPM
  P tzdb                       0.5.0      2025-03-15 [?] RSPM (R 4.5.0)
- P UCSC.utils                 1.4.0      2025-04-15 [?] Bioconductor 3.21 (R 4.5.0)
- P urlchecker                 1.0.1      2021-11-30 [?] RSPM (R 4.5.0)
  P usethis                    3.2.1      2025-09-06 [?] RSPM (R 4.5.0)
  P vctrs                      0.6.5      2023-12-01 [?] RSPM (R 4.5.0)
  P viridisLite                0.4.2      2023-05-02 [?] RSPM (R 4.5.0)
  P withr                      3.0.2      2024-10-28 [?] RSPM (R 4.5.0)
-   xfun                       0.53       2025-08-19 [1] RSPM (R 4.5.0)
+   xfun                       0.54       2025-10-30 [1] RSPM (R 4.5.0)
  P xtable                     1.8-4      2019-04-21 [?] RSPM (R 4.5.0)
- P XVector                    0.48.0     2025-04-15 [?] Bioconductor 3.21 (R 4.5.0)
+   XVector                    0.50.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
  P yaml                       2.3.10     2024-07-26 [?] RSPM
  P yulab.utils                0.2.1      2025-08-19 [?] RSPM (R 4.5.0)
  P zoo                        1.8-14     2025-04-10 [?] RSPM (R 4.5.0)

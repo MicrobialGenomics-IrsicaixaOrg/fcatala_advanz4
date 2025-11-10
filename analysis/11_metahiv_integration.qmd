@@ -138,17 +138,24 @@ plt <-
   meta %>% 
   dplyr::mutate(
     Profile = forcats::fct_reorder(Profile, dist_to_negative, .fun = median),
+    type = dplyr::case_when(
+      stringr::str_starts(Profile, "DTG") ~ "DTG", 
+      stringr::str_starts(Profile, "DRV/r") ~ "DRV/r", 
+      TRUE ~ "metaHIV"
+    ),
+    type = factor(type, levels = c("metaHIV", "DRV/r", "DTG"))
   ) %>% 
   tidyplots::tidyplot(x = Profile, y = dist_to_negative, colour = Profile) %>% 
   tidyplots::add_boxplot(show_outliers = FALSE) %>%
-  tidyplots::add_data_points_jitter(alpha = 0.4, jitter_width = 0.6) %>%
-  tidyplots::adjust_size(width = 100, height = 100, unit = "mm") %>% 
+  tidyplots::add_data_points_jitter(alpha = 0.4, jitter_width = 0.6) %>% 
   tidyplots::adjust_x_axis(rotate_labels = TRUE) %>% 
   tidyplots::adjust_x_axis_title(NULL) %>%
   tidyplots::remove_legend() %>% 
   tidyplots::adjust_y_axis_title("Mean Bray-Curtis dissimilarity to HIV-negative samples") %>% 
   tidyplots::adjust_colors(profile_cols) %>% 
-  tidyplots::adjust_font(fontsize = 12)
+  tidyplots::adjust_font(fontsize = 12) %>% 
+  tidyplots::add(facet_wrap(~type, nrow = 1, scales = "free_x", space = "free_x")) %>% 
+  tidyplots::adjust_size(width = 125, height = 75, unit = "mm")
       
 # save
 plt %>%
@@ -179,6 +186,14 @@ plot_df <-
 # plot
 plt <- 
   plot_df %>% 
+  dplyr::mutate(
+    type = dplyr::case_when(
+      stringr::str_starts(contrast, "DTG") ~ "DTG", 
+      stringr::str_starts(contrast, "DRV/r") ~ "DRV/r", 
+      TRUE ~ "metaHIV"
+    ),
+    type = factor(type, levels = rev(c("metaHIV", "DRV/r", "DTG")))
+  ) %>% 
   tidyplots::tidyplot(x = estimate, y = contrast) %>%
   tidyplots::add(geom_pointrange(
     aes(xmin = conf.low, xmax = conf.high),
@@ -189,19 +204,21 @@ plt <-
   )) %>%
   tidyplots::add_reference_lines(x = 0) %>%
   tidyplots::adjust_x_axis_title("Estimated difference in Bray-Curtis dissimilarity vs HIV-negative") %>%
-  tidyplots::adjust_y_axis_title(NULL) 
+  tidyplots::adjust_y_axis_title(NULL) %>% 
+  tidyplots::add(
+    facet_wrap(~type, ncol = 1, scales = "free_y", space = "free_y", strip.position = "left")
+  ) %>% 
+  tidyplots::adjust_font(fontsize = 12) %>% 
+  tidyplots::adjust_size(width = 75, height = 125, unit = "mm")
 
 # save
 plt %>%
-  tidyplots::adjust_size(width = 60, height = 50, unit = "mm") %>% 
   tidyplots::save_plot(
     here::here(out_dir, glue::glue("dissimilarity_forest_metahiv.pdf")),
     view_plot = FALSE
   )
 
-plt %>% 
-  tidyplots::adjust_size(width = 75, height = 75, unit = "mm") %>% 
-  tidyplots::adjust_font(fontsize = 10)
+plt
 ```
 
 ## NMDS Analysis 
@@ -214,7 +231,8 @@ tse <- mia::runNMDS(
   assay.type = "relab",
   method = "bray",
   nmds.fun = "monoMDS",
-  keep.dist = TRUE
+  keep.dist = TRUE,
+  ntop = 100
 )
 ```
 
