@@ -116,11 +116,11 @@ meta$dist_to_negative <- vapply(
 #| fig-height: 7
 
 profile_cols <- c(
-  "DRV/r"               = "#0072B2",
+  "DRV/r_0"               = "#0072B2",
   "DRV/r_24"            = "#3390C3",
   "DRV/r_48"            = "#66AED4",
   "DRV/r_96"            = "#99CCE5",
-  "DTG"                 = "#D55E00",
+  "DTG_0"                 = "#D55E00",
   "DTG_24"              = "#E27F33",
   "DTG_48"              = "#EFA066",
   "DTG_96"              = "#FBC199",
@@ -137,6 +137,11 @@ profile_cols <- c(
 plt <- 
   meta %>% 
   dplyr::mutate(
+    Profile = dplyr::case_when(
+      Profile == "DTG" ~ "DTG_0", 
+      Profile == "DRV/r" ~ "DRV/r_0", 
+      TRUE ~ Profile
+    ),
     Profile = forcats::fct_reorder(Profile, dist_to_negative, .fun = median),
     type = dplyr::case_when(
       stringr::str_starts(Profile, "DTG") ~ "DTG", 
@@ -180,6 +185,11 @@ plot_df <-
   rstatix::add_significance(p.col = "adj.p.value") %>% 
   dplyr::mutate(
     contrast = stringr::str_remove_all(contrast, " .*|[(]|[)]"), 
+    contrast = dplyr::case_when(
+      contrast == "DTG" ~ "DTG_0", 
+      contrast == "DRV/r" ~ "DRV/r_0", 
+      TRUE ~ contrast
+    ),
     contrast = forcats::fct_reorder(contrast, estimate)
   ) 
 

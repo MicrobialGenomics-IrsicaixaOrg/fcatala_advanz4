@@ -370,6 +370,7 @@ plt_list <-
       )
 
     lon_contrast_df <- dplyr::bind_rows(baseline_stub, lon_contrast_df)
+    readr::write_csv(lon_contrast_df, here::here(out_dir, "lmm_longitudinal_stats.csv"))
     
     # emmeand by group
     group_contrast_df <- 
@@ -377,12 +378,14 @@ plt_list <-
       emmeans::emmeans(~ treatment | time_point) %>% 
       emmeans::contrast(method = "revpairwise", adjust = "fdr") %>% 
       broom.mixed::tidy(conf.int = TRUE) %>% 
-      dplyr::mutate(p.adj.global = p.adjust(p.value, method = "fdr"))
+      dplyr::mutate(p.adj.global = p.adjust(p.value, method = "fdr")) %>% 
+      rstatix::add_significance(p.col = "p.adj.global")
       
+    readr::write_csv(group_contrast_df, here::here(out_dir, "lmm_group_stats.csv"))
+    
     # forest plot by group
     forest_plt_group <- 
       group_contrast_df %>%
-      rstatix::add_significance(p.col = "p.adj.global") %>%
       tidyplots::tidyplot(x = estimate, y = time_point) %>%
       tidyplots::add(geom_pointrange(
         aes(xmin = conf.low, xmax = conf.high),
@@ -777,6 +780,8 @@ rmcorr_df <-
   }) %>%
   dplyr::mutate(p_adj = p.adjust(p, method = "fdr"), .after = p) %>%
   dplyr::arrange(p_adj)
+
+readr::write_csv(rmcorr_df, here::here(out_dir, "rmcorr_stats.csv"))
 
 plt_df <-
   rmcorr_df %>%

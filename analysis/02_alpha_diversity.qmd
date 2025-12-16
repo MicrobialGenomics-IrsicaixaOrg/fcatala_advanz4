@@ -30,7 +30,7 @@ confounders <- c(
 
 # formula
 mod_formula <- glue::glue(
-  "ly ~ treatment * time_point + gender + scale(age, center = TRUE, scale = FALSE) + (1|record_id)"
+  "ly ~ treatment * time_point + gender + scale(age, center = TRUE, scale = FALSE) + risk_group + (1|record_id)"
 )
 ```
 
@@ -253,12 +253,12 @@ plt_list <-
       emmeans::emmeans(~ treatment | time_point) %>% 
       emmeans::contrast(method = "revpairwise", adjust = "fdr") %>% 
       broom.mixed::tidy(conf.int = TRUE) %>% 
-      dplyr::mutate(p.adj.global = p.adjust(p.value, method = "fdr"))
+      dplyr::mutate(p.adj.global = p.adjust(p.value, method = "fdr")) %>% 
+      rstatix::add_significance(p.col = "p.adj.global")
       
     # forest plot by group
     forest_plt_group <- 
       group_contrast_df %>%
-      rstatix::add_significance(p.col = "p.adj.global") %>%
       tidyplots::tidyplot(x = estimate, y = time_point) %>%
       tidyplots::add(geom_pointrange(
         aes(xmin = conf.low, xmax = conf.high),
@@ -319,8 +319,19 @@ plt_list <-
           )
       })
     
-    f_plt <- wrap_plots(plt_list) + plot_layout(guides = "collect")
+    list(
+      lon_stats = lon_contrast_df %>% dplyr::mutate(metric = .x),
+      grp_stats = group_contrast_df %>% dplyr::mutate(metric = .x), 
+      plt = wrap_plots(plt_list) + plot_layout(guides = "collect")
+    )
   })
+
+
+lon_stats <- plt_list %>% purrr::map_dfr(~ { .x[["lon_stats"]] })
+grp_stats <- plt_list %>% purrr::map_dfr(~ { .x[["grp_stats"]] })
+
+readr::write_csv(lon_stats, here::here(out_dir, "lmm_longitudinal_stats.csv"))
+readr::write_csv(grp_stats, here::here(out_dir, "lmm_group_stats.csv"))
 ```
 
 ::: panel-tabset
@@ -330,7 +341,7 @@ plt_list <-
 names(plt_list) %>% 
   purrr::walk(~ {
     cat("#### ", .x, "\n")
-    plot(plt_list[[.x]])
+    plot(plt_list[[.x]][["plt"]])
     cat("\n\n")
   })
 ```

@@ -397,13 +397,7 @@ plt <-
 # Resize and save
 plt <-
   plt +
-  plot_spacer() +
-  plot_layout(
-    widths = ggplot2::unit(c(200, 1), "mm"),
-    heights = ggplot2::unit(150, "mm")
-  )
-
-tidyplots::save_plot(
+  plot_spacer() +repeated-measures correlation methods, which account for within-participant dependence. Multiple-testing correction was applied across all cytokine–taxa tests, not per cytokine. We have now added this clarification to the Methods section and to the captions of Figures 5 and S7.
   plt,
   here::here(out_dir, glue::glue("rm_correlation_treatment_all.pdf")),
   view_plot = FALSE

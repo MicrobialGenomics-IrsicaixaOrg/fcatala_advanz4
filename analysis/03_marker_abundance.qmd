@@ -205,145 +205,169 @@ names(plt_list) %>%
 plt_list <-
   all_markers$marker[-3] %>%
   purrr::set_names() %>%
-  purrr::map(~ {
-    .marker <- rlang::sym(.x)
-    baseline_tp = "0"
+  purrr::map(
+    ~ {
+      .marker <- rlang::sym(.x)
+      baseline_tp = "0"
 
-    # prepare data
-    plt_df <-
-      plt_df %>%
-      dplyr::select(dplyr::all_of(c(confounders, .x))) %>%
-      dplyr::arrange(record_id, time_point) %>%
-      tidyr::drop_na() %>%
-      dplyr::mutate(
-        dplyr::across(dplyr::where(is.character), as.factor),
-        treatment = factor(treatment, levels = c("DRV/r", "DTG")),
-        time_point = factor(time_point), 
-        ly = log2(!!dplyr::sym(.x) + 1e-6)
+      # prepare data
+      plt_df <-
+        plt_df %>%
+        dplyr::select(dplyr::all_of(c(confounders, .x))) %>%
+        dplyr::arrange(record_id, time_point) %>%
+        tidyr::drop_na() %>%
+        dplyr::mutate(
+          dplyr::across(dplyr::where(is.character), as.factor),
+          treatment = factor(treatment, levels = c("DRV/r", "DTG")),
+          time_point = factor(time_point),
+          ly = log2(!!dplyr::sym(.x) + 1e-6)
+        )
+
+      # contrasts
+      tp_levels <- levels(plt_df$time_point)
+      contr_list <- setNames(
+        lapply(tp_levels[tp_levels != baseline_tp], function(tp) {
+          w <- setNames(rep(0, length(tp_levels)), tp_levels)
+          w[tp] <- 1
+          w[baseline_tp] <- -1
+          w
+        }),
+        paste0(tp_levels[tp_levels != baseline_tp], " - ", baseline_tp)
       )
 
-    # contrasts
-    tp_levels <- levels(plt_df$time_point)
-    contr_list <- setNames(
-      lapply(tp_levels[tp_levels != baseline_tp], function(tp) {
-        w <- setNames(rep(0, length(tp_levels)), tp_levels)
-        w[tp] <- 1; w[baseline_tp] <- -1
-        w
-      }),
-      paste0(tp_levels[tp_levels != baseline_tp], " - ", baseline_tp)
-    )
+      # lmm
+      lmm_res <-
+        stats::as.formula(mod_formula) %>%
+        lmerTest::lmer(data = plt_df)
 
-    # lmm 
-    lmm_res <- 
-      stats::as.formula(mod_formula) %>% 
-      lmerTest::lmer(data = plt_df) 
-    
-    # emmeans: changes vs basal inside each treatment
-    lon_contrast_df <- 
-      lmm_res %>% 
-      emmeans::emmeans(~ time_point | treatment) %>% 
-      emmeans::contrast(contr_list, adjust = "fdr") %>% 
-      broom.mixed::tidy(conf.int = TRUE) %>%
-      dplyr::mutate(
-        contrast_clean = stringr::str_remove_all(contrast, "time_point"),
-        time_point = readr::parse_number(contrast_clean) %>% as.character() %>% as.factor()
+      # emmeans: changes vs basal inside each treatment
+      lon_contrast_df <-
+        lmm_res %>%
+        emmeans::emmeans(~ time_point | treatment) %>%
+        emmeans::contrast(contr_list, adjust = "fdr") %>%
+        broom.mixed::tidy(conf.int = TRUE) %>%
+        dplyr::mutate(
+          contrast_clean = stringr::str_remove_all(contrast, "time_point"),
+          time_point = readr::parse_number(contrast_clean) %>%
+            as.character() %>%
+            as.factor()
+        )
+
+      # stub de basal a 0 sin IC
+      baseline_stub <-
+        emmeans::emmeans(lmm_res, ~ time_point | treatment) %>%
+        broom.mixed::tidy() %>%
+        dplyr::filter(time_point == baseline_tp) %>%
+        dplyr::transmute(
+          treatment,
+          estimate = 0,
+          conf.low = 0,
+          conf.high = 0,
+          adj.p.value = NA_real_,
+          time_point = baseline_tp
+        )
+
+      lon_contrast_df <- dplyr::bind_rows(baseline_stub, lon_contrast_df)
+
+      # emmeand by group
+      group_contrast_df <-
+        lmm_res %>%
+        emmeans::emmeans(~ treatment | time_point) %>%
+        emmeans::contrast(method = "revpairwise", adjust = "fdr") %>%
+        broom.mixed::tidy(conf.int = TRUE) %>%
+        dplyr::mutate(p.adj.global = p.adjust(p.value, method = "fdr"))
+
+      # forest plot by group
+      forest_plt_group <-
+        group_contrast_df %>%
+        rstatix::add_significance(p.col = "p.adj.global") %>%
+        tidyplots::tidyplot(x = estimate, y = time_point) %>%
+        tidyplots::add(geom_pointrange(
+          aes(xmin = conf.low, xmax = conf.high),
+          alpha = 0.8,
+          position = position_dodge(width = 0.6),
+          size = 2 / ggplot2::.pt,
+          colour = "#252525"
+        )) %>%
+        tidyplots::add_reference_lines(x = 0) %>%
+        tidyplots::add(geom_text(
+          aes(
+            x = conf.high * 1.2,
+            label = dplyr::if_else(
+              p.adj.global.signif != "ns",
+              p.adj.global.signif,
+              ""
+            )
+          ),
+          position = position_dodge(width = 0.6),
+          size = 7,
+          hjust = 0,
+          colour = "black"
+        )) %>%
+        tidyplots::add(expand_limits(
+          x = max(group_contrast_df$conf.high, na.rm = TRUE) * 1.25
+        )) %>%
+        tidyplots::adjust_x_axis_title(glue::glue(
+          "Δ log2({.x}) (DTG - DRV/r)"
+        )) %>%
+        tidyplots::adjust_y_axis_title("Time point (weeks)") %>%
+        tidyplots::adjust_size(75, 75) %>%
+        tidyplots::adjust_font(8)
+
+      # Trajectory plot
+      traj_plt <-
+        lon_contrast_df %>%
+        tidyplots::tidyplot(
+          x = time_point,
+          y = estimate,
+          colour = treatment,
+          group = treatment
+        ) %>%
+        tidyplots::add(geom_pointrange(
+          aes(ymin = conf.low, ymax = conf.high),
+          alpha = 0.8,
+          size = 2 / ggplot2::.pt,
+          position = position_dodge(width = 1 / ggplot2::.pt)
+        )) %>%
+        tidyplots::add_line() %>%
+        tidyplots::add_reference_lines(y = 0) %>%
+        tidyplots::adjust_x_axis_title("Time Point (weeks)") %>%
+        tidyplots::adjust_y_axis_title(glue::glue("Δ log2({.x}) vs basal")) %>%
+        tidyplots::adjust_legend_title("Treatment") %>%
+        tidyplots::adjust_size(75, 75) %>%
+        tidyplots::adjust_font(8)
+
+      # plt list
+      plt_list <- list(traj_plt = traj_plt, forest_plt_group = forest_plt_group)
+
+      # save
+      showtext::showtext_auto()
+      names(plt_list) %>%
+        purrr::walk(
+          ~ {
+            plt_list[[.x]] %>%
+              tidyplots::adjust_size(width = 40, height = 40, unit = "mm") %>%
+              tidyplots::adjust_font(7) %>%
+              tidyplots::save_plot(
+                here::here(out_dir, glue::glue("lmm_{.x}_{.marker}.pdf")),
+                view_plot = FALSE
+              )
+          }
+        )
+
+      list(
+        lon_stats = lon_contrast_df %>% dplyr::mutate(metric = .x),
+        grp_stats = group_contrast_df %>% dplyr::mutate(metric = .x),
+        plt = wrap_plots(plt_list) + plot_layout(guides = "collect")
       )
-
-    # stub de basal a 0 sin IC 
-    baseline_stub <- 
-      emmeans::emmeans(lmm_res, ~ time_point | treatment) %>% 
-      broom.mixed::tidy() %>% 
-      dplyr::filter(time_point == baseline_tp) %>% 
-      dplyr::transmute(
-        treatment, 
-        estimate = 0, 
-        conf.low = 0, 
-        conf.high = 0, 
-        adj.p.value = NA_real_, 
-        time_point = baseline_tp
-      )
-
-    lon_contrast_df <- dplyr::bind_rows(baseline_stub, lon_contrast_df)
-    
-    # emmeand by group
-    group_contrast_df <- 
-      lmm_res %>% 
-      emmeans::emmeans(~ treatment | time_point) %>% 
-      emmeans::contrast(method = "revpairwise", adjust = "fdr") %>% 
-      broom.mixed::tidy(conf.int = TRUE) %>% 
-      dplyr::mutate(p.adj.global = p.adjust(p.value, method = "fdr"))
-      
-    # forest plot by group
-    forest_plt_group <- 
-      group_contrast_df %>%
-      rstatix::add_significance(p.col = "p.adj.global") %>%
-      tidyplots::tidyplot(x = estimate, y = time_point) %>%
-      tidyplots::add(geom_pointrange(
-        aes(xmin = conf.low, xmax = conf.high),
-        alpha = 0.8, 
-        position = position_dodge(width = 0.6),
-        size = 2/ggplot2::.pt, 
-        colour = "#252525"
-      )) %>% 
-      tidyplots::add_reference_lines(x = 0) %>% 
-      tidyplots::add(geom_text(
-        aes(
-          x = conf.high * 1.2,
-          label = dplyr::if_else(p.adj.global.signif != "ns", p.adj.global.signif, "")
-        ),
-        position = position_dodge(width = 0.6),
-        size = 7,
-        hjust = 0, 
-        colour = "black"
-      )) %>% 
-      tidyplots::add(expand_limits(x = max(group_contrast_df$conf.high, na.rm = TRUE) * 1.25)) %>% 
-      tidyplots::adjust_x_axis_title(glue::glue("Δ log2({.x}) (DTG - DRV/r)")) %>%
-      tidyplots::adjust_y_axis_title("Time point (weeks)") %>% 
-      tidyplots::adjust_size(75, 75) %>% 
-      tidyplots::adjust_font(8)
-    
-    # Trajectory plot
-    traj_plt <- 
-      lon_contrast_df %>%
-      tidyplots::tidyplot(
-        x = time_point, 
-        y = estimate, 
-        colour = treatment, 
-        group = treatment
-      ) %>%
-      tidyplots::add(geom_pointrange(
-        aes(ymin = conf.low, ymax = conf.high),
-        alpha = 0.8, 
-        size = 2/ggplot2::.pt, 
-        position = position_dodge(width = 1/ggplot2::.pt)
-      )) %>% 
-      tidyplots::add_line() %>% 
-      tidyplots::add_reference_lines(y = 0) %>% 
-      tidyplots::adjust_x_axis_title("Time Point (weeks)") %>%
-      tidyplots::adjust_y_axis_title(glue::glue("Δ log2({.x}) vs basal")) %>%
-      tidyplots::adjust_legend_title("Treatment") %>% 
-      tidyplots::adjust_size(75, 75) %>% 
-      tidyplots::adjust_font(8)
-    
-    # plt list
-    plt_list <- list(traj_plt = traj_plt, forest_plt_group = forest_plt_group)
-      
-    # save
-    showtext::showtext_auto()
-    names(plt_list) %>% 
-      purrr::walk(~ {
-        plt_list[[.x]] %>%
-          tidyplots::adjust_size(width = 40, height = 40, unit = "mm") %>%
-          tidyplots::adjust_font(7) %>% 
-          tidyplots::save_plot(
-            here::here(out_dir, glue::glue("lmm_{.x}_{.marker}.pdf")),
-            view_plot = FALSE
-          )
-      })
-    
-    f_plt <- wrap_plots(plt_list) + plot_layout(guides = "collect")
     }
   )
+
+lon_stats <- plt_list %>% purrr::map_dfr(~ { .x[["lon_stats"]] })
+grp_stats <- plt_list %>% purrr::map_dfr(~ { .x[["grp_stats"]] })
+
+readr::write_csv(lon_stats, here::here(out_dir, "lmm_longitudinal_stats.csv"))
+readr::write_csv(grp_stats, here::here(out_dir, "lmm_group_stats.csv"))
 ```
 
 ## Plot 
