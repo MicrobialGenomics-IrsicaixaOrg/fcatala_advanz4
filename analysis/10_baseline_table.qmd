@@ -3,6 +3,7 @@ title: "Baseline Cohort Characteristics by Treatment"
 editor-options:
     chunk_output_type: console
 ---
+
 ## Set-up
 
 ```{r}
@@ -14,7 +15,6 @@ suppressPackageStartupMessages(library(tidySingleCellExperiment))
 # define theme
 gtsummary::theme_gtsummary_compact()
 ```
-
 
 ## Define input and output paths
 

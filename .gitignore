@@ -7,3 +7,5 @@
 /_*.local
 data/*
 analysis/*_cache/*
+**/*.quarto_ipynb
+.DS_Store

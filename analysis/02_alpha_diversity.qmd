@@ -6,9 +6,6 @@ editor_options:
 
 ## Define the input and output paths
 
-> [!IMPORTANT]
-> Because this was a randomized clinical trial, randomization ensures that baseline characteristics are, on average, balanced across treatment arms, minimizing the risk of confounding. Therefore, all analyses were performed using treatment assignment as the primary exposure variable. Adjustment for baseline covariates (age, sex, and risk group) was included solely to increase precision and account for inter-individual variability, not to control for confounding. Only baseline values were used for these covariates, as post-baseline measurements could be affected by treatment or follow-up time and would therefore not be appropriate for adjustment.
-
 ```{r}
 # input
 tse_file <- here::here("data", "processed", "tse_cleaned.rds")
