@@ -1756,7 +1756,6 @@
         "vegan",
         "WGCNA"
       ],
-      "Remotes": "github::zdk123/SpiecEasi, github::GraceYoon/SPRING, github::vmikk/metagMisc, github::tpq/propr, github::HCBravoLab/metagenomeSeq",
       "Suggests": [
         "BiocManager",
         "cccd",
@@ -1778,16 +1777,16 @@
       "Encoding": "UTF-8",
       "RoxygenNote": "7.3.2",
       "VignetteBuilder": "knitr",
+      "Author": "Stefanie Peschel [aut, cre] (ORCID: <https://orcid.org/0000-0002-7936-7627>), Christian L. Müller [ctb] (ORCID: <https://orcid.org/0000-0002-3821-7083>), Anne-Laure Boulesteix [ctb] (ORCID: <https://orcid.org/0000-0002-2729-0947>), Erika von Mutius [ctb] (ORCID: <https://orcid.org/0000-0002-8893-4515>), Martin Depner [ctb]",
+      "Maintainer": "Stefanie Peschel <stefpeschel@gmail.com>",
       "RemoteType": "github",
+      "Remotes": "github::zdk123/SpiecEasi, github::GraceYoon/SPRING, github::vmikk/metagMisc, github::tpq/propr, github::HCBravoLab/metagenomeSeq",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "NetCoMi",
       "RemoteUsername": "stefpeschel",
       "RemotePkgRef": "stefpeschel/NetCoMi",
       "RemoteRef": "HEAD",
-      "RemoteSha": "3b8de20c914975f73ecf3a7045beec6cada20fe2",
-      "NeedsCompilation": "no",
-      "Author": "Stefanie Peschel [aut, cre] (ORCID: <https://orcid.org/0000-0002-7936-7627>), Christian L. Müller [ctb] (ORCID: <https://orcid.org/0000-0002-3821-7083>), Anne-Laure Boulesteix [ctb] (ORCID: <https://orcid.org/0000-0002-2729-0947>), Erika von Mutius [ctb] (ORCID: <https://orcid.org/0000-0002-8893-4515>), Martin Depner [ctb]",
-      "Maintainer": "Stefanie Peschel <stefpeschel@gmail.com>"
+      "RemoteSha": "3b8de20c914975f73ecf3a7045beec6cada20fe2"
     },
     "R6": {
       "Package": "R6",
@@ -2015,16 +2014,15 @@
       "URL": "https://github.com/RcppCore/RcppArmadillo, https://dirk.eddelbuettel.com/code/rcpp.armadillo.html",
       "BugReports": "https://github.com/RcppCore/RcppArmadillo/issues",
       "RoxygenNote": "6.0.1",
+      "Author": "Dirk Eddelbuettel [aut, cre] (ORCID: <https://orcid.org/0000-0001-6419-907X>), Romain Francois [aut] (ORCID: <https://orcid.org/0000-0002-2444-4226>), Doug Bates [aut] (ORCID: <https://orcid.org/0000-0001-8316-9503>), Binxiang Ni [aut], Conrad Sanderson [aut] (ORCID: <https://orcid.org/0000-0002-0049-4501>)",
+      "Maintainer": "Dirk Eddelbuettel <edd@debian.org>",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "RcppArmadillo",
       "RemoteUsername": "RcppCore",
       "RemotePkgRef": "RcppCore/RcppArmadillo",
       "RemoteRef": "HEAD",
-      "RemoteSha": "f03b59666e4dd348ba7ddfb57255560d440b5afa",
-      "NeedsCompilation": "yes",
-      "Author": "Dirk Eddelbuettel [aut, cre] (ORCID: <https://orcid.org/0000-0001-6419-907X>), Romain Francois [aut] (ORCID: <https://orcid.org/0000-0002-2444-4226>), Doug Bates [aut] (ORCID: <https://orcid.org/0000-0001-8316-9503>), Binxiang Ni [aut], Conrad Sanderson [aut] (ORCID: <https://orcid.org/0000-0002-0049-4501>)",
-      "Maintainer": "Dirk Eddelbuettel <edd@debian.org>"
+      "RemoteSha": "f03b59666e4dd348ba7ddfb57255560d440b5afa"
     },
     "RcppEigen": {
       "Package": "RcppEigen",
@@ -2420,21 +2418,20 @@
         "mvtnorm",
         "stats"
       ],
-      "Remotes": "irinagain/mixedCCA, zdk123/SpiecEasi",
       "Suggests": [
         "testthat (>= 2.1.0)"
       ],
       "RoxygenNote": "7.1.1",
+      "Author": "Grace Yoon [aut, cre] (ORCID: <https://orcid.org/0000-0003-3263-1352>), Irina Gaynanova [aut], Christian Müller [aut]",
+      "Maintainer": "Grace Yoon <gyoon6067@gmail.com>",
       "RemoteType": "github",
+      "Remotes": "irinagain/mixedCCA, zdk123/SpiecEasi",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "SPRING",
       "RemoteUsername": "GraceYoon",
       "RemotePkgRef": "GraceYoon/SPRING",
       "RemoteRef": "HEAD",
-      "RemoteSha": "3d641a4b939b1b3cc042c064a05000aa48266af0",
-      "NeedsCompilation": "no",
-      "Author": "Grace Yoon [aut, cre] (ORCID: <https://orcid.org/0000-0003-3263-1352>), Irina Gaynanova [aut], Christian Müller [aut]",
-      "Maintainer": "Grace Yoon <gyoon6067@gmail.com>"
+      "RemoteSha": "3d641a4b939b1b3cc042c064a05000aa48266af0"
     },
     "ScaledMatrix": {
       "Package": "ScaledMatrix",
@@ -2691,16 +2688,15 @@
       ],
       "VignetteBuilder": "knitr",
       "Config/testthat/edition": "3",
+      "Author": "Zachary Kurtz [aut, cre], Christian Mueller [aut], Emily Miraldi [aut], Richard Bonneau [aut], Laura Tipton [ctb]",
+      "Maintainer": "Zachary Kurtz <zdkurtz@gmail.com>",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "SpiecEasi",
       "RemoteUsername": "zdk123",
       "RemotePkgRef": "zdk123/SpiecEasi",
       "RemoteRef": "HEAD",
-      "RemoteSha": "faed6a4476fe0a8dc701ea15cbdfe98d56ce6704",
-      "NeedsCompilation": "yes",
-      "Author": "Zachary Kurtz [aut, cre], Christian Mueller [aut], Emily Miraldi [aut], Richard Bonneau [aut], Laura Tipton [ctb]",
-      "Maintainer": "Zachary Kurtz <zdkurtz@gmail.com>"
+      "RemoteSha": "faed6a4476fe0a8dc701ea15cbdfe98d56ce6704"
     },
     "SummarizedExperiment": {
       "Package": "SummarizedExperiment",
@@ -9573,14 +9569,15 @@
         "Rcpp",
         "RcppArmadillo"
       ],
+      "LazyData": "true",
+      "Author": "Grace Yoon [aut] (ORCID: <https://orcid.org/0000-0003-3263-1352>), Mingze Huang [ctb] (ORCID: <https://orcid.org/0000-0003-3919-1564>), Irina Gaynanova [aut, cre] (ORCID: <https://orcid.org/0000-0002-4116-0268>)",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "mixedCCA",
       "RemoteUsername": "irinagain",
       "RemotePkgRef": "irinagain/mixedCCA",
       "RemoteRef": "HEAD",
-      "RemoteSha": "511c4af4b503fb733dcdba54c176496f25b297d9",
-      "Author": "Grace Yoon [aut] (ORCID: <https://orcid.org/0000-0003-3263-1352>), Mingze Huang [ctb] (ORCID: <https://orcid.org/0000-0003-3919-1564>), Irina Gaynanova [aut, cre] (ORCID: <https://orcid.org/0000-0002-4116-0268>)"
+      "RemoteSha": "511c4af4b503fb733dcdba54c176496f25b297d9"
     },
     "mnormt": {
       "Package": "mnormt",
