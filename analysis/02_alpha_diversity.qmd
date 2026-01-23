@@ -14,6 +14,7 @@ igc_file <- here::here("data", "raw", "dataTable.rds")
 # output
 out_dir <- here::here("data", "02_alpha_diversity")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+dir.create(here::here("data", "source_data"))
 
 # confounders 
 confounders <- c(
@@ -345,6 +346,22 @@ names(plt_list) %>%
 
 :::
 
+### Export Source Data
+
+```{r}
+plt_list %>% 
+  purrr::map_dfr(~ .x %>% purrr::pluck("lon_stats")) %>% 
+  readr::write_tsv(
+    here::here("data", "source_data", "fig_2B_lmm_longitudinal_stats.tsv")
+  )
+
+plt_list %>% 
+  purrr::map_dfr(~ .x %>% purrr::pluck("grp_stats")) %>% 
+  readr::write_tsv(
+    here::here("data", "source_data", "fig_2B_lmm_group_stats.tsv")
+  )
+```
+
 > The trajectory plot shows the estimated mean change (Δ log₂) from baseline for each treatment group over time. A value of 0 indicates no change relative to baseline. Points represent model-adjusted estimates from the linear mixed model, and vertical bars indicate 95% confidence intervals. Differences between groups at a given visit are visualized by divergence of the trajectories.
 
 > The forest plot displays the adjusted mean differences (Δ log₂) between treatments (DTG − DRV/r) at each visit. Positive estimates indicate higher values in the DTG arm, while negative estimates indicate higher values in the DRV/r arm. Error bars represent 95% confidence intervals; intervals crossing zero denote non-significant differences after FDR correction.
@@ -529,6 +546,14 @@ tidyplots::save_plot(
 
 r_plt
 ```
+
+### Export Source Data
+
+```{r}
+plt_df %>% 
+  readr::write_tsv(here::here("data", "source_data", "sup_fig_3B_rm_correlation.tsv"))
+```
+
 
 ## Compute Correlations by Treatment Group
 
@@ -820,6 +845,15 @@ tidyplots::save_plot(
 plt
 ```
 
+### Export Source Data
+
+```{r}
+plt_df %>% 
+  readr::write_tsv(
+    here::here("data", "source_data", "fig_2C_rm_correlation_all.tsv")
+  )
+```
+
 ## Scatter Correlations
 
 ### Spearman Correlations - Global
@@ -1070,6 +1104,17 @@ names(plt_list) %>%
 ```
 :::
 
+### Export Source Data
+
+```{r}
+plt_list %>%
+  purrr::list_flatten() %>%
+  purrr::map_dfr(~ .x$data) %>% 
+  readr::write_tsv(
+    here::here("data", "source_data", "sup_fig_3C_rm_scat.tsv")
+  )
+```
+
 ### Repeated Measures Correlation Coefficient - by Treatment
 
 ```{r}
@@ -1086,6 +1131,8 @@ plt_list <-
         plt_df <-
           it_data$df %>%
           purrr::list_rbind() %>%
+          dplyr::rename(metric_value = 1, marker_value = 2) %>% 
+          dplyr::mutate(metric_name = .metric, marker_name = .marker, .before = 1) %>% 
           dplyr::mutate(
             fitted_vals = c(
               it_data$rmcorr[[1]]$model$fitted.values,
@@ -1096,7 +1143,7 @@ plt_list <-
         .y_lab <- glue::glue("Log2  {.marker}")
         plt <- 
           plt_df %>% 
-          tidyplots::tidyplot(x = !!rlang::sym(.metric), y = !!rlang::sym(.marker), color = treatment) %>%
+          tidyplots::tidyplot(x = metric_value, y = marker_value, color = treatment) %>%
           tidyplots::add_data_points(alpha = 0.4) %>%
           tidyplots::add(geom_line(aes(y = fitted_vals, group = record_id), alpha = 0.8)) %>% 
           tidyplots::adjust_x_axis_title(
@@ -1152,6 +1199,18 @@ names(plt_list) %>%
 ```
 :::
 
+
+### Export Source Data
+
+```{r}
+plt_list %>%
+  purrr::list_flatten() %>%
+  purrr::map_dfr(~ .x$data) %>% 
+  readr::write_tsv(
+    here::here("data", "source_data", "fig_2D_rm_scat.tsv")
+  )
+```
+
 ## Export TSE with Alpha Metrics
 
 ```{r}
@@ -1169,5 +1228,5 @@ devtools::session_info()
 ### Contact
 
 -   **Analysis Lead:** Francesc Català-Moll
--   **Email:** fcatala\@irsicaixa.es
+-   **Email:** fcatala@irsicaixa.es
 -   **Institution:** GEM - IrsiCaixa
