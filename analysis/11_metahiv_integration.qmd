@@ -172,6 +172,15 @@ plt %>%
 plt 
 ```
 
+### Export Source Data
+
+```{r}
+plt$data %>% 
+  readr::write_tsv(here::here("data", "source_data", "fig_3D_dissimilarity.tsv"))
+```
+
+### Test differences to negative
+
 ### Test differences to negative with lmm
 
 ```{r}
@@ -229,6 +238,13 @@ plt %>%
   )
 
 plt
+```
+
+### Export Source Data
+
+```{r}
+plt$data %>% 
+  readr::write_tsv(here::here("data", "source_data", "fig_3E_dissimilarity_forest.tsv"))
 ```
 
 ## NMDS Analysis 
