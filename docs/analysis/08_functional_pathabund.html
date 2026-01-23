@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Francesc Català-Moll">
-<meta name="dcterms.date" content="2025-12-19">
+<meta name="dcterms.date" content="2026-01-23">
 
 <title>08 - Functional Analysis (Path Abundance)</title>
 <style>
@@ -2217,10 +2217,14 @@ vertical-align: -.125em;
   <li><a href="#da-computation" id="toc-da-computation" class="nav-link" data-scroll-target="#da-computation"><span class="header-section-number">4.1</span> DA Computation</a></li>
   <li><a href="#preprocess-results" id="toc-preprocess-results" class="nav-link" data-scroll-target="#preprocess-results"><span class="header-section-number">4.2</span> Preprocess Results</a></li>
   </ul></li>
-  <li><a href="#forest-plot-for-best-taxas" id="toc-forest-plot-for-best-taxas" class="nav-link" data-scroll-target="#forest-plot-for-best-taxas"><span class="header-section-number">5</span> Forest plot for best taxas</a></li>
+  <li><a href="#forest-plot-for-best-taxas" id="toc-forest-plot-for-best-taxas" class="nav-link" data-scroll-target="#forest-plot-for-best-taxas"><span class="header-section-number">5</span> Forest plot for best taxas</a>
+  <ul class="collapse">
+  <li><a href="#export-source-data" id="toc-export-source-data" class="nav-link" data-scroll-target="#export-source-data"><span class="header-section-number">5.1</span> Export Source Data</a></li>
+  </ul></li>
   <li><a href="#effect-heatamap" id="toc-effect-heatamap" class="nav-link" data-scroll-target="#effect-heatamap"><span class="header-section-number">6</span> Effect Heatamap</a>
   <ul class="collapse">
-  <li><a href="#export-results-as-tables" id="toc-export-results-as-tables" class="nav-link" data-scroll-target="#export-results-as-tables"><span class="header-section-number">6.1</span> Export Results as Tables</a></li>
+  <li><a href="#export-source-data-1" id="toc-export-source-data-1" class="nav-link" data-scroll-target="#export-source-data-1"><span class="header-section-number">6.1</span> Export Source Data</a></li>
+  <li><a href="#export-results-as-tables" id="toc-export-results-as-tables" class="nav-link" data-scroll-target="#export-results-as-tables"><span class="header-section-number">6.2</span> Export Results as Tables</a></li>
   </ul></li>
   <li><a href="#species-vs-markers-correlations-spearman" id="toc-species-vs-markers-correlations-spearman" class="nav-link" data-scroll-target="#species-vs-markers-correlations-spearman"><span class="header-section-number">7</span> Species vs Markers Correlations (Spearman)</a>
   <ul class="collapse">
@@ -2228,7 +2232,10 @@ vertical-align: -.125em;
   <li><a href="#cytokines-log2-transformation" id="toc-cytokines-log2-transformation" class="nav-link" data-scroll-target="#cytokines-log2-transformation"><span class="header-section-number">7.2</span> Cytokines Log2 Transformation</a></li>
   </ul></li>
   <li><a href="#compute-repeated-measures-correlation-coefficient-species-vs-markers" id="toc-compute-repeated-measures-correlation-coefficient-species-vs-markers" class="nav-link" data-scroll-target="#compute-repeated-measures-correlation-coefficient-species-vs-markers"><span class="header-section-number">8</span> Compute Repeated Measures Correlation Coefficient Species vs Markers</a></li>
-  <li><a href="#plot" id="toc-plot" class="nav-link" data-scroll-target="#plot"><span class="header-section-number">9</span> Plot</a></li>
+  <li><a href="#plot" id="toc-plot" class="nav-link" data-scroll-target="#plot"><span class="header-section-number">9</span> Plot</a>
+  <ul class="collapse">
+  <li><a href="#export-source-data-2" id="toc-export-source-data-2" class="nav-link" data-scroll-target="#export-source-data-2"><span class="header-section-number">9.1</span> Export Source Data</a></li>
+  </ul></li>
   <li><a href="#appendix" id="toc-appendix" class="nav-link" data-scroll-target="#appendix"><span class="header-section-number">10</span> Appendix</a>
   <ul class="collapse">
   <li><a href="#session-info" id="toc-session-info" class="nav-link" data-scroll-target="#session-info"><span class="header-section-number">10.1</span> Session Info</a></li>
@@ -2258,14 +2265,14 @@ vertical-align: -.125em;
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">December 19, 2025</p>
+      <p class="date">January 23, 2026</p>
     </div>
   </div>
   
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">December 19, 2025</p>
+      <p class="date-modified">January 23, 2026</p>
     </div>
   </div>
     
@@ -2547,7 +2554,7 @@ For detailed instructions on performing sensitivity analysis, please refer to th
 <span id="cb26-44"><a href="#cb26-44" aria-hidden="true" tabindex="-1"></a>  tidyplots<span class="sc">::</span><span class="fu">add</span>(<span class="fu">facet_wrap</span>(<span class="sc">~</span>time_point, <span class="at">nrow =</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span> </span>
 <span id="cb26-45"><a href="#cb26-45" aria-hidden="true" tabindex="-1"></a>  tidyplots<span class="sc">::</span><span class="fu">save_plot</span>(here<span class="sc">::</span><span class="fu">here</span>(out_dir, <span class="st">&quot;forest_plt.pdf&quot;</span>), <span class="at">view_plot =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>✔ save_plot: saved to &#39;/Users/fcatala/Documents/GitHub/fcatala_advanz4/data/08_functional_analysis/forest_plt.pdf&#39;</code></pre>
+<pre><code>✔ save_plot: saved to &#39;/Users/fcatala/GitHub/fcatala_advanz4/data/08_functional_analysis/forest_plt.pdf&#39;</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>forest_plt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
@@ -2558,85 +2565,92 @@ For detailed instructions on performing sensitivity analysis, please refer to th
 </div>
 </div>
 </div>
+<section id="export-source-data" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="export-source-data"><span class="header-section-number">5.1</span> Export Source Data</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>forest_plt<span class="sc">$</span>data <span class="sc">%&gt;%</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  readr<span class="sc">::</span><span class="fu">write_tsv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;source_data&quot;</span>, <span class="st">&quot;fig_6A_forest.tsv&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
 </section>
 <section id="effect-heatamap" class="level2" data-number="6">
 <h2 data-number="6" class="anchored" data-anchor-id="effect-heatamap"><span class="header-section-number">6</span> Effect Heatamap</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># prepare matrix</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>tp_levels <span class="ot">&lt;-</span> <span class="fu">levels</span>(res_df<span class="sc">$</span>time_point)</span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>mat <span class="ot">&lt;-</span></span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  res_df <span class="sc">%&gt;%</span></span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(Species <span class="sc">%in%</span> top_taxa) <span class="sc">%&gt;%</span></span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(Species, time_point, lfc) <span class="sc">%&gt;%</span></span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_wider</span>(<span class="at">names_from =</span> time_point, <span class="at">values_from =</span> lfc) <span class="sc">%&gt;%</span></span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">column_to_rownames</span>(<span class="st">&quot;Species&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.matrix</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  .[order[order <span class="sc">%in%</span> <span class="fu">rownames</span>(.)], tp_levels, drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">%&gt;%</span> </span>
-<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>  .[<span class="fu">rev</span>(<span class="fu">rownames</span>(.)), , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
-<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Ranges and Colours</span></span>
-<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>rng <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(mat), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.finite</span>(rng) <span class="sc">||</span> rng <span class="sc">==</span> <span class="dv">0</span>) { rng <span class="ot">&lt;-</span> <span class="dv">1</span> }</span>
-<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>col_fun <span class="ot">&lt;-</span> circlize<span class="sc">::</span><span class="fu">colorRamp2</span>(</span>
-<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="sc">-</span>rng, <span class="dv">0</span>, rng), </span>
-<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#2b8cbe&quot;</span>, <span class="st">&quot;#f7f7f7&quot;</span>, <span class="st">&quot;#d7301f&quot;</span>)</span>
-<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Prevalence annotation</span></span>
-<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>prev_df <span class="ot">&lt;-</span></span>
-<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>  res_df <span class="sc">%&gt;%</span></span>
-<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">distinct</span>(Species, prevalence) <span class="sc">%&gt;%</span></span>
-<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(Species <span class="sc">%in%</span> <span class="fu">rownames</span>(mat)) <span class="sc">%&gt;%</span></span>
-<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">arrange</span>(<span class="fu">match</span>(Species, <span class="fu">rownames</span>(mat)))</span>
-<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>row_anno <span class="ot">&lt;-</span> ComplexHeatmap<span class="sc">::</span><span class="fu">rowAnnotation</span>(</span>
-<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">Prevalence =</span> ComplexHeatmap<span class="sc">::</span><span class="fu">anno_barplot</span>(</span>
-<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>    prev_df<span class="sc">$</span>prevalence,</span>
-<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">gp =</span> grid<span class="sc">::</span><span class="fu">gpar</span>(<span class="at">fill =</span> <span class="st">&quot;#9ecae1&quot;</span>),</span>
-<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="fu">unit</span>(<span class="dv">18</span>, <span class="st">&quot;mm&quot;</span>)</span>
-<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">annotation_label =</span> <span class="st">&quot;Prevalence&quot;</span></span>
-<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Heatmap</span></span>
-<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a>ht <span class="ot">&lt;-</span> ComplexHeatmap<span class="sc">::</span><span class="fu">Heatmap</span>(</span>
-<span id="cb29-39"><a href="#cb29-39" aria-hidden="true" tabindex="-1"></a>  mat,</span>
-<span id="cb29-40"><a href="#cb29-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">&quot;logFC</span><span class="sc">\n</span><span class="st">(DTG vs RAL)&quot;</span>,</span>
-<span id="cb29-41"><a href="#cb29-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> col_fun,</span>
-<span id="cb29-42"><a href="#cb29-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">na_col =</span> <span class="st">&quot;grey90&quot;</span>,</span>
-<span id="cb29-43"><a href="#cb29-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">cluster_rows =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb29-44"><a href="#cb29-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">cluster_columns =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb29-45"><a href="#cb29-45" aria-hidden="true" tabindex="-1"></a>  <span class="at">row_order =</span> <span class="fu">rownames</span>(mat),</span>
-<span id="cb29-46"><a href="#cb29-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">column_title =</span> <span class="st">&quot;Time point (hours)&quot;</span>,</span>
-<span id="cb29-47"><a href="#cb29-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">column_split =</span> <span class="fu">factor</span>(<span class="fu">colnames</span>(mat), <span class="at">levels =</span> tp_levels),</span>
-<span id="cb29-48"><a href="#cb29-48" aria-hidden="true" tabindex="-1"></a>  <span class="at">border =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb29-49"><a href="#cb29-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">row_names_gp =</span> grid<span class="sc">::</span><span class="fu">gpar</span>(<span class="at">fontsize =</span> <span class="dv">9</span>),</span>
-<span id="cb29-50"><a href="#cb29-50" aria-hidden="true" tabindex="-1"></a>  <span class="at">column_names_gp =</span> grid<span class="sc">::</span><span class="fu">gpar</span>(<span class="at">fontsize =</span> <span class="dv">10</span>),</span>
-<span id="cb29-51"><a href="#cb29-51" aria-hidden="true" tabindex="-1"></a>  <span class="at">heatmap_width =</span> <span class="fu">unit</span>(<span class="dv">140</span>, <span class="st">&quot;mm&quot;</span>),</span>
-<span id="cb29-52"><a href="#cb29-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">heatmap_height =</span> <span class="fu">unit</span>(<span class="dv">180</span>, <span class="st">&quot;mm&quot;</span>),</span>
-<span id="cb29-53"><a href="#cb29-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">show_row_dend =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb29-54"><a href="#cb29-54" aria-hidden="true" tabindex="-1"></a>  <span class="at">show_column_dend =</span> <span class="cn">FALSE</span></span>
-<span id="cb29-55"><a href="#cb29-55" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb29-56"><a href="#cb29-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-57"><a href="#cb29-57" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
-<span id="cb29-58"><a href="#cb29-58" aria-hidden="true" tabindex="-1"></a>Cairo<span class="sc">::</span><span class="fu">CairoPDF</span>(here<span class="sc">::</span><span class="fu">here</span>(out_dir, <span class="st">&quot;heatmap.pdf&quot;</span>), <span class="at">width =</span> <span class="dv">210</span><span class="sc">/</span><span class="fl">25.4</span>, <span class="at">height =</span> <span class="dv">297</span><span class="sc">/</span><span class="fl">25.4</span>)</span>
-<span id="cb29-59"><a href="#cb29-59" aria-hidden="true" tabindex="-1"></a>ComplexHeatmap<span class="sc">::</span><span class="fu">draw</span>(</span>
-<span id="cb29-60"><a href="#cb29-60" aria-hidden="true" tabindex="-1"></a>  row_anno <span class="sc">+</span> ht,</span>
-<span id="cb29-61"><a href="#cb29-61" aria-hidden="true" tabindex="-1"></a>  <span class="at">heatmap_legend_side =</span> <span class="st">&quot;right&quot;</span>,</span>
-<span id="cb29-62"><a href="#cb29-62" aria-hidden="true" tabindex="-1"></a>  <span class="at">annotation_legend_side =</span> <span class="st">&quot;right&quot;</span>,</span>
-<span id="cb29-63"><a href="#cb29-63" aria-hidden="true" tabindex="-1"></a>  <span class="at">merge_legend =</span> <span class="cn">TRUE</span></span>
-<span id="cb29-64"><a href="#cb29-64" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb29-65"><a href="#cb29-65" aria-hidden="true" tabindex="-1"></a><span class="fu">dev.off</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># prepare matrix</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>tp_levels <span class="ot">&lt;-</span> <span class="fu">levels</span>(res_df<span class="sc">$</span>time_point)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>mat <span class="ot">&lt;-</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  res_df <span class="sc">%&gt;%</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(Species <span class="sc">%in%</span> top_taxa) <span class="sc">%&gt;%</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(Species, time_point, lfc) <span class="sc">%&gt;%</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_wider</span>(<span class="at">names_from =</span> time_point, <span class="at">values_from =</span> lfc) <span class="sc">%&gt;%</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">column_to_rownames</span>(<span class="st">&quot;Species&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.matrix</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>  .[order[order <span class="sc">%in%</span> <span class="fu">rownames</span>(.)], tp_levels, drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">%&gt;%</span> </span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>  .[<span class="fu">rev</span>(<span class="fu">rownames</span>(.)), , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Ranges and Colours</span></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>rng <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(mat), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.finite</span>(rng) <span class="sc">||</span> rng <span class="sc">==</span> <span class="dv">0</span>) { rng <span class="ot">&lt;-</span> <span class="dv">1</span> }</span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>col_fun <span class="ot">&lt;-</span> circlize<span class="sc">::</span><span class="fu">colorRamp2</span>(</span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="sc">-</span>rng, <span class="dv">0</span>, rng), </span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#2b8cbe&quot;</span>, <span class="st">&quot;#f7f7f7&quot;</span>, <span class="st">&quot;#d7301f&quot;</span>)</span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Prevalence annotation</span></span>
+<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>prev_df <span class="ot">&lt;-</span></span>
+<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>  res_df <span class="sc">%&gt;%</span></span>
+<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">distinct</span>(Species, prevalence) <span class="sc">%&gt;%</span></span>
+<span id="cb30-25"><a href="#cb30-25" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(Species <span class="sc">%in%</span> <span class="fu">rownames</span>(mat)) <span class="sc">%&gt;%</span></span>
+<span id="cb30-26"><a href="#cb30-26" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">arrange</span>(<span class="fu">match</span>(Species, <span class="fu">rownames</span>(mat)))</span>
+<span id="cb30-27"><a href="#cb30-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-28"><a href="#cb30-28" aria-hidden="true" tabindex="-1"></a>row_anno <span class="ot">&lt;-</span> ComplexHeatmap<span class="sc">::</span><span class="fu">rowAnnotation</span>(</span>
+<span id="cb30-29"><a href="#cb30-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">Prevalence =</span> ComplexHeatmap<span class="sc">::</span><span class="fu">anno_barplot</span>(</span>
+<span id="cb30-30"><a href="#cb30-30" aria-hidden="true" tabindex="-1"></a>    prev_df<span class="sc">$</span>prevalence,</span>
+<span id="cb30-31"><a href="#cb30-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">gp =</span> grid<span class="sc">::</span><span class="fu">gpar</span>(<span class="at">fill =</span> <span class="st">&quot;#9ecae1&quot;</span>),</span>
+<span id="cb30-32"><a href="#cb30-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="fu">unit</span>(<span class="dv">18</span>, <span class="st">&quot;mm&quot;</span>)</span>
+<span id="cb30-33"><a href="#cb30-33" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb30-34"><a href="#cb30-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">annotation_label =</span> <span class="st">&quot;Prevalence&quot;</span></span>
+<span id="cb30-35"><a href="#cb30-35" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-36"><a href="#cb30-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-37"><a href="#cb30-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Heatmap</span></span>
+<span id="cb30-38"><a href="#cb30-38" aria-hidden="true" tabindex="-1"></a>ht <span class="ot">&lt;-</span> ComplexHeatmap<span class="sc">::</span><span class="fu">Heatmap</span>(</span>
+<span id="cb30-39"><a href="#cb30-39" aria-hidden="true" tabindex="-1"></a>  mat,</span>
+<span id="cb30-40"><a href="#cb30-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">&quot;logFC</span><span class="sc">\n</span><span class="st">(DTG vs RAL)&quot;</span>,</span>
+<span id="cb30-41"><a href="#cb30-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> col_fun,</span>
+<span id="cb30-42"><a href="#cb30-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">na_col =</span> <span class="st">&quot;grey90&quot;</span>,</span>
+<span id="cb30-43"><a href="#cb30-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">cluster_rows =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb30-44"><a href="#cb30-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">cluster_columns =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb30-45"><a href="#cb30-45" aria-hidden="true" tabindex="-1"></a>  <span class="at">row_order =</span> <span class="fu">rownames</span>(mat),</span>
+<span id="cb30-46"><a href="#cb30-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">column_title =</span> <span class="st">&quot;Time point (hours)&quot;</span>,</span>
+<span id="cb30-47"><a href="#cb30-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">column_split =</span> <span class="fu">factor</span>(<span class="fu">colnames</span>(mat), <span class="at">levels =</span> tp_levels),</span>
+<span id="cb30-48"><a href="#cb30-48" aria-hidden="true" tabindex="-1"></a>  <span class="at">border =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb30-49"><a href="#cb30-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">row_names_gp =</span> grid<span class="sc">::</span><span class="fu">gpar</span>(<span class="at">fontsize =</span> <span class="dv">9</span>),</span>
+<span id="cb30-50"><a href="#cb30-50" aria-hidden="true" tabindex="-1"></a>  <span class="at">column_names_gp =</span> grid<span class="sc">::</span><span class="fu">gpar</span>(<span class="at">fontsize =</span> <span class="dv">10</span>),</span>
+<span id="cb30-51"><a href="#cb30-51" aria-hidden="true" tabindex="-1"></a>  <span class="at">heatmap_width =</span> <span class="fu">unit</span>(<span class="dv">140</span>, <span class="st">&quot;mm&quot;</span>),</span>
+<span id="cb30-52"><a href="#cb30-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">heatmap_height =</span> <span class="fu">unit</span>(<span class="dv">180</span>, <span class="st">&quot;mm&quot;</span>),</span>
+<span id="cb30-53"><a href="#cb30-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">show_row_dend =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb30-54"><a href="#cb30-54" aria-hidden="true" tabindex="-1"></a>  <span class="at">show_column_dend =</span> <span class="cn">FALSE</span></span>
+<span id="cb30-55"><a href="#cb30-55" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-56"><a href="#cb30-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-57"><a href="#cb30-57" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
+<span id="cb30-58"><a href="#cb30-58" aria-hidden="true" tabindex="-1"></a>Cairo<span class="sc">::</span><span class="fu">CairoPDF</span>(here<span class="sc">::</span><span class="fu">here</span>(out_dir, <span class="st">&quot;heatmap.pdf&quot;</span>), <span class="at">width =</span> <span class="dv">210</span><span class="sc">/</span><span class="fl">25.4</span>, <span class="at">height =</span> <span class="dv">297</span><span class="sc">/</span><span class="fl">25.4</span>)</span>
+<span id="cb30-59"><a href="#cb30-59" aria-hidden="true" tabindex="-1"></a>ComplexHeatmap<span class="sc">::</span><span class="fu">draw</span>(</span>
+<span id="cb30-60"><a href="#cb30-60" aria-hidden="true" tabindex="-1"></a>  row_anno <span class="sc">+</span> ht,</span>
+<span id="cb30-61"><a href="#cb30-61" aria-hidden="true" tabindex="-1"></a>  <span class="at">heatmap_legend_side =</span> <span class="st">&quot;right&quot;</span>,</span>
+<span id="cb30-62"><a href="#cb30-62" aria-hidden="true" tabindex="-1"></a>  <span class="at">annotation_legend_side =</span> <span class="st">&quot;right&quot;</span>,</span>
+<span id="cb30-63"><a href="#cb30-63" aria-hidden="true" tabindex="-1"></a>  <span class="at">merge_legend =</span> <span class="cn">TRUE</span></span>
+<span id="cb30-64"><a href="#cb30-64" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-65"><a href="#cb30-65" aria-hidden="true" tabindex="-1"></a><span class="fu">dev.off</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>quartz_off_screen 
                 2 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>ComplexHeatmap<span class="sc">::</span><span class="fu">draw</span>(</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  row_anno <span class="sc">+</span> ht,</span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">heatmap_legend_side =</span> <span class="st">&quot;right&quot;</span>,</span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">annotation_legend_side =</span> <span class="st">&quot;right&quot;</span>,</span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">merge_legend =</span> <span class="cn">TRUE</span></span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>ComplexHeatmap<span class="sc">::</span><span class="fu">draw</span>(</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  row_anno <span class="sc">+</span> ht,</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">heatmap_legend_side =</span> <span class="st">&quot;right&quot;</span>,</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">annotation_legend_side =</span> <span class="st">&quot;right&quot;</span>,</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">merge_legend =</span> <span class="cn">TRUE</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -2645,12 +2659,20 @@ For detailed instructions on performing sensitivity analysis, please refer to th
 </div>
 </div>
 </div>
-<section id="export-results-as-tables" class="level3" data-number="6.1">
-<h3 data-number="6.1" class="anchored" data-anchor-id="export-results-as-tables"><span class="header-section-number">6.1</span> Export Results as Tables</h3>
+<section id="export-source-data-1" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="export-source-data-1"><span class="header-section-number">6.1</span> Export Source Data</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># save results</span></span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>readr<span class="sc">::</span><span class="fu">write_csv</span>(res_df, here<span class="sc">::</span><span class="fu">here</span>(out_dir, <span class="st">&quot;diff_abundance_results.csv&quot;</span>))</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>readr<span class="sc">::</span><span class="fu">write_rds</span>(ancombc_results, here<span class="sc">::</span><span class="fu">here</span>(out_dir,<span class="st">&quot;ancombc_results.rds&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>mat <span class="sc">%&gt;%</span> </span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  readr<span class="sc">::</span><span class="fu">write_tsv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;source_data&quot;</span>, <span class="st">&quot;fig_6A_heatmap.tsv&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="export-results-as-tables" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="export-results-as-tables"><span class="header-section-number">6.2</span> Export Results as Tables</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># save results</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>readr<span class="sc">::</span><span class="fu">write_csv</span>(res_df, here<span class="sc">::</span><span class="fu">here</span>(out_dir, <span class="st">&quot;diff_abundance_results.csv&quot;</span>))</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>readr<span class="sc">::</span><span class="fu">write_rds</span>(ancombc_results, here<span class="sc">::</span><span class="fu">here</span>(out_dir,<span class="st">&quot;ancombc_results.rds&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 </section>
@@ -2659,32 +2681,32 @@ For detailed instructions on performing sensitivity analysis, please refer to th
 <section id="define-cytokines-and-markers" class="level3" data-number="7.1">
 <h3 data-number="7.1" class="anchored" data-anchor-id="define-cytokines-and-markers"><span class="header-section-number">7.1</span> Define Cytokines and Markers</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>populations <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;CD4&quot;</span>, <span class="st">&quot;CD8&quot;</span>, <span class="st">&quot;CD4_CD38_DR&quot;</span>, <span class="st">&quot;CD8_CD38_DR&quot;</span>)</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>cytokines <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;CRP&quot;</span>, <span class="st">&quot;IL6&quot;</span>, <span class="st">&quot;TNFa&quot;</span>, <span class="st">&quot;sCD14&quot;</span>)</span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>other <span class="ot">&lt;-</span> <span class="st">&quot;BMI&quot;</span></span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>all_markers <span class="ot">&lt;-</span> <span class="fu">c</span>(populations, cytokines, other)</span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>all_markers_long <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CD4+ T cells&quot;</span>,</span>
-<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CD8+ T cells&quot;</span>,</span>
-<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CD4+ CD38+ HLA-DR+ T cells&quot;</span>,</span>
-<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CD8+ CD38+ HLA-DR+ T cells&quot;</span>,</span>
-<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CRP&quot;</span>,</span>
-<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;IL-6&quot;</span>,</span>
-<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;TNF-a&quot;</span>,</span>
-<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;sCD14&quot;</span>,</span>
-<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;BMI&quot;</span></span>
-<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>populations <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;CD4&quot;</span>, <span class="st">&quot;CD8&quot;</span>, <span class="st">&quot;CD4_CD38_DR&quot;</span>, <span class="st">&quot;CD8_CD38_DR&quot;</span>)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>cytokines <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;CRP&quot;</span>, <span class="st">&quot;IL6&quot;</span>, <span class="st">&quot;TNFa&quot;</span>, <span class="st">&quot;sCD14&quot;</span>)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>other <span class="ot">&lt;-</span> <span class="st">&quot;BMI&quot;</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>all_markers <span class="ot">&lt;-</span> <span class="fu">c</span>(populations, cytokines, other)</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>all_markers_long <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CD4+ T cells&quot;</span>,</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CD8+ T cells&quot;</span>,</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CD4+ CD38+ HLA-DR+ T cells&quot;</span>,</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CD8+ CD38+ HLA-DR+ T cells&quot;</span>,</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CRP&quot;</span>,</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;IL-6&quot;</span>,</span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;TNF-a&quot;</span>,</span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;sCD14&quot;</span>,</span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;BMI&quot;</span></span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="cytokines-log2-transformation" class="level3" data-number="7.2">
 <h3 data-number="7.2" class="anchored" data-anchor-id="cytokines-log2-transformation"><span class="header-section-number">7.2</span> Cytokines Log2 Transformation</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>tse2 <span class="ot">&lt;-</span> </span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  tse <span class="sc">%&gt;%</span> </span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  mia<span class="sc">::</span><span class="fu">transformAssay</span>(<span class="at">method =</span> <span class="st">&quot;clr&quot;</span>, <span class="at">pseudocount =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(dplyr<span class="sc">::</span><span class="fu">across</span>(dplyr<span class="sc">::</span><span class="fu">all_of</span>(cytokines), <span class="sc">~</span> <span class="fu">log2</span>(.x <span class="sc">+</span> <span class="dv">1</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>tse2 <span class="ot">&lt;-</span> </span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  tse <span class="sc">%&gt;%</span> </span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  mia<span class="sc">::</span><span class="fu">transformAssay</span>(<span class="at">method =</span> <span class="st">&quot;clr&quot;</span>, <span class="at">pseudocount =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(dplyr<span class="sc">::</span><span class="fu">across</span>(dplyr<span class="sc">::</span><span class="fu">all_of</span>(cytokines), <span class="sc">~</span> <span class="fu">log2</span>(.x <span class="sc">+</span> <span class="dv">1</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>A pseudocount of 1.2937532791 was applied.</code></pre>
 </div>
@@ -2694,122 +2716,122 @@ For detailed instructions on performing sensitivity analysis, please refer to th
 <section id="compute-repeated-measures-correlation-coefficient-species-vs-markers" class="level2" data-number="8">
 <h2 data-number="8" class="anchored" data-anchor-id="compute-repeated-measures-correlation-coefficient-species-vs-markers"><span class="header-section-number">8</span> Compute Repeated Measures Correlation Coefficient Species vs Markers</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>rmcorr_df <span class="ot">&lt;-</span></span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  tse2[top_taxa_ids, ] <span class="sc">%&gt;%</span> </span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  mia<span class="sc">::</span><span class="fu">splitOn</span>(<span class="st">&quot;treatment&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">map_dfr</span>(<span class="cf">function</span>(.split) {</span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>    tidyr<span class="sc">::</span><span class="fu">expand_grid</span>(<span class="at">taxas =</span> <span class="fu">rownames</span>(<span class="fu">assay</span>(.split)), all_markers) <span class="sc">%&gt;%</span></span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>      purrr<span class="sc">::</span><span class="fu">pmap_dfr</span>(<span class="sc">~</span> {</span>
-<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>        tax_ab <span class="ot">&lt;-</span></span>
-<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>          .split[.x, ] <span class="sc">%&gt;%</span></span>
-<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>          <span class="fu">assay</span>(<span class="st">&quot;clr&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>          tibble<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>          tidyr<span class="sc">::</span><span class="fu">pivot_longer</span>(</span>
-<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>            <span class="at">cols =</span> dplyr<span class="sc">::</span><span class="fu">everything</span>(),</span>
-<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>            <span class="at">names_to =</span> <span class="st">&quot;SampleID&quot;</span>,</span>
-<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>            <span class="at">values_to =</span> .x</span>
-<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>          )</span>
-<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>      f_df <span class="ot">&lt;-</span></span>
-<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a>        <span class="fu">colData</span>(.split) <span class="sc">%&gt;%</span></span>
-<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a>        tibble<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">select</span>(SampleID, dplyr<span class="sc">::</span><span class="fu">all_of</span>(<span class="fu">c</span>(.y, confounders))) <span class="sc">%&gt;%</span></span>
-<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">left_join</span>(tax_ab, <span class="at">by =</span> <span class="st">&quot;SampleID&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a>        tidyr<span class="sc">::</span><span class="fu">drop_na</span>(dplyr<span class="sc">::</span><span class="fu">all_of</span>(<span class="fu">c</span>(.x, .y))) <span class="sc">%&gt;%</span></span>
-<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
-<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a>          dplyr<span class="sc">::</span><span class="fu">across</span>(dplyr<span class="sc">::</span><span class="fu">where</span>(is.character), as.factor),</span>
-<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a>          <span class="at">treatment =</span> <span class="fu">factor</span>(treatment, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;DRV/r&quot;</span>, <span class="st">&quot;DTG&quot;</span>))</span>
-<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb36-27"><a href="#cb36-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-28"><a href="#cb36-28" aria-hidden="true" tabindex="-1"></a>      <span class="co"># compute rmcorr</span></span>
-<span id="cb36-29"><a href="#cb36-29" aria-hidden="true" tabindex="-1"></a>      res <span class="ot">&lt;-</span> rmcorr<span class="sc">::</span><span class="fu">rmcorr</span>(</span>
-<span id="cb36-30"><a href="#cb36-30" aria-hidden="true" tabindex="-1"></a>        <span class="at">participant =</span> <span class="st">&quot;record_id&quot;</span>,</span>
-<span id="cb36-31"><a href="#cb36-31" aria-hidden="true" tabindex="-1"></a>        <span class="at">measure1 =</span> f_df[[.x]],</span>
-<span id="cb36-32"><a href="#cb36-32" aria-hidden="true" tabindex="-1"></a>        <span class="at">measure2 =</span> f_df[[.y]],</span>
-<span id="cb36-33"><a href="#cb36-33" aria-hidden="true" tabindex="-1"></a>        <span class="at">dataset =</span> f_df</span>
-<span id="cb36-34"><a href="#cb36-34" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb36-35"><a href="#cb36-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-36"><a href="#cb36-36" aria-hidden="true" tabindex="-1"></a>      <span class="co"># create tibble</span></span>
-<span id="cb36-37"><a href="#cb36-37" aria-hidden="true" tabindex="-1"></a>      tibble<span class="sc">::</span><span class="fu">tibble</span>(</span>
-<span id="cb36-38"><a href="#cb36-38" aria-hidden="true" tabindex="-1"></a>        <span class="at">taxa =</span> .x,</span>
-<span id="cb36-39"><a href="#cb36-39" aria-hidden="true" tabindex="-1"></a>        <span class="at">marker =</span> .y,</span>
-<span id="cb36-40"><a href="#cb36-40" aria-hidden="true" tabindex="-1"></a>        <span class="at">treatment =</span> f_df<span class="sc">$</span>treatment <span class="sc">%&gt;%</span> <span class="fu">unique</span>(), </span>
-<span id="cb36-41"><a href="#cb36-41" aria-hidden="true" tabindex="-1"></a>        <span class="at">cor =</span> res<span class="sc">$</span>r,</span>
-<span id="cb36-42"><a href="#cb36-42" aria-hidden="true" tabindex="-1"></a>        <span class="at">p =</span> res<span class="sc">$</span>p,</span>
-<span id="cb36-43"><a href="#cb36-43" aria-hidden="true" tabindex="-1"></a>        <span class="at">df =</span> <span class="fu">list</span>(f_df),</span>
-<span id="cb36-44"><a href="#cb36-44" aria-hidden="true" tabindex="-1"></a>        <span class="at">rmcorr =</span> <span class="fu">list</span>(res), </span>
-<span id="cb36-45"><a href="#cb36-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-46"><a href="#cb36-46" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb36-47"><a href="#cb36-47" aria-hidden="true" tabindex="-1"></a>    })</span>
-<span id="cb36-48"><a href="#cb36-48" aria-hidden="true" tabindex="-1"></a>  }) <span class="sc">%&gt;%</span> </span>
-<span id="cb36-49"><a href="#cb36-49" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(treatment, marker) <span class="sc">%&gt;%</span></span>
-<span id="cb36-50"><a href="#cb36-50" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">p_adj =</span> <span class="fu">p.adjust</span>(p, <span class="at">method =</span> <span class="st">&quot;fdr&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb36-51"><a href="#cb36-51" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">ungroup</span>() </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>rmcorr_df <span class="ot">&lt;-</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  tse2[top_taxa_ids, ] <span class="sc">%&gt;%</span> </span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  mia<span class="sc">::</span><span class="fu">splitOn</span>(<span class="st">&quot;treatment&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">map_dfr</span>(<span class="cf">function</span>(.split) {</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>    tidyr<span class="sc">::</span><span class="fu">expand_grid</span>(<span class="at">taxas =</span> <span class="fu">rownames</span>(<span class="fu">assay</span>(.split)), all_markers) <span class="sc">%&gt;%</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>      purrr<span class="sc">::</span><span class="fu">pmap_dfr</span>(<span class="sc">~</span> {</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>        tax_ab <span class="ot">&lt;-</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>          .split[.x, ] <span class="sc">%&gt;%</span></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>          <span class="fu">assay</span>(<span class="st">&quot;clr&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>          tibble<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>          tidyr<span class="sc">::</span><span class="fu">pivot_longer</span>(</span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>            <span class="at">cols =</span> dplyr<span class="sc">::</span><span class="fu">everything</span>(),</span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>            <span class="at">names_to =</span> <span class="st">&quot;SampleID&quot;</span>,</span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>            <span class="at">values_to =</span> .x</span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a>          )</span>
+<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-17"><a href="#cb38-17" aria-hidden="true" tabindex="-1"></a>      f_df <span class="ot">&lt;-</span></span>
+<span id="cb38-18"><a href="#cb38-18" aria-hidden="true" tabindex="-1"></a>        <span class="fu">colData</span>(.split) <span class="sc">%&gt;%</span></span>
+<span id="cb38-19"><a href="#cb38-19" aria-hidden="true" tabindex="-1"></a>        tibble<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb38-20"><a href="#cb38-20" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">select</span>(SampleID, dplyr<span class="sc">::</span><span class="fu">all_of</span>(<span class="fu">c</span>(.y, confounders))) <span class="sc">%&gt;%</span></span>
+<span id="cb38-21"><a href="#cb38-21" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">left_join</span>(tax_ab, <span class="at">by =</span> <span class="st">&quot;SampleID&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb38-22"><a href="#cb38-22" aria-hidden="true" tabindex="-1"></a>        tidyr<span class="sc">::</span><span class="fu">drop_na</span>(dplyr<span class="sc">::</span><span class="fu">all_of</span>(<span class="fu">c</span>(.x, .y))) <span class="sc">%&gt;%</span></span>
+<span id="cb38-23"><a href="#cb38-23" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb38-24"><a href="#cb38-24" aria-hidden="true" tabindex="-1"></a>          dplyr<span class="sc">::</span><span class="fu">across</span>(dplyr<span class="sc">::</span><span class="fu">where</span>(is.character), as.factor),</span>
+<span id="cb38-25"><a href="#cb38-25" aria-hidden="true" tabindex="-1"></a>          <span class="at">treatment =</span> <span class="fu">factor</span>(treatment, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;DRV/r&quot;</span>, <span class="st">&quot;DTG&quot;</span>))</span>
+<span id="cb38-26"><a href="#cb38-26" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb38-27"><a href="#cb38-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-28"><a href="#cb38-28" aria-hidden="true" tabindex="-1"></a>      <span class="co"># compute rmcorr</span></span>
+<span id="cb38-29"><a href="#cb38-29" aria-hidden="true" tabindex="-1"></a>      res <span class="ot">&lt;-</span> rmcorr<span class="sc">::</span><span class="fu">rmcorr</span>(</span>
+<span id="cb38-30"><a href="#cb38-30" aria-hidden="true" tabindex="-1"></a>        <span class="at">participant =</span> <span class="st">&quot;record_id&quot;</span>,</span>
+<span id="cb38-31"><a href="#cb38-31" aria-hidden="true" tabindex="-1"></a>        <span class="at">measure1 =</span> f_df[[.x]],</span>
+<span id="cb38-32"><a href="#cb38-32" aria-hidden="true" tabindex="-1"></a>        <span class="at">measure2 =</span> f_df[[.y]],</span>
+<span id="cb38-33"><a href="#cb38-33" aria-hidden="true" tabindex="-1"></a>        <span class="at">dataset =</span> f_df</span>
+<span id="cb38-34"><a href="#cb38-34" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb38-35"><a href="#cb38-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-36"><a href="#cb38-36" aria-hidden="true" tabindex="-1"></a>      <span class="co"># create tibble</span></span>
+<span id="cb38-37"><a href="#cb38-37" aria-hidden="true" tabindex="-1"></a>      tibble<span class="sc">::</span><span class="fu">tibble</span>(</span>
+<span id="cb38-38"><a href="#cb38-38" aria-hidden="true" tabindex="-1"></a>        <span class="at">taxa =</span> .x,</span>
+<span id="cb38-39"><a href="#cb38-39" aria-hidden="true" tabindex="-1"></a>        <span class="at">marker =</span> .y,</span>
+<span id="cb38-40"><a href="#cb38-40" aria-hidden="true" tabindex="-1"></a>        <span class="at">treatment =</span> f_df<span class="sc">$</span>treatment <span class="sc">%&gt;%</span> <span class="fu">unique</span>(), </span>
+<span id="cb38-41"><a href="#cb38-41" aria-hidden="true" tabindex="-1"></a>        <span class="at">cor =</span> res<span class="sc">$</span>r,</span>
+<span id="cb38-42"><a href="#cb38-42" aria-hidden="true" tabindex="-1"></a>        <span class="at">p =</span> res<span class="sc">$</span>p,</span>
+<span id="cb38-43"><a href="#cb38-43" aria-hidden="true" tabindex="-1"></a>        <span class="at">df =</span> <span class="fu">list</span>(f_df),</span>
+<span id="cb38-44"><a href="#cb38-44" aria-hidden="true" tabindex="-1"></a>        <span class="at">rmcorr =</span> <span class="fu">list</span>(res), </span>
+<span id="cb38-45"><a href="#cb38-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-46"><a href="#cb38-46" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb38-47"><a href="#cb38-47" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb38-48"><a href="#cb38-48" aria-hidden="true" tabindex="-1"></a>  }) <span class="sc">%&gt;%</span> </span>
+<span id="cb38-49"><a href="#cb38-49" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(treatment, marker) <span class="sc">%&gt;%</span></span>
+<span id="cb38-50"><a href="#cb38-50" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">p_adj =</span> <span class="fu">p.adjust</span>(p, <span class="at">method =</span> <span class="st">&quot;fdr&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb38-51"><a href="#cb38-51" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">ungroup</span>() </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="plot" class="level2" data-number="9">
 <h2 data-number="9" class="anchored" data-anchor-id="plot"><span class="header-section-number">9</span> Plot</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>plt_df <span class="ot">&lt;-</span></span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  rmcorr_df <span class="sc">%&gt;%</span></span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(<span class="fu">rowData</span>(tse2) <span class="sc">%&gt;%</span> tibble<span class="sc">::</span><span class="fu">as_tibble</span>(<span class="at">rownames =</span> <span class="st">&quot;taxa&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">marker =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(</span>
-<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>      marker <span class="sc">==</span> <span class="st">&quot;CD4&quot;</span> <span class="sc">~</span> <span class="st">&quot;CD4+ T cells&quot;</span>, </span>
-<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>      marker <span class="sc">==</span> <span class="st">&quot;CD8&quot;</span> <span class="sc">~</span> <span class="st">&quot;CD8+ T cells&quot;</span>, </span>
-<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>      marker <span class="sc">==</span> <span class="st">&quot;CD4_CD38_DR&quot;</span> <span class="sc">~</span> <span class="st">&quot;CD4+ CD38+ HLA-DR+ T cells&quot;</span>, </span>
-<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>      marker <span class="sc">==</span> <span class="st">&quot;CD8_CD38_DR&quot;</span> <span class="sc">~</span> <span class="st">&quot;CD8+ CD38+ HLA-DR+ T cells&quot;</span>, </span>
-<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>      marker <span class="sc">==</span> <span class="st">&quot;IL6&quot;</span> <span class="sc">~</span> <span class="st">&quot;IL-6&quot;</span>, </span>
-<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>      marker <span class="sc">==</span> <span class="st">&quot;TNFa&quot;</span> <span class="sc">~</span> <span class="st">&quot;TNF-a&quot;</span>, </span>
-<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> marker</span>
-<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">sign =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(</span>
-<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>      p_adj <span class="sc">&lt;</span> <span class="fl">0.05</span> <span class="sc">~</span> <span class="st">&quot;&lt; 0.05&quot;</span>,</span>
-<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;ns&quot;</span></span>
-<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">marker =</span> <span class="fu">factor</span>(marker, <span class="at">levels =</span> all_markers_long), </span>
-<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">Species =</span> <span class="fu">factor</span>(Species, <span class="at">levels =</span> order)</span>
-<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>plt_df <span class="ot">&lt;-</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  rmcorr_df <span class="sc">%&gt;%</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(<span class="fu">rowData</span>(tse2) <span class="sc">%&gt;%</span> tibble<span class="sc">::</span><span class="fu">as_tibble</span>(<span class="at">rownames =</span> <span class="st">&quot;taxa&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">marker =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>      marker <span class="sc">==</span> <span class="st">&quot;CD4&quot;</span> <span class="sc">~</span> <span class="st">&quot;CD4+ T cells&quot;</span>, </span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>      marker <span class="sc">==</span> <span class="st">&quot;CD8&quot;</span> <span class="sc">~</span> <span class="st">&quot;CD8+ T cells&quot;</span>, </span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>      marker <span class="sc">==</span> <span class="st">&quot;CD4_CD38_DR&quot;</span> <span class="sc">~</span> <span class="st">&quot;CD4+ CD38+ HLA-DR+ T cells&quot;</span>, </span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>      marker <span class="sc">==</span> <span class="st">&quot;CD8_CD38_DR&quot;</span> <span class="sc">~</span> <span class="st">&quot;CD8+ CD38+ HLA-DR+ T cells&quot;</span>, </span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>      marker <span class="sc">==</span> <span class="st">&quot;IL6&quot;</span> <span class="sc">~</span> <span class="st">&quot;IL-6&quot;</span>, </span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>      marker <span class="sc">==</span> <span class="st">&quot;TNFa&quot;</span> <span class="sc">~</span> <span class="st">&quot;TNF-a&quot;</span>, </span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> marker</span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">sign =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(</span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>      p_adj <span class="sc">&lt;</span> <span class="fl">0.05</span> <span class="sc">~</span> <span class="st">&quot;&lt; 0.05&quot;</span>,</span>
+<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;ns&quot;</span></span>
+<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">marker =</span> <span class="fu">factor</span>(marker, <span class="at">levels =</span> all_markers_long), </span>
+<span id="cb39-19"><a href="#cb39-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">Species =</span> <span class="fu">factor</span>(Species, <span class="at">levels =</span> order)</span>
+<span id="cb39-20"><a href="#cb39-20" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Joining with `by = join_by(taxa)`</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>plt <span class="ot">&lt;-</span></span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  plt_df <span class="sc">%&gt;%</span></span>
-<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> marker, <span class="at">y =</span> Species, <span class="at">fill =</span> cor, <span class="at">colour =</span> sign)) <span class="sc">+</span></span>
-<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">size =</span> <span class="fu">abs</span>(cor), <span class="at">alpha =</span> sign), <span class="at">shape =</span> <span class="dv">22</span>, <span class="at">stroke =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colours =</span> <span class="fu">rev</span>(RColorBrewer<span class="sc">::</span><span class="fu">brewer.pal</span>(<span class="dv">11</span>, <span class="st">&quot;PiYG&quot;</span>)), <span class="at">limits =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.6</span>, <span class="fl">0.6</span>), <span class="at">breaks =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.6</span>, <span class="dv">0</span>, <span class="fl">0.6</span>)) <span class="sc">+</span></span>
-<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;&lt; 0.05&quot;</span> <span class="ot">=</span> <span class="st">&quot;black&quot;</span>, <span class="st">&quot;ns&quot;</span> <span class="ot">=</span> <span class="st">&quot;white&quot;</span>)) <span class="sc">+</span></span>
-<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_alpha_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;&lt; 0.05&quot;</span> <span class="ot">=</span> <span class="fl">0.9</span>, <span class="st">&quot;ns&quot;</span> <span class="ot">=</span> <span class="fl">0.6</span>), <span class="at">guide =</span> <span class="st">&quot;none&quot;</span>) <span class="sc">+</span></span>
-<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_continuous</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">10</span>), <span class="at">guide =</span> <span class="st">&quot;none&quot;</span>) <span class="sc">+</span></span>
-<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">15</span>) <span class="sc">+</span></span>
-<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">&quot;&quot;</span>,</span>
-<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">&quot;&quot;</span>,</span>
-<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">&quot;Repeated Measures Correlation&quot;</span>),</span>
-<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">&quot;q &lt; 0.05&quot;</span></span>
-<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">40</span>, <span class="at">hjust =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
-<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> treatment, <span class="at">nrow =</span> <span class="dv">1</span>) </span>
-<span id="cb39-19"><a href="#cb39-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-20"><a href="#cb39-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Resize and save</span></span>
-<span id="cb39-21"><a href="#cb39-21" aria-hidden="true" tabindex="-1"></a>plt <span class="ot">&lt;-</span></span>
-<span id="cb39-22"><a href="#cb39-22" aria-hidden="true" tabindex="-1"></a>  plt <span class="sc">+</span></span>
-<span id="cb39-23"><a href="#cb39-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_spacer</span>() <span class="sc">+</span></span>
-<span id="cb39-24"><a href="#cb39-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(</span>
-<span id="cb39-25"><a href="#cb39-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">widths =</span> ggplot2<span class="sc">::</span><span class="fu">unit</span>(<span class="fu">c</span>(<span class="dv">300</span>, <span class="dv">1</span>), <span class="st">&quot;mm&quot;</span>),</span>
-<span id="cb39-26"><a href="#cb39-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">heights =</span> ggplot2<span class="sc">::</span><span class="fu">unit</span>(<span class="dv">300</span>, <span class="st">&quot;mm&quot;</span>)</span>
-<span id="cb39-27"><a href="#cb39-27" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb39-28"><a href="#cb39-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-29"><a href="#cb39-29" aria-hidden="true" tabindex="-1"></a>tidyplots<span class="sc">::</span><span class="fu">save_plot</span>(</span>
-<span id="cb39-30"><a href="#cb39-30" aria-hidden="true" tabindex="-1"></a>  plt,</span>
-<span id="cb39-31"><a href="#cb39-31" aria-hidden="true" tabindex="-1"></a>  here<span class="sc">::</span><span class="fu">here</span>(out_dir, glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">&quot;rm_correlation_treatment_all.pdf&quot;</span>)),</span>
-<span id="cb39-32"><a href="#cb39-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">view_plot =</span> <span class="cn">FALSE</span></span>
-<span id="cb39-33"><a href="#cb39-33" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>plt <span class="ot">&lt;-</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  plt_df <span class="sc">%&gt;%</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> marker, <span class="at">y =</span> Species, <span class="at">fill =</span> cor, <span class="at">colour =</span> sign)) <span class="sc">+</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">size =</span> <span class="fu">abs</span>(cor), <span class="at">alpha =</span> sign), <span class="at">shape =</span> <span class="dv">22</span>, <span class="at">stroke =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colours =</span> <span class="fu">rev</span>(RColorBrewer<span class="sc">::</span><span class="fu">brewer.pal</span>(<span class="dv">11</span>, <span class="st">&quot;PiYG&quot;</span>)), <span class="at">limits =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.6</span>, <span class="fl">0.6</span>), <span class="at">breaks =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.6</span>, <span class="dv">0</span>, <span class="fl">0.6</span>)) <span class="sc">+</span></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;&lt; 0.05&quot;</span> <span class="ot">=</span> <span class="st">&quot;black&quot;</span>, <span class="st">&quot;ns&quot;</span> <span class="ot">=</span> <span class="st">&quot;white&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_alpha_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;&lt; 0.05&quot;</span> <span class="ot">=</span> <span class="fl">0.9</span>, <span class="st">&quot;ns&quot;</span> <span class="ot">=</span> <span class="fl">0.6</span>), <span class="at">guide =</span> <span class="st">&quot;none&quot;</span>) <span class="sc">+</span></span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_continuous</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">10</span>), <span class="at">guide =</span> <span class="st">&quot;none&quot;</span>) <span class="sc">+</span></span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">15</span>) <span class="sc">+</span></span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">&quot;&quot;</span>,</span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">&quot;&quot;</span>,</span>
+<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">&quot;Repeated Measures Correlation&quot;</span>),</span>
+<span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">&quot;q &lt; 0.05&quot;</span></span>
+<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">40</span>, <span class="at">hjust =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb41-18"><a href="#cb41-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> treatment, <span class="at">nrow =</span> <span class="dv">1</span>) </span>
+<span id="cb41-19"><a href="#cb41-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-20"><a href="#cb41-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Resize and save</span></span>
+<span id="cb41-21"><a href="#cb41-21" aria-hidden="true" tabindex="-1"></a>plt <span class="ot">&lt;-</span></span>
+<span id="cb41-22"><a href="#cb41-22" aria-hidden="true" tabindex="-1"></a>  plt <span class="sc">+</span></span>
+<span id="cb41-23"><a href="#cb41-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_spacer</span>() <span class="sc">+</span></span>
+<span id="cb41-24"><a href="#cb41-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(</span>
+<span id="cb41-25"><a href="#cb41-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">widths =</span> ggplot2<span class="sc">::</span><span class="fu">unit</span>(<span class="fu">c</span>(<span class="dv">300</span>, <span class="dv">1</span>), <span class="st">&quot;mm&quot;</span>),</span>
+<span id="cb41-26"><a href="#cb41-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">heights =</span> ggplot2<span class="sc">::</span><span class="fu">unit</span>(<span class="dv">300</span>, <span class="st">&quot;mm&quot;</span>)</span>
+<span id="cb41-27"><a href="#cb41-27" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb41-28"><a href="#cb41-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-29"><a href="#cb41-29" aria-hidden="true" tabindex="-1"></a>tidyplots<span class="sc">::</span><span class="fu">save_plot</span>(</span>
+<span id="cb41-30"><a href="#cb41-30" aria-hidden="true" tabindex="-1"></a>  plt,</span>
+<span id="cb41-31"><a href="#cb41-31" aria-hidden="true" tabindex="-1"></a>  here<span class="sc">::</span><span class="fu">here</span>(out_dir, glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">&quot;rm_correlation_treatment_all.pdf&quot;</span>)),</span>
+<span id="cb41-32"><a href="#cb41-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">view_plot =</span> <span class="cn">FALSE</span></span>
+<span id="cb41-33"><a href="#cb41-33" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>✔ save_plot: saved to &#39;/Users/fcatala/Documents/GitHub/fcatala_advanz4/data/08_functional_analysis/rm_correlation_treatment_all.pdf&#39;</code></pre>
+<pre><code>✔ save_plot: saved to &#39;/Users/fcatala/GitHub/fcatala_advanz4/data/08_functional_analysis/rm_correlation_treatment_all.pdf&#39;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>plt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>plt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -2818,246 +2840,253 @@ For detailed instructions on performing sensitivity analysis, please refer to th
 </div>
 </div>
 </div>
+<section id="export-source-data-2" class="level3" data-number="9.1">
+<h3 data-number="9.1" class="anchored" data-anchor-id="export-source-data-2"><span class="header-section-number">9.1</span> Export Source Data</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>plt_df <span class="sc">%&gt;%</span> </span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  readr<span class="sc">::</span><span class="fu">write_tsv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;source_data&quot;</span>, <span class="st">&quot;fig_6B_rmcorr.tsv&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
 </section>
 <section id="appendix" class="level2" data-number="10">
 <h2 data-number="10" class="anchored" data-anchor-id="appendix"><span class="header-section-number">10</span> Appendix</h2>
 <section id="session-info" class="level3" data-number="10.1">
 <h3 data-number="10.1" class="anchored" data-anchor-id="session-info"><span class="header-section-number">10.1</span> Session Info</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">session_info</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">session_info</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>─ Session info ───────────────────────────────────────────────────────────────
  setting  value
  version  R version 4.5.2 (2025-10-31)
- os       macOS Sequoia 15.6
+ os       macOS Sequoia 15.7.3
  system   aarch64, darwin20
  ui       X11
  language (EN)
  collate  en_US.UTF-8
  ctype    en_US.UTF-8
  tz       Europe/Madrid
- date     2025-12-19
+ date     2026-01-23
  pandoc   3.6.3 @ /Applications/Positron.app/Contents/Resources/app/quarto/bin/tools/aarch64/ (via rmarkdown)
- quarto   1.8.26 @ /Users/fcatala/Applications/quarto/bin/quarto
+ quarto   1.8.26 @ /Applications/quarto/bin/quarto
 
 ─ Packages ───────────────────────────────────────────────────────────────────
  ! package                  * version    date (UTC) lib source
-   abind                      1.4-8      2024-09-12 [1] CRAN (R 4.5.0)
-   ade4                       1.7-23     2025-02-14 [1] CRAN (R 4.5.0)
+ P abind                      1.4-8      2024-09-12 [?] CRAN (R 4.5.0)
+ P ade4                       1.7-23     2025-02-14 [?] CRAN (R 4.5.0)
  P ANCOMBC                    2.10.1     2025-05-22 [?] Bioconduc~
-   ape                        5.8-1      2024-12-16 [1] CRAN (R 4.5.0)
-   backports                  1.5.0      2024-05-23 [1] CRAN (R 4.5.0)
-   base64enc                  0.1-3      2015-07-28 [1] RSPM
-   beachmat                   2.26.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   beeswarm                   0.4.0      2021-06-01 [1] CRAN (R 4.5.0)
-   Biobase                  * 2.70.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   BiocBaseUtils              1.12.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   BiocGenerics             * 0.56.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
+ P ape                        5.8-1      2024-12-16 [?] CRAN (R 4.5.0)
+ P backports                  1.5.0      2024-05-23 [?] CRAN (R 4.5.0)
+ P base64enc                  0.1-3      2015-07-28 [?] RSPM (R 4.5.0)
+ P beachmat                   2.26.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P beeswarm                   0.4.0      2021-06-01 [?] CRAN (R 4.5.0)
+ P Biobase                  * 2.70.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P BiocBaseUtils              1.12.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P BiocGenerics             * 0.56.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
  P BiocManager                1.30.27    2025-11-14 [?] RSPM
-   BiocNeighbors              2.4.0      2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   BiocParallel               1.44.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   BiocSingular               1.26.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   biomformat                 1.38.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   Biostrings                 2.78.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   bit                        4.6.0      2025-03-06 [1] CRAN (R 4.5.0)
-   bit64                      4.6.0-1    2025-01-16 [1] CRAN (R 4.5.0)
-   bluster                    1.20.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
+ P BiocNeighbors              2.4.0      2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P BiocParallel               1.44.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P BiocSingular               1.26.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P biomformat                 1.38.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P Biostrings                 2.78.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P bit                        4.6.0      2025-03-06 [?] RSPM (R 4.5.0)
+ P bit64                      4.6.0-1    2025-01-16 [?] RSPM (R 4.5.0)
+ P bluster                    1.20.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
  P boot                       1.3-32     2025-08-29 [?] CRAN (R 4.5.2)
-   cachem                     1.1.0      2024-05-16 [1] RSPM
-   Cairo                      1.7-0      2025-10-29 [1] CRAN (R 4.5.0)
-   cellranger                 1.1.0      2016-07-27 [1] CRAN (R 4.5.0)
-   checkmate                  2.3.3      2025-08-18 [1] CRAN (R 4.5.0)
+ P cachem                     1.1.0      2024-05-16 [?] RSPM (R 4.5.0)
+ P Cairo                      1.7-0      2025-10-29 [?] CRAN (R 4.5.0)
+ P cellranger                 1.1.0      2016-07-27 [?] CRAN (R 4.5.0)
+ P checkmate                  2.3.3      2025-08-18 [?] CRAN (R 4.5.0)
  P circlize                   0.4.17     2025-12-08 [?] RSPM
  P class                      7.3-23     2025-01-01 [?] CRAN (R 4.5.2)
-   cli                        3.6.5      2025-04-23 [1] RSPM
+ P cli                        3.6.5      2025-04-23 [?] RSPM (R 4.5.0)
  P clue                       0.3-66     2024-11-13 [?] RSPM
  P cluster                    2.1.8.1    2025-03-12 [?] CRAN (R 4.5.2)
  P coda                       0.19-4.1   2024-01-31 [?] RSPM
  P codetools                  0.2-20     2024-03-31 [?] CRAN (R 4.5.2)
-   colorspace                 2.1-2      2025-09-22 [1] CRAN (R 4.5.0)
+ P colorspace                 2.1-2      2025-09-22 [?] CRAN (R 4.5.0)
  P ComplexHeatmap             2.24.1     2025-06-23 [?] Bioconduc~
-   crayon                     1.5.3      2024-06-20 [1] RSPM
+ P crayon                     1.5.3      2024-06-20 [?] RSPM (R 4.5.0)
  P CVXR                       1.0-15     2024-11-07 [?] CRAN (R 4.5.0)
-   data.table                 1.17.8     2025-07-10 [1] CRAN (R 4.5.0)
-   DBI                        1.2.3      2024-06-02 [1] CRAN (R 4.5.0)
-   DECIPHER                   3.6.0      2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   decontam                   1.30.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   DelayedArray               0.36.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   DelayedMatrixStats         1.32.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
+ P data.table                 1.17.8     2025-07-10 [?] CRAN (R 4.5.0)
+ P DBI                        1.2.3      2024-06-02 [?] CRAN (R 4.5.0)
+ P DECIPHER                   3.6.0      2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P decontam                   1.30.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P DelayedArray               0.36.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P DelayedMatrixStats         1.32.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
  P DescTools                  0.99.60    2025-03-28 [?] CRAN (R 4.5.0)
-   devtools                   2.4.6      2025-10-03 [1] RSPM
+ P devtools                   2.4.6      2025-10-03 [?] RSPM (R 4.5.0)
    digest                     0.6.39     2025-11-19 [1] RSPM
-   DirichletMultinomial       1.52.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   doParallel                 1.0.17     2022-02-07 [1] CRAN (R 4.5.0)
-   doRNG                      1.8.6.2    2025-04-02 [1] CRAN (R 4.5.0)
-   dplyr                    * 1.1.4      2023-11-17 [1] CRAN (R 4.5.0)
+ P DirichletMultinomial       1.52.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P doParallel                 1.0.17     2022-02-07 [?] CRAN (R 4.5.0)
+ P doRNG                      1.8.6.2    2025-04-02 [?] CRAN (R 4.5.0)
+ P dplyr                    * 1.1.4      2023-11-17 [?] CRAN (R 4.5.0)
  P e1071                      1.7-17     2025-12-18 [?] RSPM
-   ellipsis                   0.3.2      2021-04-29 [1] RSPM
-   emmeans                    2.0.1      2025-12-16 [1] CRAN (R 4.5.2)
+ P ellipsis                   0.3.2      2021-04-29 [?] RSPM (R 4.5.0)
+ P emmeans                    2.0.1      2025-12-16 [?] CRAN (R 4.5.2)
  P energy                     1.7-12     2024-08-24 [?] CRAN (R 4.5.0)
-   estimability               1.5.1      2024-05-12 [1] CRAN (R 4.5.0)
-   evaluate                   1.0.5      2025-08-27 [1] RSPM
+ P estimability               1.5.1      2024-05-12 [?] CRAN (R 4.5.0)
+ P evaluate                   1.0.5      2025-08-27 [?] RSPM (R 4.5.0)
  P Exact                      3.3        2024-07-21 [?] RSPM
  P expm                       1.0-0      2024-08-19 [?] RSPM
-   fansi                      1.0.7      2025-11-19 [1] RSPM
-   farver                     2.1.2      2024-05-13 [1] CRAN (R 4.5.0)
-   fastmap                    1.2.0      2024-05-15 [1] RSPM
-   fillpattern                1.0.2      2024-06-24 [1] CRAN (R 4.5.0)
+ P fansi                      1.0.7      2025-11-19 [?] RSPM (R 4.5.0)
+ P farver                     2.1.2      2024-05-13 [?] CRAN (R 4.5.0)
+ P fastmap                    1.2.0      2024-05-15 [?] RSPM (R 4.5.0)
+ P fillpattern                1.0.2      2024-06-24 [?] CRAN (R 4.5.0)
  P forcats                    1.0.1      2025-09-25 [?] RSPM
-   foreach                    1.5.2      2022-02-02 [1] CRAN (R 4.5.0)
+ P foreach                    1.5.2      2022-02-02 [?] CRAN (R 4.5.0)
  P foreign                    0.8-90     2025-03-31 [?] CRAN (R 4.5.2)
-   Formula                    1.2-5      2023-02-24 [1] CRAN (R 4.5.0)
-   fs                         1.6.6      2025-04-12 [1] RSPM
-   generics                 * 0.1.4      2025-05-09 [1] CRAN (R 4.5.0)
-   GenomicRanges            * 1.62.1     2025-12-08 [1] Bioconductor 3.22 (R 4.5.2)
+ P Formula                    1.2-5      2023-02-24 [?] CRAN (R 4.5.0)
+ P fs                         1.6.6      2025-04-12 [?] RSPM (R 4.5.0)
+ P generics                 * 0.1.4      2025-05-09 [?] CRAN (R 4.5.0)
+ P GenomicRanges            * 1.62.1     2025-12-08 [?] Bioconductor 3.22 (R 4.5.2)
  P GetoptLong                 1.1.0      2025-11-28 [?] RSPM
-   ggbeeswarm                 0.7.3      2025-11-29 [1] CRAN (R 4.5.2)
-   ggnewscale                 0.5.2      2025-06-20 [1] CRAN (R 4.5.0)
-   ggplot2                  * 4.0.1      2025-11-14 [1] CRAN (R 4.5.2)
-   ggrepel                    0.9.6      2024-09-07 [1] CRAN (R 4.5.0)
-   ggtext                     0.1.2      2022-09-16 [1] CRAN (R 4.5.0)
+ P ggbeeswarm                 0.7.3      2025-11-29 [?] CRAN (R 4.5.2)
+ P ggnewscale                 0.5.2      2025-06-20 [?] CRAN (R 4.5.0)
+ P ggplot2                  * 4.0.1      2025-11-14 [?] CRAN (R 4.5.2)
+ P ggrepel                    0.9.6      2024-09-07 [?] CRAN (R 4.5.0)
+ P ggtext                     0.1.2      2022-09-16 [?] CRAN (R 4.5.0)
  P gld                        2.6.8      2025-09-14 [?] RSPM
  P GlobalOptions              0.1.3      2025-11-28 [?] RSPM
-   glue                       1.8.0      2024-09-30 [1] RSPM
-   gmp                        0.7-5      2024-08-23 [1] RSPM
-   gridExtra                  2.3        2017-09-09 [1] CRAN (R 4.5.0)
-   gridtext                   0.1.5      2022-09-16 [1] CRAN (R 4.5.0)
+ P glue                       1.8.0      2024-09-30 [?] RSPM (R 4.5.0)
+ P gmp                        0.7-5      2024-08-23 [?] RSPM (R 4.5.0)
+ P gridExtra                  2.3        2017-09-09 [?] CRAN (R 4.5.0)
+ P gridtext                   0.1.5      2022-09-16 [?] CRAN (R 4.5.0)
  P gsl                        2.1-9      2025-11-10 [?] RSPM
-   gtable                     0.3.6      2024-10-25 [1] CRAN (R 4.5.0)
-   gtools                     3.9.5      2023-11-20 [1] CRAN (R 4.5.0)
+ P gtable                     0.3.6      2024-10-25 [?] CRAN (R 4.5.0)
+ P gtools                     3.9.5      2023-11-20 [?] CRAN (R 4.5.0)
  P haven                      2.5.5      2025-05-30 [?] RSPM
-   here                       1.0.2      2025-09-15 [1] RSPM
-   Hmisc                      5.2-4      2025-10-05 [1] CRAN (R 4.5.0)
-   hms                        1.1.4      2025-10-17 [1] CRAN (R 4.5.0)
-   htmlTable                  2.4.3      2024-07-21 [1] CRAN (R 4.5.0)
-   htmltools                  0.5.9      2025-12-04 [1] RSPM
-   htmlwidgets                1.6.4      2023-12-06 [1] CRAN (R 4.5.0)
-   httr                       1.4.7      2023-08-15 [1] CRAN (R 4.5.0)
-   igraph                     2.2.1      2025-10-27 [1] CRAN (R 4.5.0)
-   IRanges                  * 2.44.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   irlba                      2.3.5.1    2022-10-03 [1] CRAN (R 4.5.0)
-   iterators                  1.0.14     2022-02-05 [1] CRAN (R 4.5.0)
-   jsonlite                   2.0.0      2025-03-27 [1] RSPM
-   knitr                      1.50       2025-03-16 [1] RSPM
-   labeling                   0.4.3      2023-08-29 [1] CRAN (R 4.5.0)
+ P here                       1.0.2      2025-09-15 [?] CRAN (R 4.5.0)
+ P Hmisc                      5.2-4      2025-10-05 [?] CRAN (R 4.5.0)
+ P hms                        1.1.4      2025-10-17 [?] CRAN (R 4.5.0)
+ P htmlTable                  2.4.3      2024-07-21 [?] CRAN (R 4.5.0)
+ P htmltools                  0.5.9      2025-12-04 [?] RSPM (R 4.5.0)
+ P htmlwidgets                1.6.4      2023-12-06 [?] CRAN (R 4.5.0)
+ P httr                       1.4.7      2023-08-15 [?] CRAN (R 4.5.0)
+ P igraph                     2.2.1      2025-10-27 [?] CRAN (R 4.5.0)
+ P IRanges                  * 2.44.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P irlba                      2.3.5.1    2022-10-03 [?] CRAN (R 4.5.0)
+ P iterators                  1.0.14     2022-02-05 [?] CRAN (R 4.5.0)
+ P jsonlite                   2.0.0      2025-03-27 [?] RSPM (R 4.5.0)
+ P knitr                      1.50       2025-03-16 [?] RSPM (R 4.5.0)
+ P labeling                   0.4.3      2023-08-29 [?] CRAN (R 4.5.0)
  P lattice                    0.22-7     2025-04-02 [?] CRAN (R 4.5.2)
-   lazyeval                   0.2.2      2019-03-15 [1] CRAN (R 4.5.0)
-   lifecycle                  1.0.4      2023-11-07 [1] RSPM
+ P lazyeval                   0.2.2      2019-03-15 [?] CRAN (R 4.5.0)
+ P lifecycle                  1.0.4      2023-11-07 [?] RSPM (R 4.5.0)
  P lme4                       1.1-38     2025-12-02 [?] CRAN (R 4.5.2)
  P lmerTest                   3.1-3      2020-10-23 [?] RSPM
  P lmom                       3.2        2024-09-30 [?] RSPM
-   magrittr                 * 2.0.4      2025-09-12 [1] RSPM
+   magrittr                 * 2.0.4      2025-09-12 [1] CRAN (R 4.5.0)
  P MASS                       7.3-65     2025-02-28 [?] CRAN (R 4.5.2)
  P Matrix                     1.7-4      2025-08-28 [?] CRAN (R 4.5.2)
-   MatrixGenerics           * 1.22.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   matrixStats              * 1.5.0      2025-01-07 [1] CRAN (R 4.5.0)
-   memoise                    2.0.1      2021-11-26 [1] RSPM
+ P MatrixGenerics           * 1.22.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P matrixStats              * 1.5.0      2025-01-07 [?] CRAN (R 4.5.0)
+ P memoise                    2.0.1      2021-11-26 [?] RSPM (R 4.5.0)
  P mgcv                       1.9-4      2025-11-07 [?] CRAN (R 4.5.0)
-   mia                        1.16.0     2025-04-15 [1] Bioconduc~
+ P mia                        1.16.0     2025-04-15 [?] Bioconductor 3.21 (R 4.5.2)
    microbiome                 1.32.0     2025-10-29 [1] Bioconduc~
  P minqa                      1.2.8      2024-08-17 [?] CRAN (R 4.5.0)
-   mnormt                     2.1.1      2022-09-26 [1] CRAN (R 4.5.0)
+ P mnormt                     2.1.1      2022-09-26 [?] CRAN (R 4.5.0)
  P multcomp                   1.4-29     2025-10-20 [?] RSPM
-   MultiAssayExperiment       1.36.1     2025-11-17 [1] Bioconductor 3.22 (R 4.5.2)
-   multtest                   2.66.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   mvtnorm                    1.3-3      2025-01-10 [1] CRAN (R 4.5.0)
+ P MultiAssayExperiment       1.36.1     2025-11-17 [?] Bioconductor 3.22 (R 4.5.2)
+ P multtest                   2.66.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P mvtnorm                    1.3-3      2025-01-10 [?] CRAN (R 4.5.0)
  P nlme                       3.1-168    2025-03-31 [?] CRAN (R 4.5.2)
  P nloptr                     2.2.1      2025-03-17 [?] RSPM
  P nnet                       7.3-20     2025-01-01 [?] CRAN (R 4.5.2)
-   numDeriv                   2016.8-1.1 2019-06-06 [1] CRAN (R 4.5.0)
-   parallelly                 1.46.0     2025-12-12 [1] CRAN (R 4.5.2)
-   patchwork                * 1.3.2      2025-08-25 [1] CRAN (R 4.5.0)
-   permute                    0.9-8      2025-06-25 [1] CRAN (R 4.5.0)
-   phyloseq                   1.54.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.2)
-   pillar                     1.11.1     2025-09-17 [1] RSPM
-   pkgbuild                   1.4.8      2025-05-26 [1] RSPM
-   pkgconfig                  2.0.3      2019-09-22 [1] RSPM
-   pkgload                    1.4.1      2025-09-23 [1] RSPM
-   plotly                     4.11.0     2025-06-19 [1] CRAN (R 4.5.0)
-   plyr                       1.8.9      2023-10-02 [1] CRAN (R 4.5.0)
-   png                        0.1-8      2022-11-29 [1] CRAN (R 4.5.0)
+ P numDeriv                   2016.8-1.1 2019-06-06 [?] CRAN (R 4.5.0)
+ P parallelly                 1.46.0     2025-12-12 [?] CRAN (R 4.5.2)
+ P patchwork                * 1.3.2      2025-08-25 [?] CRAN (R 4.5.0)
+ P permute                    0.9-8      2025-06-25 [?] CRAN (R 4.5.0)
+ P phyloseq                   1.54.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.2)
+ P pillar                     1.11.1     2025-09-17 [?] RSPM (R 4.5.0)
+ P pkgbuild                   1.4.8      2025-05-26 [?] RSPM (R 4.5.0)
+ P pkgconfig                  2.0.3      2019-09-22 [?] RSPM (R 4.5.0)
+ P pkgload                    1.4.1      2025-09-23 [?] RSPM (R 4.5.0)
+ P plotly                     4.11.0     2025-06-19 [?] CRAN (R 4.5.0)
+ P plyr                       1.8.9      2023-10-02 [?] CRAN (R 4.5.0)
+ P png                        0.1-8      2022-11-29 [?] CRAN (R 4.5.0)
  P proxy                      0.4-28     2025-12-11 [?] RSPM
-   psych                      2.5.6      2025-06-23 [1] CRAN (R 4.5.0)
-   purrr                      1.2.0      2025-11-04 [1] RSPM
-   R6                         2.6.1      2025-02-15 [1] RSPM
-   ragg                       1.5.0      2025-09-02 [1] RSPM
-   rappdirs                   0.3.3      2021-01-31 [1] RSPM
-   rbibutils                  2.4        2025-11-07 [1] CRAN (R 4.5.0)
-   rbiom                      2.2.1      2025-06-27 [1] CRAN (R 4.5.0)
-   RColorBrewer               1.1-3      2022-04-03 [1] CRAN (R 4.5.0)
-   Rcpp                       1.1.0      2025-07-02 [1] CRAN (R 4.5.0)
-   Rdpack                     2.6.4      2025-04-09 [1] CRAN (R 4.5.0)
-   readr                      2.1.6      2025-11-14 [1] CRAN (R 4.5.2)
-   readxl                     1.4.5      2025-03-07 [1] CRAN (R 4.5.0)
+ P psych                      2.5.6      2025-06-23 [?] CRAN (R 4.5.0)
+   purrr                      1.2.1      2026-01-09 [1] CRAN (R 4.5.2)
+ P R6                         2.6.1      2025-02-15 [?] RSPM (R 4.5.0)
+ P ragg                       1.5.0      2025-09-02 [?] RSPM (R 4.5.0)
+ P rappdirs                   0.3.3      2021-01-31 [?] RSPM (R 4.5.0)
+ P rbibutils                  2.4        2025-11-07 [?] CRAN (R 4.5.0)
+ P rbiom                      2.2.1      2025-06-27 [?] CRAN (R 4.5.0)
+ P RColorBrewer               1.1-3      2022-04-03 [?] CRAN (R 4.5.0)
+ P Rcpp                       1.1.0      2025-07-02 [?] CRAN (R 4.5.0)
+ P Rdpack                     2.6.4      2025-04-09 [?] CRAN (R 4.5.0)
+ P readr                      2.1.6      2025-11-14 [?] CRAN (R 4.5.2)
+ P readxl                     1.4.5      2025-03-07 [?] CRAN (R 4.5.0)
  P reformulas                 0.4.3      2025-12-17 [?] RSPM
-   remotes                    2.5.0      2024-03-17 [1] RSPM
+ P remotes                    2.5.0      2024-03-17 [?] RSPM (R 4.5.0)
    renv                       1.1.5      2025-07-24 [1] RSPM (R 4.5.0)
-   reshape2                   1.4.5      2025-11-12 [1] CRAN (R 4.5.0)
-   rhdf5                      2.54.1     2025-12-08 [1] Bioconductor 3.22 (R 4.5.2)
-   rhdf5filters               1.22.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   Rhdf5lib                   1.32.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
+ P reshape2                   1.4.5      2025-11-12 [?] CRAN (R 4.5.0)
+ P rhdf5                      2.54.1     2025-12-08 [?] Bioconductor 3.22 (R 4.5.2)
+ P rhdf5filters               1.22.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P Rhdf5lib                   1.32.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
  P rjson                      0.2.23     2024-09-16 [?] RSPM
-   rlang                      1.1.6      2025-04-11 [1] RSPM
-   rmarkdown                  2.30       2025-09-28 [1] RSPM
+ P rlang                      1.1.6      2025-04-11 [?] RSPM (R 4.5.0)
+ P rmarkdown                  2.30       2025-09-28 [?] RSPM (R 4.5.0)
  P rmcorr                     0.7.0      2024-07-26 [?] RSPM
-   Rmpfr                      1.1-2      2025-10-27 [1] RSPM
-   rngtools                   1.5.2      2021-09-20 [1] CRAN (R 4.5.0)
-   rootSolve                  1.8.2.4    2023-09-21 [1] CRAN (R 4.5.0)
+ P Rmpfr                      1.1-2      2025-10-27 [?] RSPM (R 4.5.0)
+ P rngtools                   1.5.2      2021-09-20 [?] CRAN (R 4.5.0)
+ P rootSolve                  1.8.2.4    2023-09-21 [?] CRAN (R 4.5.0)
  P rpart                      4.1.24     2025-01-07 [?] CRAN (R 4.5.2)
-   rprojroot                  2.1.1      2025-08-26 [1] RSPM
-   rstudioapi                 0.17.1     2024-10-22 [1] RSPM
-   rsvd                       1.0.5      2021-04-16 [1] CRAN (R 4.5.0)
-   Rtsne                      0.17       2023-12-07 [1] CRAN (R 4.5.0)
-   S4Arrays                   1.10.1     2025-12-08 [1] Bioconductor 3.22 (R 4.5.2)
-   S4Vectors                * 0.48.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   S7                         0.2.1      2025-11-14 [1] CRAN (R 4.5.2)
+ P rprojroot                  2.1.1      2025-08-26 [?] RSPM (R 4.5.0)
+ P rstudioapi                 0.17.1     2024-10-22 [?] RSPM (R 4.5.0)
+ P rsvd                       1.0.5      2021-04-16 [?] CRAN (R 4.5.0)
+ P Rtsne                      0.17       2023-12-07 [?] CRAN (R 4.5.0)
+ P S4Arrays                   1.10.1     2025-12-08 [?] Bioconductor 3.22 (R 4.5.2)
+ P S4Vectors                * 0.48.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P S7                         0.2.1      2025-11-14 [?] CRAN (R 4.5.2)
  P sandwich                   3.1-1      2024-09-15 [?] RSPM
-   ScaledMatrix               1.18.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   scales                     1.4.0      2025-04-24 [1] CRAN (R 4.5.0)
-   scater                     1.38.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.2)
-   scuttle                    1.20.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   Seqinfo                  * 1.0.0      2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   sessioninfo                1.2.3      2025-02-05 [1] RSPM
-   shape                      1.4.6.1    2024-02-23 [1] CRAN (R 4.5.0)
-   SingleCellExperiment     * 1.32.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   slam                       0.1-55     2024-11-13 [1] CRAN (R 4.5.0)
-   SparseArray                1.10.6     2025-12-08 [1] Bioconductor 3.22 (R 4.5.2)
-   sparseMatrixStats          1.22.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   stringi                    1.8.7      2025-03-27 [1] RSPM
-   stringr                    1.6.0      2025-11-04 [1] RSPM
-   SummarizedExperiment     * 1.40.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
+ P ScaledMatrix               1.18.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P scales                     1.4.0      2025-04-24 [?] CRAN (R 4.5.0)
+ P scater                     1.38.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.2)
+ P scuttle                    1.20.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P Seqinfo                  * 1.0.0      2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P sessioninfo                1.2.3      2025-02-05 [?] RSPM (R 4.5.0)
+ P shape                      1.4.6.1    2024-02-23 [?] CRAN (R 4.5.0)
+ P SingleCellExperiment     * 1.32.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P slam                       0.1-55     2024-11-13 [?] CRAN (R 4.5.0)
+ P SparseArray                1.10.6     2025-12-08 [?] Bioconductor 3.22 (R 4.5.2)
+ P sparseMatrixStats          1.22.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P stringi                    1.8.7      2025-03-27 [?] RSPM (R 4.5.0)
+ P stringr                    1.6.0      2025-11-04 [?] RSPM (R 4.5.0)
+ P SummarizedExperiment     * 1.40.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
  P survival                   3.8-3      2024-12-17 [?] CRAN (R 4.5.2)
-   systemfonts                1.3.1      2025-10-01 [1] RSPM
-   textshaping                1.0.4      2025-10-10 [1] RSPM
+ P systemfonts                1.3.1      2025-10-01 [?] RSPM (R 4.5.0)
+ P textshaping                1.0.4      2025-10-10 [?] RSPM (R 4.5.0)
  P TH.data                    1.1-5      2025-11-17 [?] RSPM
-   tibble                     3.3.0      2025-06-08 [1] RSPM
+ P tibble                     3.3.0      2025-06-08 [?] RSPM (R 4.5.0)
  P tidyplots                * 0.3.1      2025-07-02 [?] CRAN (R 4.5.0)
-   tidyr                    * 1.3.1      2024-01-24 [1] CRAN (R 4.5.0)
-   tidyselect                 1.2.1      2024-03-11 [1] CRAN (R 4.5.0)
-   tidySingleCellExperiment * 1.20.1     2025-11-10 [1] Bioconduc~
-   tidytree                   0.4.6      2023-12-12 [1] CRAN (R 4.5.0)
-   treeio                     1.34.0     2025-10-30 [1] Bioconductor 3.22 (R 4.5.1)
-   TreeSummarizedExperiment   2.18.0     2025-10-30 [1] Bioconductor 3.22 (R 4.5.1)
-   ttservice                * 0.5.3      2025-07-10 [1] RSPM
-   tzdb                       0.5.0      2025-03-15 [1] CRAN (R 4.5.0)
-   usethis                    3.2.1      2025-09-06 [1] RSPM
-   utf8                       1.2.6      2025-06-08 [1] RSPM
-   vctrs                      0.6.5      2023-12-01 [1] RSPM
-   vegan                      2.7-2      2025-10-08 [1] CRAN (R 4.5.0)
-   vipor                      0.4.7      2023-12-18 [1] CRAN (R 4.5.0)
-   viridis                    0.6.5      2024-01-29 [1] CRAN (R 4.5.0)
-   viridisLite                0.4.2      2023-05-02 [1] CRAN (R 4.5.0)
-   vroom                      1.6.7      2025-11-28 [1] CRAN (R 4.5.2)
-   withr                      3.0.2      2024-10-28 [1] RSPM
-   xfun                       0.55       2025-12-16 [1] RSPM
-   xml2                       1.5.1      2025-12-01 [1] RSPM
-   xtable                     1.8-4      2019-04-21 [1] RSPM
-   XVector                    0.50.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   yaml                       2.3.12     2025-12-10 [1] RSPM
-   yulab.utils                0.2.3      2025-12-15 [1] CRAN (R 4.5.2)
+ P tidyr                    * 1.3.1      2024-01-24 [?] CRAN (R 4.5.0)
+ P tidyselect                 1.2.1      2024-03-11 [?] CRAN (R 4.5.0)
+ P tidySingleCellExperiment * 1.20.1     2025-11-10 [?] Bioconductor 3.22 (R 4.5.1)
+ P tidytree                   0.4.6      2023-12-12 [?] CRAN (R 4.5.0)
+ P treeio                     1.34.0     2025-10-30 [?] Bioconductor 3.22 (R 4.5.1)
+ P TreeSummarizedExperiment   2.18.0     2025-10-30 [?] Bioconductor 3.22 (R 4.5.1)
+ P ttservice                * 0.5.3      2025-07-10 [?] RSPM (R 4.5.0)
+ P tzdb                       0.5.0      2025-03-15 [?] CRAN (R 4.5.0)
+ P usethis                    3.2.1      2025-09-06 [?] RSPM (R 4.5.0)
+ P utf8                       1.2.6      2025-06-08 [?] RSPM (R 4.5.0)
+ P vctrs                      0.6.5      2023-12-01 [?] RSPM (R 4.5.0)
+ P vegan                      2.7-2      2025-10-08 [?] CRAN (R 4.5.0)
+ P vipor                      0.4.7      2023-12-18 [?] CRAN (R 4.5.0)
+ P viridis                    0.6.5      2024-01-29 [?] CRAN (R 4.5.0)
+ P viridisLite                0.4.2      2023-05-02 [?] CRAN (R 4.5.0)
+ P vroom                      1.6.7      2025-11-28 [?] CRAN (R 4.5.2)
+ P withr                      3.0.2      2024-10-28 [?] RSPM (R 4.5.0)
+ P xfun                       0.55       2025-12-16 [?] RSPM (R 4.5.0)
+ P xml2                       1.5.1      2025-12-01 [?] RSPM (R 4.5.0)
+ P xtable                     1.8-4      2019-04-21 [?] RSPM (R 4.5.0)
+ P XVector                    0.50.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P yaml                       2.3.12     2025-12-10 [?] RSPM (R 4.5.0)
+ P yulab.utils                0.2.3      2025-12-15 [?] CRAN (R 4.5.2)
  P zoo                        1.8-15     2025-12-15 [?] RSPM
 
- [1] /Users/fcatala/Documents/GitHub/fcatala_advanz4/renv/library/macos/R-4.5/aarch64-apple-darwin20
+ [1] /Users/fcatala/GitHub/fcatala_advanz4/renv/library/macos/R-4.5/aarch64-apple-darwin20
  [2] /Users/fcatala/Library/Caches/org.R-project.R/R/renv/sandbox/macos/R-4.5/aarch64-apple-darwin20/4cd76b74
 
  * ── Packages attached to the search path.
