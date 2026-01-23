@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Francesc Català-Moll">
-<meta name="dcterms.date" content="2025-12-19">
+<meta name="dcterms.date" content="2026-01-23">
 
 <title>Baseline Cohort Characteristics by Treatment</title>
 <style>
@@ -2213,8 +2213,16 @@ vertical-align: -.125em;
   <li><a href="#define-input-and-output-paths" id="toc-define-input-and-output-paths" class="nav-link" data-scroll-target="#define-input-and-output-paths"><span class="header-section-number">2</span> Define input and output paths</a></li>
   <li><a href="#load-metadata" id="toc-load-metadata" class="nav-link" data-scroll-target="#load-metadata"><span class="header-section-number">3</span> Load metadata</a></li>
   <li><a href="#clean-and-format-metadata" id="toc-clean-and-format-metadata" class="nav-link" data-scroll-target="#clean-and-format-metadata"><span class="header-section-number">4</span> Clean and format metadata</a></li>
-  <li><a href="#generate-summary-table" id="toc-generate-summary-table" class="nav-link" data-scroll-target="#generate-summary-table"><span class="header-section-number">5</span> Generate summary table</a></li>
+  <li><a href="#generate-summary-table" id="toc-generate-summary-table" class="nav-link" data-scroll-target="#generate-summary-table"><span class="header-section-number">5</span> Generate summary table</a>
+  <ul class="collapse">
+  <li><a href="#export-source-data" id="toc-export-source-data" class="nav-link" data-scroll-target="#export-source-data"><span class="header-section-number">5.1</span> Export Source Data</a></li>
+  </ul></li>
   <li><a href="#export-as-pdf" id="toc-export-as-pdf" class="nav-link" data-scroll-target="#export-as-pdf"><span class="header-section-number">6</span> Export as PDF</a></li>
+  <li><a href="#appendix" id="toc-appendix" class="nav-link" data-scroll-target="#appendix"><span class="header-section-number">7</span> Appendix</a>
+  <ul class="collapse">
+  <li><a href="#session-info" id="toc-session-info" class="nav-link" data-scroll-target="#session-info"><span class="header-section-number">7.1</span> Session Info</a></li>
+  <li><a href="#contact" id="toc-contact" class="nav-link" data-scroll-target="#contact"><span class="header-section-number">7.2</span> Contact</a></li>
+  </ul></li>
   </ul>
 </nav>
 </div>
@@ -2239,14 +2247,14 @@ vertical-align: -.125em;
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">December 19, 2025</p>
+      <p class="date">January 23, 2026</p>
     </div>
   </div>
   
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">December 19, 2025</p>
+      <p class="date-modified">January 23, 2026</p>
     </div>
   </div>
     
@@ -2396,86 +2404,24 @@ vertical-align: -.125em;
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  gtsummary<span class="sc">::</span><span class="fu">add_stat_label</span>() <span class="sc">%&gt;%</span> </span>
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  gtsummary<span class="sc">::</span><span class="fu">modify_table_body</span>(</span>
 <span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="sc">~</span> dplyr<span class="sc">::</span><span class="fu">select</span>(.x, <span class="sc">-</span><span class="fu">any_of</span>(<span class="fu">c</span>(<span class="st">&quot;p.value&quot;</span>, <span class="st">&quot;ci&quot;</span>, <span class="st">&quot;conf.low&quot;</span>, <span class="st">&quot;conf.high&quot;</span>)))</span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following errors were returned during `modify_table_body()`:
-✖ For variable `Age (years)` (`Treatment`) and &quot;estimate&quot;, &quot;std.error&quot;,
-  &quot;parameter&quot;, &quot;statistic&quot;, &quot;conf.low&quot;, &quot;conf.high&quot;, and &quot;p.value&quot; statistics:
-  The package &quot;smd&quot; (&gt;= 0.6.6) is required.
-✖ For variable `BMI` (`Treatment`) and &quot;estimate&quot;, &quot;std.error&quot;, &quot;parameter&quot;,
-  &quot;statistic&quot;, &quot;conf.low&quot;, &quot;conf.high&quot;, and &quot;p.value&quot; statistics: The package
-  &quot;smd&quot; (&gt;= 0.6.6) is required.
-✖ For variable `BMI class` (`Treatment`) and &quot;estimate&quot;, &quot;std.error&quot;,
-  &quot;parameter&quot;, &quot;statistic&quot;, &quot;conf.low&quot;, &quot;conf.high&quot;, and &quot;p.value&quot; statistics:
-  The package &quot;smd&quot; (&gt;= 0.6.6) is required.
-✖ For variable `CD4+ CD38+ HLA-DR+ T cells (cells/mm³)` (`Treatment`) and
-  &quot;estimate&quot;, &quot;std.error&quot;, &quot;parameter&quot;, &quot;statistic&quot;, &quot;conf.low&quot;, &quot;conf.high&quot;,
-  and &quot;p.value&quot; statistics: The package &quot;smd&quot; (&gt;= 0.6.6) is required.
-✖ For variable `CD4+ T cell count nadir (cells/mm³)` (`Treatment`) and
-  &quot;estimate&quot;, &quot;std.error&quot;, &quot;parameter&quot;, &quot;statistic&quot;, &quot;conf.low&quot;, &quot;conf.high&quot;,
-  and &quot;p.value&quot; statistics: The package &quot;smd&quot; (&gt;= 0.6.6) is required.
-✖ For variable `CD4+ T cells (cells/mm³)` (`Treatment`) and &quot;estimate&quot;,
-  &quot;std.error&quot;, &quot;parameter&quot;, &quot;statistic&quot;, &quot;conf.low&quot;, &quot;conf.high&quot;, and &quot;p.value&quot;
-  statistics: The package &quot;smd&quot; (&gt;= 0.6.6) is required.
-✖ For variable `CD8+ CD38+ HLA-DR+ T cells (cells/mm³)` (`Treatment`) and
-  &quot;estimate&quot;, &quot;std.error&quot;, &quot;parameter&quot;, &quot;statistic&quot;, &quot;conf.low&quot;, &quot;conf.high&quot;,
-  and &quot;p.value&quot; statistics: The package &quot;smd&quot; (&gt;= 0.6.6) is required.
-✖ For variable `CD8+ T cells (cells/mm³)` (`Treatment`) and &quot;estimate&quot;,
-  &quot;std.error&quot;, &quot;parameter&quot;, &quot;statistic&quot;, &quot;conf.low&quot;, &quot;conf.high&quot;, and &quot;p.value&quot;
-  statistics: The package &quot;smd&quot; (&gt;= 0.6.6) is required.
-✖ For variable `CMV status` (`Treatment`) and &quot;estimate&quot;, &quot;std.error&quot;,
-  &quot;parameter&quot;, &quot;statistic&quot;, &quot;conf.low&quot;, &quot;conf.high&quot;, and &quot;p.value&quot; statistics:
-  The package &quot;smd&quot; (&gt;= 0.6.6) is required.
-✖ For variable `CMV viral load (copies/mL)` (`Treatment`) and &quot;estimate&quot;,
-  &quot;std.error&quot;, &quot;parameter&quot;, &quot;statistic&quot;, &quot;conf.low&quot;, &quot;conf.high&quot;, and &quot;p.value&quot;
-  statistics: The package &quot;smd&quot; (&gt;= 0.6.6) is required.
-✖ For variable `CRP (mg/L)` (`Treatment`) and &quot;estimate&quot;, &quot;std.error&quot;,
-  &quot;parameter&quot;, &quot;statistic&quot;, &quot;conf.low&quot;, &quot;conf.high&quot;, and &quot;p.value&quot; statistics:
-  The package &quot;smd&quot; (&gt;= 0.6.6) is required.
-✖ For variable `Center` (`Treatment`) and &quot;estimate&quot;, &quot;std.error&quot;, &quot;parameter&quot;,
-  &quot;statistic&quot;, &quot;conf.low&quot;, &quot;conf.high&quot;, and &quot;p.value&quot; statistics: The package
-  &quot;smd&quot; (&gt;= 0.6.6) is required.
-✖ For variable `Ethnic group` (`Treatment`) and &quot;estimate&quot;, &quot;std.error&quot;,
-  &quot;parameter&quot;, &quot;statistic&quot;, &quot;conf.low&quot;, &quot;conf.high&quot;, and &quot;p.value&quot; statistics:
-  The package &quot;smd&quot; (&gt;= 0.6.6) is required.
-✖ For variable `Gender` (`Treatment`) and &quot;estimate&quot;, &quot;std.error&quot;, &quot;parameter&quot;,
-  &quot;statistic&quot;, &quot;conf.low&quot;, &quot;conf.high&quot;, and &quot;p.value&quot; statistics: The package
-  &quot;smd&quot; (&gt;= 0.6.6) is required.
-✖ For variable `Gene richness` (`Treatment`) and &quot;estimate&quot;, &quot;std.error&quot;,
-  &quot;parameter&quot;, &quot;statistic&quot;, &quot;conf.low&quot;, &quot;conf.high&quot;, and &quot;p.value&quot; statistics:
-  The package &quot;smd&quot; (&gt;= 0.6.6) is required.
-✖ For variable `HIV viral load (copies/mL)` (`Treatment`) and &quot;estimate&quot;,
-  &quot;std.error&quot;, &quot;parameter&quot;, &quot;statistic&quot;, &quot;conf.low&quot;, &quot;conf.high&quot;, and &quot;p.value&quot;
-  statistics: The package &quot;smd&quot; (&gt;= 0.6.6) is required.
-✖ For variable `IL-6 (pg/mL)` (`Treatment`) and &quot;estimate&quot;, &quot;std.error&quot;,
-  &quot;parameter&quot;, &quot;statistic&quot;, &quot;conf.low&quot;, &quot;conf.high&quot;, and &quot;p.value&quot; statistics:
-  The package &quot;smd&quot; (&gt;= 0.6.6) is required.
-✖ For variable `Risk group` (`Treatment`) and &quot;estimate&quot;, &quot;std.error&quot;,
-  &quot;parameter&quot;, &quot;statistic&quot;, &quot;conf.low&quot;, &quot;conf.high&quot;, and &quot;p.value&quot; statistics:
-  The package &quot;smd&quot; (&gt;= 0.6.6) is required.
-✖ For variable `TNF-α (pg/mL)` (`Treatment`) and &quot;estimate&quot;, &quot;std.error&quot;,
-  &quot;parameter&quot;, &quot;statistic&quot;, &quot;conf.low&quot;, &quot;conf.high&quot;, and &quot;p.value&quot; statistics:
-  The package &quot;smd&quot; (&gt;= 0.6.6) is required.
-✖ For variable `sCD14 (pg/mL)` (`Treatment`) and &quot;estimate&quot;, &quot;std.error&quot;,
-  &quot;parameter&quot;, &quot;statistic&quot;, &quot;conf.low&quot;, &quot;conf.high&quot;, and &quot;p.value&quot; statistics:
-  The package &quot;smd&quot; (&gt;= 0.6.6) is required.</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>tbl1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>tbl1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="qmmslhlipd" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#qmmslhlipd table {
+<div id="hvlmmcflht" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#hvlmmcflht table {
 font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#qmmslhlipd thead, #qmmslhlipd tbody, #qmmslhlipd tfoot, #qmmslhlipd tr, #qmmslhlipd td, #qmmslhlipd th {
+#hvlmmcflht thead, #hvlmmcflht tbody, #hvlmmcflht tfoot, #hvlmmcflht tr, #hvlmmcflht td, #hvlmmcflht th {
 border-style: none;
 }
-#qmmslhlipd p {
+#hvlmmcflht p {
 margin: 0;
 padding: 0;
 }
-#qmmslhlipd .gt_table {
+#hvlmmcflht .gt_table {
 display: table;
 border-collapse: collapse;
 line-height: normal;
@@ -2500,11 +2446,11 @@ border-left-style: none;
 border-left-width: 2px;
 border-left-color: #D3D3D3;
 }
-#qmmslhlipd .gt_caption {
+#hvlmmcflht .gt_caption {
 padding-top: 4px;
 padding-bottom: 4px;
 }
-#qmmslhlipd .gt_title {
+#hvlmmcflht .gt_title {
 color: #333333;
 font-size: 125%;
 font-weight: initial;
@@ -2515,7 +2461,7 @@ padding-right: 5px;
 border-bottom-color: #FFFFFF;
 border-bottom-width: 0;
 }
-#qmmslhlipd .gt_subtitle {
+#hvlmmcflht .gt_subtitle {
 color: #333333;
 font-size: 85%;
 font-weight: initial;
@@ -2526,7 +2472,7 @@ padding-right: 5px;
 border-top-color: #FFFFFF;
 border-top-width: 0;
 }
-#qmmslhlipd .gt_heading {
+#hvlmmcflht .gt_heading {
 background-color: #FFFFFF;
 text-align: center;
 border-bottom-color: #FFFFFF;
@@ -2537,12 +2483,12 @@ border-right-style: none;
 border-right-width: 1px;
 border-right-color: #D3D3D3;
 }
-#qmmslhlipd .gt_bottom_border {
+#hvlmmcflht .gt_bottom_border {
 border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#qmmslhlipd .gt_col_headings {
+#hvlmmcflht .gt_col_headings {
 border-top-style: solid;
 border-top-width: 2px;
 border-top-color: #D3D3D3;
@@ -2556,7 +2502,7 @@ border-right-style: none;
 border-right-width: 1px;
 border-right-color: #D3D3D3;
 }
-#qmmslhlipd .gt_col_heading {
+#hvlmmcflht .gt_col_heading {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -2575,7 +2521,7 @@ padding-left: 5px;
 padding-right: 5px;
 overflow-x: hidden;
 }
-#qmmslhlipd .gt_column_spanner_outer {
+#hvlmmcflht .gt_column_spanner_outer {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -2586,13 +2532,13 @@ padding-bottom: 0;
 padding-left: 4px;
 padding-right: 4px;
 }
-#qmmslhlipd .gt_column_spanner_outer:first-child {
+#hvlmmcflht .gt_column_spanner_outer:first-child {
 padding-left: 0;
 }
-#qmmslhlipd .gt_column_spanner_outer:last-child {
+#hvlmmcflht .gt_column_spanner_outer:last-child {
 padding-right: 0;
 }
-#qmmslhlipd .gt_column_spanner {
+#hvlmmcflht .gt_column_spanner {
 border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
@@ -2603,10 +2549,10 @@ overflow-x: hidden;
 display: inline-block;
 width: 100%;
 }
-#qmmslhlipd .gt_spanner_row {
+#hvlmmcflht .gt_spanner_row {
 border-bottom-style: hidden;
 }
-#qmmslhlipd .gt_group_heading {
+#hvlmmcflht .gt_group_heading {
 padding-top: 1px;
 padding-bottom: 1px;
 padding-left: 5px;
@@ -2631,7 +2577,7 @@ border-right-color: #D3D3D3;
 vertical-align: middle;
 text-align: left;
 }
-#qmmslhlipd .gt_empty_group_heading {
+#hvlmmcflht .gt_empty_group_heading {
 padding: 0.5px;
 color: #333333;
 background-color: #FFFFFF;
@@ -2645,13 +2591,13 @@ border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 vertical-align: middle;
 }
-#qmmslhlipd .gt_from_md > :first-child {
+#hvlmmcflht .gt_from_md > :first-child {
 margin-top: 0;
 }
-#qmmslhlipd .gt_from_md > :last-child {
+#hvlmmcflht .gt_from_md > :last-child {
 margin-bottom: 0;
 }
-#qmmslhlipd .gt_row {
+#hvlmmcflht .gt_row {
 padding-top: 1px;
 padding-bottom: 1px;
 padding-left: 5px;
@@ -2669,7 +2615,7 @@ border-right-color: #D3D3D3;
 vertical-align: middle;
 overflow-x: hidden;
 }
-#qmmslhlipd .gt_stub {
+#hvlmmcflht .gt_stub {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -2681,7 +2627,7 @@ border-right-color: #D3D3D3;
 padding-left: 5px;
 padding-right: 5px;
 }
-#qmmslhlipd .gt_stub_row_group {
+#hvlmmcflht .gt_stub_row_group {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -2694,13 +2640,13 @@ padding-left: 5px;
 padding-right: 5px;
 vertical-align: top;
 }
-#qmmslhlipd .gt_row_group_first td {
+#hvlmmcflht .gt_row_group_first td {
 border-top-width: 2px;
 }
-#qmmslhlipd .gt_row_group_first th {
+#hvlmmcflht .gt_row_group_first th {
 border-top-width: 2px;
 }
-#qmmslhlipd .gt_summary_row {
+#hvlmmcflht .gt_summary_row {
 color: #333333;
 background-color: #FFFFFF;
 text-transform: inherit;
@@ -2709,14 +2655,14 @@ padding-bottom: 1px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#qmmslhlipd .gt_first_summary_row {
+#hvlmmcflht .gt_first_summary_row {
 border-top-style: solid;
 border-top-color: #D3D3D3;
 }
-#qmmslhlipd .gt_first_summary_row.thick {
+#hvlmmcflht .gt_first_summary_row.thick {
 border-top-width: 2px;
 }
-#qmmslhlipd .gt_last_summary_row {
+#hvlmmcflht .gt_last_summary_row {
 padding-top: 1px;
 padding-bottom: 1px;
 padding-left: 5px;
@@ -2725,7 +2671,7 @@ border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#qmmslhlipd .gt_grand_summary_row {
+#hvlmmcflht .gt_grand_summary_row {
 color: #333333;
 background-color: #FFFFFF;
 text-transform: inherit;
@@ -2734,7 +2680,7 @@ padding-bottom: 1px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#qmmslhlipd .gt_first_grand_summary_row {
+#hvlmmcflht .gt_first_grand_summary_row {
 padding-top: 1px;
 padding-bottom: 1px;
 padding-left: 5px;
@@ -2743,7 +2689,7 @@ border-top-style: double;
 border-top-width: 6px;
 border-top-color: #D3D3D3;
 }
-#qmmslhlipd .gt_last_grand_summary_row_top {
+#hvlmmcflht .gt_last_grand_summary_row_top {
 padding-top: 1px;
 padding-bottom: 1px;
 padding-left: 5px;
@@ -2752,10 +2698,10 @@ border-bottom-style: double;
 border-bottom-width: 6px;
 border-bottom-color: #D3D3D3;
 }
-#qmmslhlipd .gt_striped {
+#hvlmmcflht .gt_striped {
 background-color: rgba(128, 128, 128, 0.05);
 }
-#qmmslhlipd .gt_table_body {
+#hvlmmcflht .gt_table_body {
 border-top-style: solid;
 border-top-width: 2px;
 border-top-color: #D3D3D3;
@@ -2763,7 +2709,7 @@ border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#qmmslhlipd .gt_footnotes {
+#hvlmmcflht .gt_footnotes {
 color: #333333;
 background-color: #FFFFFF;
 border-bottom-style: none;
@@ -2776,7 +2722,7 @@ border-right-style: none;
 border-right-width: 2px;
 border-right-color: #D3D3D3;
 }
-#qmmslhlipd .gt_footnote {
+#hvlmmcflht .gt_footnote {
 margin: 0px;
 font-size: 90%;
 padding-top: 1px;
@@ -2784,7 +2730,7 @@ padding-bottom: 1px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#qmmslhlipd .gt_sourcenotes {
+#hvlmmcflht .gt_sourcenotes {
 color: #333333;
 background-color: #FFFFFF;
 border-bottom-style: none;
@@ -2797,64 +2743,64 @@ border-right-style: none;
 border-right-width: 2px;
 border-right-color: #D3D3D3;
 }
-#qmmslhlipd .gt_sourcenote {
+#hvlmmcflht .gt_sourcenote {
 font-size: 90%;
 padding-top: 1px;
 padding-bottom: 1px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#qmmslhlipd .gt_left {
+#hvlmmcflht .gt_left {
 text-align: left;
 }
-#qmmslhlipd .gt_center {
+#hvlmmcflht .gt_center {
 text-align: center;
 }
-#qmmslhlipd .gt_right {
+#hvlmmcflht .gt_right {
 text-align: right;
 font-variant-numeric: tabular-nums;
 }
-#qmmslhlipd .gt_font_normal {
+#hvlmmcflht .gt_font_normal {
 font-weight: normal;
 }
-#qmmslhlipd .gt_font_bold {
+#hvlmmcflht .gt_font_bold {
 font-weight: bold;
 }
-#qmmslhlipd .gt_font_italic {
+#hvlmmcflht .gt_font_italic {
 font-style: italic;
 }
-#qmmslhlipd .gt_super {
+#hvlmmcflht .gt_super {
 font-size: 65%;
 }
-#qmmslhlipd .gt_footnote_marks {
+#hvlmmcflht .gt_footnote_marks {
 font-size: 75%;
 vertical-align: 0.4em;
 position: initial;
 }
-#qmmslhlipd .gt_asterisk {
+#hvlmmcflht .gt_asterisk {
 font-size: 100%;
 vertical-align: 0;
 }
-#qmmslhlipd .gt_indent_1 {
+#hvlmmcflht .gt_indent_1 {
 text-indent: 5px;
 }
-#qmmslhlipd .gt_indent_2 {
+#hvlmmcflht .gt_indent_2 {
 text-indent: 10px;
 }
-#qmmslhlipd .gt_indent_3 {
+#hvlmmcflht .gt_indent_3 {
 text-indent: 15px;
 }
-#qmmslhlipd .gt_indent_4 {
+#hvlmmcflht .gt_indent_4 {
 text-indent: 20px;
 }
-#qmmslhlipd .gt_indent_5 {
+#hvlmmcflht .gt_indent_5 {
 text-indent: 25px;
 }
-#qmmslhlipd .katex-display {
+#hvlmmcflht .katex-display {
 display: inline-flex !important;
 margin-bottom: 0.75em !important;
 }
-#qmmslhlipd div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#hvlmmcflht div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
 height: 0px !important;
 }
 </style>
@@ -2878,7 +2824,7 @@ N = 79</th>
 N = 39</th>
 <th id="stat_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>Dolutegravir (DTG)</strong><br>
 N = 40</th>
-<th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>SMD</strong></th>
+<th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>SMD</strong><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
 </tr>
 </thead>
 <tbody class="gt_table_body">
@@ -2888,8 +2834,7 @@ N = 40</th>
 <td class="gt_row gt_center" headers="stat_0">40 (31, 48)</td>
 <td class="gt_row gt_center" headers="stat_1">41 (34, 47)</td>
 <td class="gt_row gt_center" headers="stat_2">38 (30, 49)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
+<td class="gt_row gt_center" headers="estimate">0.27</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">Gender, n (%)</td>
@@ -2900,8 +2845,7 @@ N = 40</th>
 </td>
 <td class="gt_row gt_center" headers="stat_2"><br>
 </td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
+<td class="gt_row gt_center" headers="estimate">0.06</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">    Female</td>
@@ -2932,8 +2876,7 @@ N = 40</th>
 </td>
 <td class="gt_row gt_center" headers="stat_2"><br>
 </td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
+<td class="gt_row gt_center" headers="estimate">0.51</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Asian</td>
@@ -3004,8 +2947,7 @@ N = 40</th>
 </td>
 <td class="gt_row gt_center" headers="stat_2"><br>
 </td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
+<td class="gt_row gt_center" headers="estimate">0.29</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">    HTS</td>
@@ -3046,8 +2988,7 @@ N = 40</th>
 </td>
 <td class="gt_row gt_center" headers="stat_2"><br>
 </td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
+<td class="gt_row gt_center" headers="estimate">0.47</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">    01</td>
@@ -3115,8 +3056,7 @@ N = 40</th>
 <td class="gt_row gt_center" headers="stat_0">22.1 (20.1, 24.4)</td>
 <td class="gt_row gt_center" headers="stat_1">22.1 (19.7, 24.4)</td>
 <td class="gt_row gt_center" headers="stat_2">22.1 (21.0, 24.4)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
+<td class="gt_row gt_center" headers="estimate">-0.16</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Unknown</td>
@@ -3137,8 +3077,7 @@ N = 40</th>
 </td>
 <td class="gt_row gt_center" headers="stat_2"><br>
 </td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
+<td class="gt_row gt_center" headers="estimate">0.12</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Healthy weight (18.5-24.9)</td>
@@ -3186,8 +3125,7 @@ N = 40</th>
 <td class="gt_row gt_center" headers="stat_0">33 (13, 67)</td>
 <td class="gt_row gt_center" headers="stat_1">23 (8, 42)</td>
 <td class="gt_row gt_center" headers="stat_2">41 (18, 75)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
+<td class="gt_row gt_center" headers="estimate">-0.58</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">CD4+ T cell count nadir (cells/mm³), Median (Q1, Q3)</td>
@@ -3195,8 +3133,7 @@ N = 40</th>
 <td class="gt_row gt_center" headers="stat_0">35 (13, 60)</td>
 <td class="gt_row gt_center" headers="stat_1">30 (10, 50)</td>
 <td class="gt_row gt_center" headers="stat_2">38 (19, 67)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
+<td class="gt_row gt_center" headers="estimate">-0.56</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">CD8+ T cells (cells/mm³), Median (Q1, Q3)</td>
@@ -3204,8 +3141,7 @@ N = 40</th>
 <td class="gt_row gt_center" headers="stat_0">582 (342, 853)</td>
 <td class="gt_row gt_center" headers="stat_1">554 (234, 750)</td>
 <td class="gt_row gt_center" headers="stat_2">636 (404, 884)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
+<td class="gt_row gt_center" headers="estimate">-0.14</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">CD4+ CD38+ HLA-DR+ T cells (cells/mm³), Median (Q1, Q3)</td>
@@ -3213,8 +3149,7 @@ N = 40</th>
 <td class="gt_row gt_center" headers="stat_0">28 (15, 36)</td>
 <td class="gt_row gt_center" headers="stat_1">28 (17, 36)</td>
 <td class="gt_row gt_center" headers="stat_2">27 (15, 39)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
+<td class="gt_row gt_center" headers="estimate">0.07</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">CD8+ CD38+ HLA-DR+ T cells (cells/mm³), Median (Q1, Q3)</td>
@@ -3222,8 +3157,7 @@ N = 40</th>
 <td class="gt_row gt_center" headers="stat_0">44 (31, 55)</td>
 <td class="gt_row gt_center" headers="stat_1">41 (31, 54)</td>
 <td class="gt_row gt_center" headers="stat_2">47 (32, 60)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
+<td class="gt_row gt_center" headers="estimate">-0.23</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">IL-6 (pg/mL), Median (Q1, Q3)</td>
@@ -3231,8 +3165,7 @@ N = 40</th>
 <td class="gt_row gt_center" headers="stat_0">19 (10, 32)</td>
 <td class="gt_row gt_center" headers="stat_1">16 (8, 26)</td>
 <td class="gt_row gt_center" headers="stat_2">20 (11, 44)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
+<td class="gt_row gt_center" headers="estimate">-0.31</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Unknown</td>
@@ -3250,8 +3183,7 @@ N = 40</th>
 <td class="gt_row gt_center" headers="stat_0">16 (13, 21)</td>
 <td class="gt_row gt_center" headers="stat_1">15 (13, 18)</td>
 <td class="gt_row gt_center" headers="stat_2">18 (16, 24)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
+<td class="gt_row gt_center" headers="estimate">-0.29</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">sCD14 (pg/mL), Median (Q1, Q3)</td>
@@ -3259,8 +3191,7 @@ N = 40</th>
 <td class="gt_row gt_center" headers="stat_0">2,708 (2,156, 3,624)</td>
 <td class="gt_row gt_center" headers="stat_1">2,788 (2,156, 3,776)</td>
 <td class="gt_row gt_center" headers="stat_2">2,706 (2,078, 3,550)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
+<td class="gt_row gt_center" headers="estimate">0.07</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">CRP (mg/L), Median (Q1, Q3)</td>
@@ -3268,8 +3199,7 @@ N = 40</th>
 <td class="gt_row gt_center" headers="stat_0">0.22 (0.11, 0.77)</td>
 <td class="gt_row gt_center" headers="stat_1">0.26 (0.12, 0.83)</td>
 <td class="gt_row gt_center" headers="stat_2">0.20 (0.10, 0.68)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
+<td class="gt_row gt_center" headers="estimate">-0.40</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">HIV viral load (copies/mL), Median (Q1, Q3)</td>
@@ -3277,8 +3207,7 @@ N = 40</th>
 <td class="gt_row gt_center" headers="stat_0">366,000 (98,197, 1,399,754)</td>
 <td class="gt_row gt_center" headers="stat_1">373,348 (132,573, 1,399,754)</td>
 <td class="gt_row gt_center" headers="stat_2">345,066 (71,844, 1,631,869)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
+<td class="gt_row gt_center" headers="estimate">-0.03</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">CMV viral load (copies/mL), Median (Q1, Q3)</td>
@@ -3286,8 +3215,7 @@ N = 40</th>
 <td class="gt_row gt_center" headers="stat_0">35 (0, 155)</td>
 <td class="gt_row gt_center" headers="stat_1">35 (0, 140)</td>
 <td class="gt_row gt_center" headers="stat_2">35 (0, 178)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
+<td class="gt_row gt_center" headers="estimate">-0.41</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">CMV status, n (%)</td>
@@ -3298,8 +3226,7 @@ N = 40</th>
 </td>
 <td class="gt_row gt_center" headers="stat_2"><br>
 </td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
+<td class="gt_row gt_center" headers="estimate">0.19</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">    Negative</td>
@@ -3327,8 +3254,7 @@ N = 40</th>
 <td class="gt_row gt_center" headers="stat_0">756,557 (618,951, 931,126)</td>
 <td class="gt_row gt_center" headers="stat_1">748,385 (613,626, 950,184)</td>
 <td class="gt_row gt_center" headers="stat_2">776,668 (638,678, 926,433)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
+<td class="gt_row gt_center" headers="estimate">-0.07</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Unknown</td>
@@ -3340,30 +3266,195 @@ N = 40</th>
 <td class="gt_row gt_center" headers="estimate"><br>
 </td>
 </tr>
-</tbody>
+</tbody><tfoot>
+<tr class="gt_footnotes odd">
+<td colspan="6" class="gt_footnote"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> Standardized Mean Difference</td>
+</tr>
+</tfoot>
+
 </table>
 
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># save table</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>summary_tbl <span class="ot">&lt;-</span> gtsummary<span class="sc">::</span><span class="fu">as_gt</span>(tbl1)</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>gt<span class="sc">::</span><span class="fu">gtsave</span>(</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> summary_tbl,</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(out_dir, <span class="st">&quot;baseline_table.html&quot;</span>)</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># save table</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>summary_tbl <span class="ot">&lt;-</span> gtsummary<span class="sc">::</span><span class="fu">as_gt</span>(tbl1)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>gt<span class="sc">::</span><span class="fu">gtsave</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> summary_tbl,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(out_dir, <span class="st">&quot;baseline_table.html&quot;</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<section id="export-source-data" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="export-source-data"><span class="header-section-number">5.1</span> Export Source Data</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>tbl1<span class="sc">$</span>table_body <span class="sc">%&gt;%</span> readr<span class="sc">::</span><span class="fu">write_tsv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;source_data&quot;</span>, <span class="st">&quot;table_1.tsv&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
 </section>
 <section id="export-as-pdf" class="level2" data-number="6">
 <h2 data-number="6" class="anchored" data-anchor-id="export-as-pdf"><span class="header-section-number">6</span> Export as PDF</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>gt<span class="sc">::</span><span class="fu">gtsave</span>(</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> summary_tbl,</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(out_dir, <span class="st">&quot;baseline_table.pdf&quot;</span>)</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>gt<span class="sc">::</span><span class="fu">gtsave</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> summary_tbl,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(out_dir, <span class="st">&quot;baseline_table.pdf&quot;</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>file:////tmp/RtmpcZbPd8/file2cf549afeaa2.html screenshot completed</code></pre>
+<pre><code>file:////var/folders/42/sq7zl_nj51v5nd_f9b0yh_j40000gp/T//Rtmp4ej5Zk/file141962121d967.html screenshot completed</code></pre>
 </div>
 </div>
+</section>
+<section id="appendix" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="appendix"><span class="header-section-number">7</span> Appendix</h2>
+<section id="session-info" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="session-info"><span class="header-section-number">7.1</span> Session Info</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">session_info</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>─ Session info ───────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.5.2 (2025-10-31)
+ os       macOS Sequoia 15.7.3
+ system   aarch64, darwin20
+ ui       X11
+ language (EN)
+ collate  en_US.UTF-8
+ ctype    en_US.UTF-8
+ tz       Europe/Madrid
+ date     2026-01-23
+ pandoc   3.6.3 @ /Applications/Positron.app/Contents/Resources/app/quarto/bin/tools/aarch64/ (via rmarkdown)
+ quarto   1.8.26 @ /Applications/quarto/bin/quarto
+
+─ Packages ───────────────────────────────────────────────────────────────────
+ ! package                  * version date (UTC) lib source
+ P abind                      1.4-8   2024-09-12 [?] CRAN (R 4.5.0)
+ P ape                        5.8-1   2024-12-16 [?] CRAN (R 4.5.0)
+ P base64enc                  0.1-3   2015-07-28 [?] RSPM (R 4.5.0)
+ P Biobase                  * 2.70.0  2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P BiocGenerics             * 0.56.0  2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P BiocManager                1.30.27 2025-11-14 [?] RSPM
+ P BiocParallel               1.44.0  2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P Biostrings                 2.78.0  2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P bit                        4.6.0   2025-03-06 [?] RSPM (R 4.5.0)
+ P bit64                      4.6.0-1 2025-01-16 [?] RSPM (R 4.5.0)
+ P cachem                     1.1.0   2024-05-16 [?] RSPM (R 4.5.0)
+ P cards                      0.7.1   2025-12-02 [?] RSPM
+ P cardx                      0.3.1   2025-12-04 [?] RSPM
+   chromote                   0.5.1   2025-04-24 [1] RSPM (R 4.5.0)
+ P cli                        3.6.5   2025-04-23 [?] RSPM (R 4.5.0)
+ P codetools                  0.2-20  2024-03-31 [?] CRAN (R 4.5.2)
+ P commonmark                 2.0.0   2025-07-07 [?] CRAN (R 4.5.0)
+ P crayon                     1.5.3   2024-06-20 [?] RSPM (R 4.5.0)
+ P data.table                 1.17.8  2025-07-10 [?] CRAN (R 4.5.0)
+ P DelayedArray               0.36.0  2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P devtools                   2.4.6   2025-10-03 [?] RSPM (R 4.5.0)
+   digest                     0.6.39  2025-11-19 [1] RSPM
+ P dplyr                    * 1.1.4   2023-11-17 [?] CRAN (R 4.5.0)
+ P ellipsis                   0.3.2   2021-04-29 [?] RSPM (R 4.5.0)
+ P evaluate                   1.0.5   2025-08-27 [?] RSPM (R 4.5.0)
+ P fansi                      1.0.7   2025-11-19 [?] RSPM (R 4.5.0)
+ P farver                     2.1.2   2024-05-13 [?] CRAN (R 4.5.0)
+ P fastmap                    1.2.0   2024-05-15 [?] RSPM (R 4.5.0)
+ P fs                         1.6.6   2025-04-12 [?] RSPM (R 4.5.0)
+ P generics                 * 0.1.4   2025-05-09 [?] CRAN (R 4.5.0)
+ P GenomicRanges            * 1.62.1  2025-12-08 [?] Bioconductor 3.22 (R 4.5.2)
+ P ggplot2                  * 4.0.1   2025-11-14 [?] CRAN (R 4.5.2)
+ P glue                       1.8.0   2024-09-30 [?] RSPM (R 4.5.0)
+ P gt                         1.2.0   2025-12-16 [?] RSPM
+ P gtable                     0.3.6   2024-10-25 [?] CRAN (R 4.5.0)
+ P gtsummary                * 2.5.0   2025-12-05 [?] RSPM
+ P here                       1.0.2   2025-09-15 [?] CRAN (R 4.5.0)
+ P hms                        1.1.4   2025-10-17 [?] CRAN (R 4.5.0)
+ P htmltools                  0.5.9   2025-12-04 [?] RSPM (R 4.5.0)
+ P htmlwidgets                1.6.4   2023-12-06 [?] CRAN (R 4.5.0)
+ P httr                       1.4.7   2023-08-15 [?] CRAN (R 4.5.0)
+ P IRanges                  * 2.44.0  2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P jsonlite                   2.0.0   2025-03-27 [?] RSPM (R 4.5.0)
+ P knitr                      1.50    2025-03-16 [?] RSPM (R 4.5.0)
+ P later                      1.4.4   2025-08-27 [?] CRAN (R 4.5.0)
+ P lattice                    0.22-7  2025-04-02 [?] CRAN (R 4.5.2)
+ P lazyeval                   0.2.2   2019-03-15 [?] CRAN (R 4.5.0)
+ P lifecycle                  1.0.4   2023-11-07 [?] RSPM (R 4.5.0)
+ P litedown                   0.9     2025-12-18 [?] RSPM (R 4.5.0)
+   magrittr                 * 2.0.4   2025-09-12 [1] CRAN (R 4.5.0)
+ P markdown                   2.0     2025-03-23 [?] CRAN (R 4.5.0)
+ P MASS                       7.3-65  2025-02-28 [?] CRAN (R 4.5.2)
+ P Matrix                     1.7-4   2025-08-28 [?] CRAN (R 4.5.2)
+ P MatrixGenerics           * 1.22.0  2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P matrixStats              * 1.5.0   2025-01-07 [?] CRAN (R 4.5.0)
+ P memoise                    2.0.1   2021-11-26 [?] RSPM (R 4.5.0)
+ P nlme                       3.1-168 2025-03-31 [?] CRAN (R 4.5.2)
+ P otel                       0.2.0   2025-08-29 [?] CRAN (R 4.5.0)
+ P pillar                     1.11.1  2025-09-17 [?] RSPM (R 4.5.0)
+ P pkgbuild                   1.4.8   2025-05-26 [?] RSPM (R 4.5.0)
+ P pkgconfig                  2.0.3   2019-09-22 [?] RSPM (R 4.5.0)
+ P pkgload                    1.4.1   2025-09-23 [?] RSPM (R 4.5.0)
+ P plotly                     4.11.0  2025-06-19 [?] CRAN (R 4.5.0)
+ P processx                   3.8.6   2025-02-21 [?] RSPM (R 4.5.0)
+ P promises                   1.5.0   2025-11-01 [?] CRAN (R 4.5.0)
+ P ps                         1.9.1   2025-04-12 [?] RSPM (R 4.5.0)
+   purrr                      1.2.1   2026-01-09 [1] CRAN (R 4.5.2)
+ P R6                         2.6.1   2025-02-15 [?] RSPM (R 4.5.0)
+ P rappdirs                   0.3.3   2021-01-31 [?] RSPM (R 4.5.0)
+ P RColorBrewer               1.1-3   2022-04-03 [?] CRAN (R 4.5.0)
+ P Rcpp                       1.1.0   2025-07-02 [?] CRAN (R 4.5.0)
+ P readr                      2.1.6   2025-11-14 [?] CRAN (R 4.5.2)
+ P remotes                    2.5.0   2024-03-17 [?] RSPM (R 4.5.0)
+   renv                       1.1.5   2025-07-24 [1] RSPM (R 4.5.0)
+ P rlang                      1.1.6   2025-04-11 [?] RSPM (R 4.5.0)
+ P rmarkdown                  2.30    2025-09-28 [?] RSPM (R 4.5.0)
+ P rprojroot                  2.1.1   2025-08-26 [?] RSPM (R 4.5.0)
+ P S4Arrays                   1.10.1  2025-12-08 [?] Bioconductor 3.22 (R 4.5.2)
+ P S4Vectors                * 0.48.0  2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P S7                         0.2.1   2025-11-14 [?] CRAN (R 4.5.2)
+ P sass                       0.4.10  2025-04-11 [?] RSPM (R 4.5.0)
+ P scales                     1.4.0   2025-04-24 [?] CRAN (R 4.5.0)
+ P Seqinfo                  * 1.0.0   2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P sessioninfo                1.2.3   2025-02-05 [?] RSPM (R 4.5.0)
+ P SingleCellExperiment     * 1.32.0  2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+   smd                        0.8.0   2025-02-12 [1] RSPM
+ P SparseArray                1.10.6  2025-12-08 [?] Bioconductor 3.22 (R 4.5.2)
+ P stringi                    1.8.7   2025-03-27 [?] RSPM (R 4.5.0)
+ P stringr                    1.6.0   2025-11-04 [?] RSPM (R 4.5.0)
+ P SummarizedExperiment     * 1.40.0  2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P tibble                     3.3.0   2025-06-08 [?] RSPM (R 4.5.0)
+ P tidyr                    * 1.3.1   2024-01-24 [?] CRAN (R 4.5.0)
+ P tidyselect                 1.2.1   2024-03-11 [?] CRAN (R 4.5.0)
+ P tidySingleCellExperiment * 1.20.1  2025-11-10 [?] Bioconductor 3.22 (R 4.5.1)
+ P tidytree                   0.4.6   2023-12-12 [?] CRAN (R 4.5.0)
+ P treeio                     1.34.0  2025-10-30 [?] Bioconductor 3.22 (R 4.5.1)
+ P TreeSummarizedExperiment   2.18.0  2025-10-30 [?] Bioconductor 3.22 (R 4.5.1)
+ P ttservice                * 0.5.3   2025-07-10 [?] RSPM (R 4.5.0)
+ P tzdb                       0.5.0   2025-03-15 [?] CRAN (R 4.5.0)
+ P usethis                    3.2.1   2025-09-06 [?] RSPM (R 4.5.0)
+ P vctrs                      0.6.5   2023-12-01 [?] RSPM (R 4.5.0)
+ P viridisLite                0.4.2   2023-05-02 [?] CRAN (R 4.5.0)
+ P vroom                      1.6.7   2025-11-28 [?] CRAN (R 4.5.2)
+   webshot2                   0.1.2   2025-04-23 [1] RSPM (R 4.5.0)
+   websocket                  1.4.4   2025-04-10 [1] RSPM (R 4.5.0)
+ P withr                      3.0.2   2024-10-28 [?] RSPM (R 4.5.0)
+ P xfun                       0.55    2025-12-16 [?] RSPM (R 4.5.0)
+ P xml2                       1.5.1   2025-12-01 [?] RSPM (R 4.5.0)
+ P XVector                    0.50.0  2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P yaml                       2.3.12  2025-12-10 [?] RSPM (R 4.5.0)
+ P yulab.utils                0.2.3   2025-12-15 [?] CRAN (R 4.5.2)
+
+ [1] /Users/fcatala/GitHub/fcatala_advanz4/renv/library/macos/R-4.5/aarch64-apple-darwin20
+ [2] /Users/fcatala/Library/Caches/org.R-project.R/R/renv/sandbox/macos/R-4.5/aarch64-apple-darwin20/4cd76b74
+
+ * ── Packages attached to the search path.
+ P ── Loaded and on-disk path mismatch.
+
+──────────────────────────────────────────────────────────────────────────────</code></pre>
+</div>
+</div>
+</section>
+<section id="contact" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="contact"><span class="header-section-number">7.2</span> Contact</h3>
+<ul>
+<li><strong>Analysis Lead:</strong> Francesc Català-Moll</li>
+<li><strong>Email:</strong> fcatala@irsicaixa.es</li>
+<li><strong>Institution:</strong> GEM - IrsiCaixa</li>
+</ul>
+</section>
 </section>
 
 </main>

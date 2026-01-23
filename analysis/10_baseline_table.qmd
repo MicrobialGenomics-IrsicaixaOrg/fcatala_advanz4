@@ -150,6 +150,12 @@ gt::gtsave(
 )
 ```
 
+### Export Source Data
+
+```{r}
+tbl1$table_body %>% readr::write_tsv(here::here("data", "source_data", "table_1.tsv"))
+```
+
 ## Export as PDF
 
 ```{r}
@@ -158,3 +164,18 @@ gt::gtsave(
   filename = here::here(out_dir, "baseline_table.pdf")
 )
 ```
+
+
+## Appendix
+
+### Session Info
+
+```{r}
+devtools::session_info()
+```
+
+### Contact
+
+- **Analysis Lead:** Francesc Català-Moll
+- **Email:** fcatala@irsicaixa.es
+- **Institution:** GEM - IrsiCaixa
