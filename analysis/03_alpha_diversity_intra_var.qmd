@@ -235,7 +235,6 @@ tidyplots::save_plot(
 )
 
 p_slope_sd
-
 ```
 
 ```{r}
@@ -259,9 +258,17 @@ tidyplots::save_plot(
   view_plot = FALSE
 )
 p_vr_slopes
-
 ```
 
+### Export Source Data
+
+```{r}
+slope_var_summary %>% 
+  readr::write_tsv(here::here("data", "source_data", "sup_fig_3A_slope_variability.tsv"))
+
+vr_boot_slopes %>% 
+  readr::write_tsv(here::here("data", "source_data", "sup_fig_3A_slope_variance_ratio.tsv"))
+```
 
 ## Appendix
 
