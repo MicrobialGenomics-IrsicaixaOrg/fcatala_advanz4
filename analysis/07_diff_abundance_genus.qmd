@@ -177,6 +177,13 @@ forest_plt <-
 forest_plt
 ```
 
+### Export Source Data
+
+```{r}
+forest_plt$data %>% 
+  readr::write_tsv(here::here("data", "source_data", "sup_fig_5A_forest.tsv"))
+```
+
 ## Effect Heatamap
 
 ```{r}
@@ -254,6 +261,13 @@ ComplexHeatmap::draw(
 )
 ```
 
+### Export Source Data
+
+```{r}
+mat %>% 
+  data.frame() %>% 
+  readr::write_tsv(here::here("data", "source_data", "sup_fig_5A_heatmap.tsv"))
+```
 
 ### Export Results as Tables
 
@@ -413,6 +427,12 @@ tidyplots::save_plot(
 plt
 ```
 
+### Export Source Data
+
+```{r}
+plt_df %>% 
+  readr::write_tsv(here::here("data", "source_data", "sup_fig_5B_rmcorr.tsv"))
+```
 
 ## Appendix
 
