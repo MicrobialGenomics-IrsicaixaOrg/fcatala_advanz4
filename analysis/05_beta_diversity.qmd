@@ -238,6 +238,14 @@ names(plt_list) %>%
 
 :::
 
+### Export Source Data
+
+```{r}
+plt_list %>% 
+  purrr::map_dfr(~ .x[1]$data) %>% 
+  readr::write_tsv(here::here("data", "source_data", "fig_3A_nmds.tsv"))
+```
+
 ## Centroid Distances Computation and Plot - wilcox
 
 ```{r}
@@ -452,6 +460,16 @@ plt_list <-
 plt_list
 ```
 
+### Export Source Data
+
+```{r}
+plt_list$centroid_dist[[1]]$data %>% 
+  readr::write_tsv(here::here("data", "source_data", "fig_3C_centorid_dist_longitudinal.tsv"))
+
+plt_list$centroid_dist[[2]]$data %>% 
+  readr::write_tsv(here::here("data", "source_data", "fig_3C_centorid_dist_group.tsv"))
+```
+
 ## Correlation with Centroid Distance 
 
 ### Define Cytokines and Markers
@@ -644,6 +662,15 @@ tidyplots::save_plot(
 
 r_plt
 ```
+
+### Export Source Data
+
+```{r}
+plt_df %>%
+  dplyr::mutate(lab = stringr::str_replace(metric, "_", " ") %>% stringr::str_to_sentence()) %>% 
+  readr::write_tsv(here::here("data", "source_data", "sup_fig_4B_rmcorr.tsv"))
+```
+
 
 ## Correlation with Centroid Distance by Treatment
 
@@ -838,6 +865,13 @@ tidyplots::save_plot(
 )
 
 plt
+```
+
+### Export Source Data
+
+```{r}
+plt_df %>%
+  readr::write_tsv(here::here("data", "source_data", "fig_3F_rmcorr_treatment.tsv"))
 ```
 
 ## Scatter Correlations
@@ -1085,6 +1119,18 @@ names(plt_list) %>%
 
 :::
 
+### Export Source Data
+
+```{r}
+names(plt_list) %>% 
+  purrr::map_dfr(~ {
+    plt_list[[.x]]$data %>% 
+      dplyr::rename(marker_value = !!dplyr::sym(.x)) %>% 
+      dplyr::mutate(marker_name = .x, .before = marker_value)
+  }) %>% 
+    readr::write_tsv(here::here("data", "source_data", "sup_fig_4C_rmcorr.tsv"))
+```
+
 ### Repeated Measures Correlation Coefficient - by Treatment
 
 ```{r}
@@ -1161,6 +1207,18 @@ names(plt_list) %>%
 
 :::
 
+### Export Source Data
+
+```{r}
+names(plt_list) %>% 
+  purrr::map_dfr(~ {
+    plt_list[[.x]]$data %>% 
+      dplyr::rename(marker_value = !!dplyr::sym(.x)) %>% 
+      dplyr::mutate(marker_name = .x, .before = marker_value)
+  }) %>% 
+    readr::write_tsv(here::here("data", "source_data", "fig_3G_rmcorr_treatment.tsv"))
+```
+
 ## Compute Premanova
 
 ```{r}
@@ -1199,6 +1257,13 @@ gt::gtsave(permanova_tbl, here::here(out_dir, "permanova_results.pdf"))
 
 # view
 permanova_tbl
+```
+
+### Export Source Data
+
+```{r}
+permanova_tbl$`_data` %>% 
+  readr::write_tsv(here::here("data", "source_data", "fig_3B_permanova.tsv"))
 ```
 
 ## Abundance Barplot Composition
@@ -1329,6 +1394,16 @@ ggsave(
 
 # plot
 combined_plot
+```
+
+### Export Source Data
+
+```{r}
+p1$data %>% 
+  readr::write_tsv(here::here("data", "source_data", "sup_fig_4A_gene_richness.tsv"))
+
+p3$data %>% 
+  readr::write_tsv(here::here("data", "source_data", "sup_fig_4A_rel_abundance.tsv"))
 ```
 
 ## Appendix
