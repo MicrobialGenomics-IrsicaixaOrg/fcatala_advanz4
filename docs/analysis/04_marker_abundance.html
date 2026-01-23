@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Francesc Català-Moll">
-<meta name="dcterms.date" content="2025-12-19">
+<meta name="dcterms.date" content="2026-01-23">
 
 <title>04 - Marker Abundance Temporal Evolution</title>
 <style>
@@ -2215,9 +2215,13 @@ vertical-align: -.125em;
   <li><a href="#define-cytokines-and-markers" id="toc-define-cytokines-and-markers" class="nav-link" data-scroll-target="#define-cytokines-and-markers"><span class="header-section-number">4</span> Define Cytokines and Markers</a></li>
   <li><a href="#plot-global-evolution" id="toc-plot-global-evolution" class="nav-link" data-scroll-target="#plot-global-evolution"><span class="header-section-number">5</span> Plot Global Evolution</a>
   <ul class="collapse">
-  <li><a href="#plot-zooms" id="toc-plot-zooms" class="nav-link" data-scroll-target="#plot-zooms"><span class="header-section-number">5.1</span> Plot Zooms</a></li>
+  <li><a href="#export-source-data" id="toc-export-source-data" class="nav-link" data-scroll-target="#export-source-data"><span class="header-section-number">5.1</span> Export Source Data</a></li>
+  <li><a href="#plot-zooms" id="toc-plot-zooms" class="nav-link" data-scroll-target="#plot-zooms"><span class="header-section-number">5.2</span> Plot Zooms</a></li>
   </ul></li>
-  <li><a href="#plot-lmm-ratios" id="toc-plot-lmm-ratios" class="nav-link" data-scroll-target="#plot-lmm-ratios"><span class="header-section-number">6</span> Plot LMM Ratios</a></li>
+  <li><a href="#plot-lmm-ratios" id="toc-plot-lmm-ratios" class="nav-link" data-scroll-target="#plot-lmm-ratios"><span class="header-section-number">6</span> Plot LMM Ratios</a>
+  <ul class="collapse">
+  <li><a href="#export-source-data-1" id="toc-export-source-data-1" class="nav-link" data-scroll-target="#export-source-data-1"><span class="header-section-number">6.1</span> Export Source Data</a></li>
+  </ul></li>
   <li><a href="#plot" id="toc-plot" class="nav-link" data-scroll-target="#plot"><span class="header-section-number">7</span> Plot</a></li>
   <li><a href="#appendix" id="toc-appendix" class="nav-link" data-scroll-target="#appendix"><span class="header-section-number">8</span> Appendix</a>
   <ul class="collapse">
@@ -2248,14 +2252,14 @@ vertical-align: -.125em;
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">December 19, 2025</p>
+      <p class="date">January 23, 2026</p>
     </div>
   </div>
   
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">December 19, 2025</p>
+      <p class="date-modified">January 23, 2026</p>
     </div>
   </div>
     
@@ -2462,40 +2466,56 @@ colTree: NULL</code></pre>
 </div>
 </div>
 </div>
-<section id="plot-zooms" class="level3" data-number="5.1">
-<h3 data-number="5.1" class="anchored" data-anchor-id="plot-zooms"><span class="header-section-number">5.1</span> Plot Zooms</h3>
+<section id="export-source-data" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="export-source-data"><span class="header-section-number">5.1</span> Export Source Data</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>plt_list <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">CRP =</span> plt_list[[<span class="st">&quot;CRP&quot;</span>]] <span class="sc">%&gt;%</span> tidyplots<span class="sc">::</span><span class="fu">add</span>(ggforce<span class="sc">::</span><span class="fu">facet_zoom</span>(<span class="at">y =</span> CRP <span class="sc">&lt;</span> <span class="dv">2</span>)), </span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">IL6 =</span> plt_list[[<span class="st">&quot;IL-6&quot;</span>]] <span class="sc">%&gt;%</span> tidyplots<span class="sc">::</span><span class="fu">add</span>(ggforce<span class="sc">::</span><span class="fu">facet_zoom</span>(<span class="at">y =</span> <span class="st">`</span><span class="at">IL-6</span><span class="st">`</span> <span class="sc">&lt;</span> <span class="dv">60</span>)), </span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">HIV_VL =</span> plt_list[[<span class="st">&quot;HIV viral load&quot;</span>]] <span class="sc">%&gt;%</span> tidyplots<span class="sc">::</span><span class="fu">add</span>(ggforce<span class="sc">::</span><span class="fu">facet_zoom</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">500</span>))), </span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">TNFa =</span> plt_list[[<span class="st">&quot;TNF-a&quot;</span>]] <span class="sc">%&gt;%</span> tidyplots<span class="sc">::</span><span class="fu">add</span>(ggforce<span class="sc">::</span><span class="fu">facet_zoom</span>(<span class="at">y =</span> <span class="st">`</span><span class="at">TNF-a</span><span class="st">`</span> <span class="sc">&lt;</span> <span class="dv">30</span>)), </span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">CD4 =</span> plt_list[[<span class="st">&quot;CD4+ T cells&quot;</span>]] <span class="sc">%&gt;%</span> tidyplots<span class="sc">::</span><span class="fu">add</span>(ggforce<span class="sc">::</span><span class="fu">facet_zoom</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">350</span>)))</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(plt_list) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">walk</span>(<span class="sc">~</span> {</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    plt_list[[.x]] <span class="sc">%&gt;%</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>      tidyplots<span class="sc">::</span><span class="fu">adjust_size</span>(<span class="at">width =</span> <span class="dv">70</span>, <span class="at">height =</span> <span class="dv">40</span>, <span class="at">unit =</span> <span class="st">&quot;mm&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>      tidyplots<span class="sc">::</span><span class="fu">save_plot</span>(</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>        here<span class="sc">::</span><span class="fu">here</span>(out_dir, glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">&quot;zoom_temp_abundance_{.x}.pdf&quot;</span>)),</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">view_plot =</span> <span class="cn">FALSE</span></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>plt_df <span class="sc">%&gt;%</span> </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    SampleID, </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    record_id, </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    time_point, </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    treatment, </span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">all_of</span>(all_markers<span class="sc">$</span>marker)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    readr<span class="sc">::</span><span class="fu">write_tsv</span>(</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>      here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;source_data&quot;</span>, <span class="st">&quot;sup_fig_1ABC_marker_abundance.tsv&quot;</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="plot-zooms" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="plot-zooms"><span class="header-section-number">5.2</span> Plot Zooms</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>plt_list <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">CRP =</span> plt_list[[<span class="st">&quot;CRP&quot;</span>]] <span class="sc">%&gt;%</span> tidyplots<span class="sc">::</span><span class="fu">add</span>(ggforce<span class="sc">::</span><span class="fu">facet_zoom</span>(<span class="at">y =</span> CRP <span class="sc">&lt;</span> <span class="dv">2</span>)), </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">IL6 =</span> plt_list[[<span class="st">&quot;IL-6&quot;</span>]] <span class="sc">%&gt;%</span> tidyplots<span class="sc">::</span><span class="fu">add</span>(ggforce<span class="sc">::</span><span class="fu">facet_zoom</span>(<span class="at">y =</span> <span class="st">`</span><span class="at">IL-6</span><span class="st">`</span> <span class="sc">&lt;</span> <span class="dv">60</span>)), </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">HIV_VL =</span> plt_list[[<span class="st">&quot;HIV viral load&quot;</span>]] <span class="sc">%&gt;%</span> tidyplots<span class="sc">::</span><span class="fu">add</span>(ggforce<span class="sc">::</span><span class="fu">facet_zoom</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">500</span>))), </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">TNFa =</span> plt_list[[<span class="st">&quot;TNF-a&quot;</span>]] <span class="sc">%&gt;%</span> tidyplots<span class="sc">::</span><span class="fu">add</span>(ggforce<span class="sc">::</span><span class="fu">facet_zoom</span>(<span class="at">y =</span> <span class="st">`</span><span class="at">TNF-a</span><span class="st">`</span> <span class="sc">&lt;</span> <span class="dv">30</span>)), </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">CD4 =</span> plt_list[[<span class="st">&quot;CD4+ T cells&quot;</span>]] <span class="sc">%&gt;%</span> tidyplots<span class="sc">::</span><span class="fu">add</span>(ggforce<span class="sc">::</span><span class="fu">facet_zoom</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">350</span>)))</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(plt_list) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">walk</span>(<span class="sc">~</span> {</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    plt_list[[.x]] <span class="sc">%&gt;%</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>      tidyplots<span class="sc">::</span><span class="fu">adjust_size</span>(<span class="at">width =</span> <span class="dv">70</span>, <span class="at">height =</span> <span class="dv">40</span>, <span class="at">unit =</span> <span class="st">&quot;mm&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>      tidyplots<span class="sc">::</span><span class="fu">save_plot</span>(</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>        here<span class="sc">::</span><span class="fu">here</span>(out_dir, glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">&quot;zoom_temp_abundance_{.x}.pdf&quot;</span>)),</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">view_plot =</span> <span class="cn">FALSE</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>✔ save_plot: saved to &#39;/Users/fcatala/Documents/GitHub/fcatala_advanz4/data/04_marker_abundance/zoom_temp_abundance_CRP.pdf&#39;</code></pre>
+<pre><code>✔ save_plot: saved to &#39;/Users/fcatala/GitHub/fcatala_advanz4/data/04_marker_abundance/zoom_temp_abundance_CRP.pdf&#39;</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>✔ save_plot: saved to &#39;/Users/fcatala/Documents/GitHub/fcatala_advanz4/data/04_marker_abundance/zoom_temp_abundance_IL6.pdf&#39;</code></pre>
+<pre><code>✔ save_plot: saved to &#39;/Users/fcatala/GitHub/fcatala_advanz4/data/04_marker_abundance/zoom_temp_abundance_IL6.pdf&#39;</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>✔ save_plot: saved to &#39;/Users/fcatala/Documents/GitHub/fcatala_advanz4/data/04_marker_abundance/zoom_temp_abundance_HIV_VL.pdf&#39;</code></pre>
+<pre><code>✔ save_plot: saved to &#39;/Users/fcatala/GitHub/fcatala_advanz4/data/04_marker_abundance/zoom_temp_abundance_HIV_VL.pdf&#39;</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>✔ save_plot: saved to &#39;/Users/fcatala/Documents/GitHub/fcatala_advanz4/data/04_marker_abundance/zoom_temp_abundance_TNFa.pdf&#39;</code></pre>
+<pre><code>✔ save_plot: saved to &#39;/Users/fcatala/GitHub/fcatala_advanz4/data/04_marker_abundance/zoom_temp_abundance_TNFa.pdf&#39;</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>✔ save_plot: saved to &#39;/Users/fcatala/Documents/GitHub/fcatala_advanz4/data/04_marker_abundance/zoom_temp_abundance_CD4.pdf&#39;</code></pre>
+<pre><code>✔ save_plot: saved to &#39;/Users/fcatala/GitHub/fcatala_advanz4/data/04_marker_abundance/zoom_temp_abundance_CD4.pdf&#39;</code></pre>
 </div>
 </div>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
@@ -2523,173 +2543,183 @@ colTree: NULL</code></pre>
 <section id="plot-lmm-ratios" class="level2" data-number="6">
 <h2 data-number="6" class="anchored" data-anchor-id="plot-lmm-ratios"><span class="header-section-number">6</span> Plot LMM Ratios</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>plt_list <span class="ot">&lt;-</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  all_markers<span class="sc">$</span>marker[<span class="sc">-</span><span class="dv">3</span>] <span class="sc">%&gt;%</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">set_names</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">map</span>(</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="sc">~</span> {</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>      .marker <span class="ot">&lt;-</span> rlang<span class="sc">::</span><span class="fu">sym</span>(.x)</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>      baseline_tp <span class="ot">=</span> <span class="st">&quot;0&quot;</span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>      <span class="co"># prepare data</span></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>      plt_df <span class="ot">&lt;-</span></span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>        plt_df <span class="sc">%&gt;%</span></span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">select</span>(dplyr<span class="sc">::</span><span class="fu">all_of</span>(<span class="fu">c</span>(confounders, .x))) <span class="sc">%&gt;%</span></span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">arrange</span>(record_id, time_point) <span class="sc">%&gt;%</span></span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>        tidyr<span class="sc">::</span><span class="fu">drop_na</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>          dplyr<span class="sc">::</span><span class="fu">across</span>(dplyr<span class="sc">::</span><span class="fu">where</span>(is.character), as.factor),</span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>          <span class="at">treatment =</span> <span class="fu">factor</span>(treatment, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;DRV/r&quot;</span>, <span class="st">&quot;DTG&quot;</span>)),</span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>          <span class="at">time_point =</span> <span class="fu">factor</span>(time_point),</span>
-<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>          <span class="at">ly =</span> <span class="fu">log2</span>(<span class="sc">!!</span>dplyr<span class="sc">::</span><span class="fu">sym</span>(.x) <span class="sc">+</span> <span class="fl">1e-6</span>)</span>
-<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>      <span class="co"># contrasts</span></span>
-<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>      tp_levels <span class="ot">&lt;-</span> <span class="fu">levels</span>(plt_df<span class="sc">$</span>time_point)</span>
-<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>      contr_list <span class="ot">&lt;-</span> <span class="fu">setNames</span>(</span>
-<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>        <span class="fu">lapply</span>(tp_levels[tp_levels <span class="sc">!=</span> baseline_tp], <span class="cf">function</span>(tp) {</span>
-<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>          w <span class="ot">&lt;-</span> <span class="fu">setNames</span>(<span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">length</span>(tp_levels)), tp_levels)</span>
-<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>          w[tp] <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>          w[baseline_tp] <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">1</span></span>
-<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>          w</span>
-<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>        }),</span>
-<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>        <span class="fu">paste0</span>(tp_levels[tp_levels <span class="sc">!=</span> baseline_tp], <span class="st">&quot; - &quot;</span>, baseline_tp)</span>
-<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>      <span class="co"># lmm</span></span>
-<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>      lmm_res <span class="ot">&lt;-</span></span>
-<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>        stats<span class="sc">::</span><span class="fu">as.formula</span>(mod_formula) <span class="sc">%&gt;%</span></span>
-<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>        lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="at">data =</span> plt_df)</span>
-<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>      <span class="co"># emmeans: changes vs basal inside each treatment</span></span>
-<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a>      lon_contrast_df <span class="ot">&lt;-</span></span>
-<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a>        lmm_res <span class="sc">%&gt;%</span></span>
-<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a>        emmeans<span class="sc">::</span><span class="fu">emmeans</span>(<span class="sc">~</span> time_point <span class="sc">|</span> treatment) <span class="sc">%&gt;%</span></span>
-<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a>        emmeans<span class="sc">::</span><span class="fu">contrast</span>(contr_list, <span class="at">adjust =</span> <span class="st">&quot;fdr&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a>        broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(<span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
-<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a>          <span class="at">contrast_clean =</span> stringr<span class="sc">::</span><span class="fu">str_remove_all</span>(contrast, <span class="st">&quot;time_point&quot;</span>),</span>
-<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a>          <span class="at">time_point =</span> readr<span class="sc">::</span><span class="fu">parse_number</span>(contrast_clean) <span class="sc">%&gt;%</span></span>
-<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a>            <span class="fu">as.character</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a>            <span class="fu">as.factor</span>()</span>
-<span id="cb15-50"><a href="#cb15-50" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-52"><a href="#cb15-52" aria-hidden="true" tabindex="-1"></a>      <span class="co"># stub de basal a 0 sin IC</span></span>
-<span id="cb15-53"><a href="#cb15-53" aria-hidden="true" tabindex="-1"></a>      baseline_stub <span class="ot">&lt;-</span></span>
-<span id="cb15-54"><a href="#cb15-54" aria-hidden="true" tabindex="-1"></a>        emmeans<span class="sc">::</span><span class="fu">emmeans</span>(lmm_res, <span class="sc">~</span> time_point <span class="sc">|</span> treatment) <span class="sc">%&gt;%</span></span>
-<span id="cb15-55"><a href="#cb15-55" aria-hidden="true" tabindex="-1"></a>        broom.mixed<span class="sc">::</span><span class="fu">tidy</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb15-56"><a href="#cb15-56" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">filter</span>(time_point <span class="sc">==</span> baseline_tp) <span class="sc">%&gt;%</span></span>
-<span id="cb15-57"><a href="#cb15-57" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">transmute</span>(</span>
-<span id="cb15-58"><a href="#cb15-58" aria-hidden="true" tabindex="-1"></a>          treatment,</span>
-<span id="cb15-59"><a href="#cb15-59" aria-hidden="true" tabindex="-1"></a>          <span class="at">estimate =</span> <span class="dv">0</span>,</span>
-<span id="cb15-60"><a href="#cb15-60" aria-hidden="true" tabindex="-1"></a>          <span class="at">conf.low =</span> <span class="dv">0</span>,</span>
-<span id="cb15-61"><a href="#cb15-61" aria-hidden="true" tabindex="-1"></a>          <span class="at">conf.high =</span> <span class="dv">0</span>,</span>
-<span id="cb15-62"><a href="#cb15-62" aria-hidden="true" tabindex="-1"></a>          <span class="at">adj.p.value =</span> <span class="cn">NA_real_</span>,</span>
-<span id="cb15-63"><a href="#cb15-63" aria-hidden="true" tabindex="-1"></a>          <span class="at">time_point =</span> baseline_tp</span>
-<span id="cb15-64"><a href="#cb15-64" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb15-65"><a href="#cb15-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-66"><a href="#cb15-66" aria-hidden="true" tabindex="-1"></a>      lon_contrast_df <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(baseline_stub, lon_contrast_df)</span>
-<span id="cb15-67"><a href="#cb15-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-68"><a href="#cb15-68" aria-hidden="true" tabindex="-1"></a>      <span class="co"># emmeand by group</span></span>
-<span id="cb15-69"><a href="#cb15-69" aria-hidden="true" tabindex="-1"></a>      group_contrast_df <span class="ot">&lt;-</span></span>
-<span id="cb15-70"><a href="#cb15-70" aria-hidden="true" tabindex="-1"></a>        lmm_res <span class="sc">%&gt;%</span></span>
-<span id="cb15-71"><a href="#cb15-71" aria-hidden="true" tabindex="-1"></a>        emmeans<span class="sc">::</span><span class="fu">emmeans</span>(<span class="sc">~</span> treatment <span class="sc">|</span> time_point) <span class="sc">%&gt;%</span></span>
-<span id="cb15-72"><a href="#cb15-72" aria-hidden="true" tabindex="-1"></a>        emmeans<span class="sc">::</span><span class="fu">contrast</span>(<span class="at">method =</span> <span class="st">&quot;revpairwise&quot;</span>, <span class="at">adjust =</span> <span class="st">&quot;fdr&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb15-73"><a href="#cb15-73" aria-hidden="true" tabindex="-1"></a>        broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(<span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb15-74"><a href="#cb15-74" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">p.adj.global =</span> <span class="fu">p.adjust</span>(p.value, <span class="at">method =</span> <span class="st">&quot;fdr&quot;</span>))</span>
-<span id="cb15-75"><a href="#cb15-75" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-76"><a href="#cb15-76" aria-hidden="true" tabindex="-1"></a>      <span class="co"># forest plot by group</span></span>
-<span id="cb15-77"><a href="#cb15-77" aria-hidden="true" tabindex="-1"></a>      forest_plt_group <span class="ot">&lt;-</span></span>
-<span id="cb15-78"><a href="#cb15-78" aria-hidden="true" tabindex="-1"></a>        group_contrast_df <span class="sc">%&gt;%</span></span>
-<span id="cb15-79"><a href="#cb15-79" aria-hidden="true" tabindex="-1"></a>        rstatix<span class="sc">::</span><span class="fu">add_significance</span>(<span class="at">p.col =</span> <span class="st">&quot;p.adj.global&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb15-80"><a href="#cb15-80" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">tidyplot</span>(<span class="at">x =</span> estimate, <span class="at">y =</span> time_point) <span class="sc">%&gt;%</span></span>
-<span id="cb15-81"><a href="#cb15-81" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">add</span>(<span class="fu">geom_pointrange</span>(</span>
-<span id="cb15-82"><a href="#cb15-82" aria-hidden="true" tabindex="-1"></a>          <span class="fu">aes</span>(<span class="at">xmin =</span> conf.low, <span class="at">xmax =</span> conf.high),</span>
-<span id="cb15-83"><a href="#cb15-83" aria-hidden="true" tabindex="-1"></a>          <span class="at">alpha =</span> <span class="fl">0.8</span>,</span>
-<span id="cb15-84"><a href="#cb15-84" aria-hidden="true" tabindex="-1"></a>          <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.6</span>),</span>
-<span id="cb15-85"><a href="#cb15-85" aria-hidden="true" tabindex="-1"></a>          <span class="at">size =</span> <span class="dv">2</span> <span class="sc">/</span> ggplot2<span class="sc">::</span>.pt,</span>
-<span id="cb15-86"><a href="#cb15-86" aria-hidden="true" tabindex="-1"></a>          <span class="at">colour =</span> <span class="st">&quot;#252525&quot;</span></span>
-<span id="cb15-87"><a href="#cb15-87" aria-hidden="true" tabindex="-1"></a>        )) <span class="sc">%&gt;%</span></span>
-<span id="cb15-88"><a href="#cb15-88" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">add_reference_lines</span>(<span class="at">x =</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb15-89"><a href="#cb15-89" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">add</span>(<span class="fu">geom_text</span>(</span>
-<span id="cb15-90"><a href="#cb15-90" aria-hidden="true" tabindex="-1"></a>          <span class="fu">aes</span>(</span>
-<span id="cb15-91"><a href="#cb15-91" aria-hidden="true" tabindex="-1"></a>            <span class="at">x =</span> conf.high <span class="sc">*</span> <span class="fl">1.2</span>,</span>
-<span id="cb15-92"><a href="#cb15-92" aria-hidden="true" tabindex="-1"></a>            <span class="at">label =</span> dplyr<span class="sc">::</span><span class="fu">if_else</span>(</span>
-<span id="cb15-93"><a href="#cb15-93" aria-hidden="true" tabindex="-1"></a>              p.adj.global.signif <span class="sc">!=</span> <span class="st">&quot;ns&quot;</span>,</span>
-<span id="cb15-94"><a href="#cb15-94" aria-hidden="true" tabindex="-1"></a>              p.adj.global.signif,</span>
-<span id="cb15-95"><a href="#cb15-95" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;&quot;</span></span>
-<span id="cb15-96"><a href="#cb15-96" aria-hidden="true" tabindex="-1"></a>            )</span>
-<span id="cb15-97"><a href="#cb15-97" aria-hidden="true" tabindex="-1"></a>          ),</span>
-<span id="cb15-98"><a href="#cb15-98" aria-hidden="true" tabindex="-1"></a>          <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.6</span>),</span>
-<span id="cb15-99"><a href="#cb15-99" aria-hidden="true" tabindex="-1"></a>          <span class="at">size =</span> <span class="dv">7</span>,</span>
-<span id="cb15-100"><a href="#cb15-100" aria-hidden="true" tabindex="-1"></a>          <span class="at">hjust =</span> <span class="dv">0</span>,</span>
-<span id="cb15-101"><a href="#cb15-101" aria-hidden="true" tabindex="-1"></a>          <span class="at">colour =</span> <span class="st">&quot;black&quot;</span></span>
-<span id="cb15-102"><a href="#cb15-102" aria-hidden="true" tabindex="-1"></a>        )) <span class="sc">%&gt;%</span></span>
-<span id="cb15-103"><a href="#cb15-103" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">add</span>(<span class="fu">expand_limits</span>(</span>
-<span id="cb15-104"><a href="#cb15-104" aria-hidden="true" tabindex="-1"></a>          <span class="at">x =</span> <span class="fu">max</span>(group_contrast_df<span class="sc">$</span>conf.high, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">*</span> <span class="fl">1.25</span></span>
-<span id="cb15-105"><a href="#cb15-105" aria-hidden="true" tabindex="-1"></a>        )) <span class="sc">%&gt;%</span></span>
-<span id="cb15-106"><a href="#cb15-106" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">adjust_x_axis_title</span>(glue<span class="sc">::</span><span class="fu">glue</span>(</span>
-<span id="cb15-107"><a href="#cb15-107" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot;Δ log2({.x}) (DTG - DRV/r)&quot;</span></span>
-<span id="cb15-108"><a href="#cb15-108" aria-hidden="true" tabindex="-1"></a>        )) <span class="sc">%&gt;%</span></span>
-<span id="cb15-109"><a href="#cb15-109" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">adjust_y_axis_title</span>(<span class="st">&quot;Time point (weeks)&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb15-110"><a href="#cb15-110" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">adjust_size</span>(<span class="dv">75</span>, <span class="dv">75</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb15-111"><a href="#cb15-111" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">adjust_font</span>(<span class="dv">8</span>)</span>
-<span id="cb15-112"><a href="#cb15-112" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-113"><a href="#cb15-113" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Trajectory plot</span></span>
-<span id="cb15-114"><a href="#cb15-114" aria-hidden="true" tabindex="-1"></a>      traj_plt <span class="ot">&lt;-</span></span>
-<span id="cb15-115"><a href="#cb15-115" aria-hidden="true" tabindex="-1"></a>        lon_contrast_df <span class="sc">%&gt;%</span></span>
-<span id="cb15-116"><a href="#cb15-116" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">tidyplot</span>(</span>
-<span id="cb15-117"><a href="#cb15-117" aria-hidden="true" tabindex="-1"></a>          <span class="at">x =</span> time_point,</span>
-<span id="cb15-118"><a href="#cb15-118" aria-hidden="true" tabindex="-1"></a>          <span class="at">y =</span> estimate,</span>
-<span id="cb15-119"><a href="#cb15-119" aria-hidden="true" tabindex="-1"></a>          <span class="at">colour =</span> treatment,</span>
-<span id="cb15-120"><a href="#cb15-120" aria-hidden="true" tabindex="-1"></a>          <span class="at">group =</span> treatment</span>
-<span id="cb15-121"><a href="#cb15-121" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">%&gt;%</span></span>
-<span id="cb15-122"><a href="#cb15-122" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">add</span>(<span class="fu">geom_pointrange</span>(</span>
-<span id="cb15-123"><a href="#cb15-123" aria-hidden="true" tabindex="-1"></a>          <span class="fu">aes</span>(<span class="at">ymin =</span> conf.low, <span class="at">ymax =</span> conf.high),</span>
-<span id="cb15-124"><a href="#cb15-124" aria-hidden="true" tabindex="-1"></a>          <span class="at">alpha =</span> <span class="fl">0.8</span>,</span>
-<span id="cb15-125"><a href="#cb15-125" aria-hidden="true" tabindex="-1"></a>          <span class="at">size =</span> <span class="dv">2</span> <span class="sc">/</span> ggplot2<span class="sc">::</span>.pt,</span>
-<span id="cb15-126"><a href="#cb15-126" aria-hidden="true" tabindex="-1"></a>          <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="dv">1</span> <span class="sc">/</span> ggplot2<span class="sc">::</span>.pt)</span>
-<span id="cb15-127"><a href="#cb15-127" aria-hidden="true" tabindex="-1"></a>        )) <span class="sc">%&gt;%</span></span>
-<span id="cb15-128"><a href="#cb15-128" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">add_line</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb15-129"><a href="#cb15-129" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">add_reference_lines</span>(<span class="at">y =</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb15-130"><a href="#cb15-130" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">adjust_x_axis_title</span>(<span class="st">&quot;Time Point (weeks)&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb15-131"><a href="#cb15-131" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">adjust_y_axis_title</span>(glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">&quot;Δ log2({.x}) vs basal&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb15-132"><a href="#cb15-132" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">adjust_legend_title</span>(<span class="st">&quot;Treatment&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb15-133"><a href="#cb15-133" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">adjust_size</span>(<span class="dv">75</span>, <span class="dv">75</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb15-134"><a href="#cb15-134" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">adjust_font</span>(<span class="dv">8</span>)</span>
-<span id="cb15-135"><a href="#cb15-135" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-136"><a href="#cb15-136" aria-hidden="true" tabindex="-1"></a>      <span class="co"># plt list</span></span>
-<span id="cb15-137"><a href="#cb15-137" aria-hidden="true" tabindex="-1"></a>      plt_list <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">traj_plt =</span> traj_plt, <span class="at">forest_plt_group =</span> forest_plt_group)</span>
-<span id="cb15-138"><a href="#cb15-138" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-139"><a href="#cb15-139" aria-hidden="true" tabindex="-1"></a>      <span class="co"># save</span></span>
-<span id="cb15-140"><a href="#cb15-140" aria-hidden="true" tabindex="-1"></a>      showtext<span class="sc">::</span><span class="fu">showtext_auto</span>()</span>
-<span id="cb15-141"><a href="#cb15-141" aria-hidden="true" tabindex="-1"></a>      <span class="fu">names</span>(plt_list) <span class="sc">%&gt;%</span></span>
-<span id="cb15-142"><a href="#cb15-142" aria-hidden="true" tabindex="-1"></a>        purrr<span class="sc">::</span><span class="fu">walk</span>(</span>
-<span id="cb15-143"><a href="#cb15-143" aria-hidden="true" tabindex="-1"></a>          <span class="sc">~</span> {</span>
-<span id="cb15-144"><a href="#cb15-144" aria-hidden="true" tabindex="-1"></a>            plt_list[[.x]] <span class="sc">%&gt;%</span></span>
-<span id="cb15-145"><a href="#cb15-145" aria-hidden="true" tabindex="-1"></a>              tidyplots<span class="sc">::</span><span class="fu">adjust_size</span>(<span class="at">width =</span> <span class="dv">40</span>, <span class="at">height =</span> <span class="dv">40</span>, <span class="at">unit =</span> <span class="st">&quot;mm&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb15-146"><a href="#cb15-146" aria-hidden="true" tabindex="-1"></a>              tidyplots<span class="sc">::</span><span class="fu">adjust_font</span>(<span class="dv">7</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb15-147"><a href="#cb15-147" aria-hidden="true" tabindex="-1"></a>              tidyplots<span class="sc">::</span><span class="fu">save_plot</span>(</span>
-<span id="cb15-148"><a href="#cb15-148" aria-hidden="true" tabindex="-1"></a>                here<span class="sc">::</span><span class="fu">here</span>(out_dir, glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">&quot;lmm_{.x}_{.marker}.pdf&quot;</span>)),</span>
-<span id="cb15-149"><a href="#cb15-149" aria-hidden="true" tabindex="-1"></a>                <span class="at">view_plot =</span> <span class="cn">FALSE</span></span>
-<span id="cb15-150"><a href="#cb15-150" aria-hidden="true" tabindex="-1"></a>              )</span>
-<span id="cb15-151"><a href="#cb15-151" aria-hidden="true" tabindex="-1"></a>          }</span>
-<span id="cb15-152"><a href="#cb15-152" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb15-153"><a href="#cb15-153" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-154"><a href="#cb15-154" aria-hidden="true" tabindex="-1"></a>      <span class="fu">list</span>(</span>
-<span id="cb15-155"><a href="#cb15-155" aria-hidden="true" tabindex="-1"></a>        <span class="at">lon_stats =</span> lon_contrast_df <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">metric =</span> .x),</span>
-<span id="cb15-156"><a href="#cb15-156" aria-hidden="true" tabindex="-1"></a>        <span class="at">grp_stats =</span> group_contrast_df <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">metric =</span> .x),</span>
-<span id="cb15-157"><a href="#cb15-157" aria-hidden="true" tabindex="-1"></a>        <span class="at">plt =</span> <span class="fu">wrap_plots</span>(plt_list) <span class="sc">+</span> <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">&quot;collect&quot;</span>)</span>
-<span id="cb15-158"><a href="#cb15-158" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb15-159"><a href="#cb15-159" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb15-160"><a href="#cb15-160" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb15-161"><a href="#cb15-161" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-162"><a href="#cb15-162" aria-hidden="true" tabindex="-1"></a>lon_stats <span class="ot">&lt;-</span> plt_list <span class="sc">%&gt;%</span> purrr<span class="sc">::</span><span class="fu">map_dfr</span>(<span class="sc">~</span> { .x[[<span class="st">&quot;lon_stats&quot;</span>]] })</span>
-<span id="cb15-163"><a href="#cb15-163" aria-hidden="true" tabindex="-1"></a>grp_stats <span class="ot">&lt;-</span> plt_list <span class="sc">%&gt;%</span> purrr<span class="sc">::</span><span class="fu">map_dfr</span>(<span class="sc">~</span> { .x[[<span class="st">&quot;grp_stats&quot;</span>]] })</span>
-<span id="cb15-164"><a href="#cb15-164" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-165"><a href="#cb15-165" aria-hidden="true" tabindex="-1"></a>readr<span class="sc">::</span><span class="fu">write_csv</span>(lon_stats, here<span class="sc">::</span><span class="fu">here</span>(out_dir, <span class="st">&quot;lmm_longitudinal_stats.csv&quot;</span>))</span>
-<span id="cb15-166"><a href="#cb15-166" aria-hidden="true" tabindex="-1"></a>readr<span class="sc">::</span><span class="fu">write_csv</span>(grp_stats, here<span class="sc">::</span><span class="fu">here</span>(out_dir, <span class="st">&quot;lmm_group_stats.csv&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>plt_list <span class="ot">&lt;-</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  all_markers<span class="sc">$</span>marker[<span class="sc">-</span><span class="dv">3</span>] <span class="sc">%&gt;%</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">set_names</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">map</span>(</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="sc">~</span> {</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>      .marker <span class="ot">&lt;-</span> rlang<span class="sc">::</span><span class="fu">sym</span>(.x)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>      baseline_tp <span class="ot">=</span> <span class="st">&quot;0&quot;</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>      <span class="co"># prepare data</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>      plt_df <span class="ot">&lt;-</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>        plt_df <span class="sc">%&gt;%</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">select</span>(dplyr<span class="sc">::</span><span class="fu">all_of</span>(<span class="fu">c</span>(confounders, .x))) <span class="sc">%&gt;%</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">arrange</span>(record_id, time_point) <span class="sc">%&gt;%</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>        tidyr<span class="sc">::</span><span class="fu">drop_na</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>          dplyr<span class="sc">::</span><span class="fu">across</span>(dplyr<span class="sc">::</span><span class="fu">where</span>(is.character), as.factor),</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>          <span class="at">treatment =</span> <span class="fu">factor</span>(treatment, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;DRV/r&quot;</span>, <span class="st">&quot;DTG&quot;</span>)),</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>          <span class="at">time_point =</span> <span class="fu">factor</span>(time_point),</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>          <span class="at">ly =</span> <span class="fu">log2</span>(<span class="sc">!!</span>dplyr<span class="sc">::</span><span class="fu">sym</span>(.x) <span class="sc">+</span> <span class="fl">1e-6</span>)</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>      <span class="co"># contrasts</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>      tp_levels <span class="ot">&lt;-</span> <span class="fu">levels</span>(plt_df<span class="sc">$</span>time_point)</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>      contr_list <span class="ot">&lt;-</span> <span class="fu">setNames</span>(</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>        <span class="fu">lapply</span>(tp_levels[tp_levels <span class="sc">!=</span> baseline_tp], <span class="cf">function</span>(tp) {</span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>          w <span class="ot">&lt;-</span> <span class="fu">setNames</span>(<span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">length</span>(tp_levels)), tp_levels)</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>          w[tp] <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>          w[baseline_tp] <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">1</span></span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>          w</span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>        }),</span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>        <span class="fu">paste0</span>(tp_levels[tp_levels <span class="sc">!=</span> baseline_tp], <span class="st">&quot; - &quot;</span>, baseline_tp)</span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>      <span class="co"># lmm</span></span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>      lmm_res <span class="ot">&lt;-</span></span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>        stats<span class="sc">::</span><span class="fu">as.formula</span>(mod_formula) <span class="sc">%&gt;%</span></span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>        lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="at">data =</span> plt_df)</span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a>      <span class="co"># emmeans: changes vs basal inside each treatment</span></span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a>      lon_contrast_df <span class="ot">&lt;-</span></span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a>        lmm_res <span class="sc">%&gt;%</span></span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a>        emmeans<span class="sc">::</span><span class="fu">emmeans</span>(<span class="sc">~</span> time_point <span class="sc">|</span> treatment) <span class="sc">%&gt;%</span></span>
+<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a>        emmeans<span class="sc">::</span><span class="fu">contrast</span>(contr_list, <span class="at">adjust =</span> <span class="st">&quot;fdr&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a>        broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(<span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-45"><a href="#cb16-45" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb16-46"><a href="#cb16-46" aria-hidden="true" tabindex="-1"></a>          <span class="at">contrast_clean =</span> stringr<span class="sc">::</span><span class="fu">str_remove_all</span>(contrast, <span class="st">&quot;time_point&quot;</span>),</span>
+<span id="cb16-47"><a href="#cb16-47" aria-hidden="true" tabindex="-1"></a>          <span class="at">time_point =</span> readr<span class="sc">::</span><span class="fu">parse_number</span>(contrast_clean) <span class="sc">%&gt;%</span></span>
+<span id="cb16-48"><a href="#cb16-48" aria-hidden="true" tabindex="-1"></a>            <span class="fu">as.character</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb16-49"><a href="#cb16-49" aria-hidden="true" tabindex="-1"></a>            <span class="fu">as.factor</span>()</span>
+<span id="cb16-50"><a href="#cb16-50" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb16-51"><a href="#cb16-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-52"><a href="#cb16-52" aria-hidden="true" tabindex="-1"></a>      <span class="co"># stub de basal a 0 sin IC</span></span>
+<span id="cb16-53"><a href="#cb16-53" aria-hidden="true" tabindex="-1"></a>      baseline_stub <span class="ot">&lt;-</span></span>
+<span id="cb16-54"><a href="#cb16-54" aria-hidden="true" tabindex="-1"></a>        emmeans<span class="sc">::</span><span class="fu">emmeans</span>(lmm_res, <span class="sc">~</span> time_point <span class="sc">|</span> treatment) <span class="sc">%&gt;%</span></span>
+<span id="cb16-55"><a href="#cb16-55" aria-hidden="true" tabindex="-1"></a>        broom.mixed<span class="sc">::</span><span class="fu">tidy</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb16-56"><a href="#cb16-56" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">filter</span>(time_point <span class="sc">==</span> baseline_tp) <span class="sc">%&gt;%</span></span>
+<span id="cb16-57"><a href="#cb16-57" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">transmute</span>(</span>
+<span id="cb16-58"><a href="#cb16-58" aria-hidden="true" tabindex="-1"></a>          treatment,</span>
+<span id="cb16-59"><a href="#cb16-59" aria-hidden="true" tabindex="-1"></a>          <span class="at">estimate =</span> <span class="dv">0</span>,</span>
+<span id="cb16-60"><a href="#cb16-60" aria-hidden="true" tabindex="-1"></a>          <span class="at">conf.low =</span> <span class="dv">0</span>,</span>
+<span id="cb16-61"><a href="#cb16-61" aria-hidden="true" tabindex="-1"></a>          <span class="at">conf.high =</span> <span class="dv">0</span>,</span>
+<span id="cb16-62"><a href="#cb16-62" aria-hidden="true" tabindex="-1"></a>          <span class="at">adj.p.value =</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb16-63"><a href="#cb16-63" aria-hidden="true" tabindex="-1"></a>          <span class="at">time_point =</span> baseline_tp</span>
+<span id="cb16-64"><a href="#cb16-64" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb16-65"><a href="#cb16-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-66"><a href="#cb16-66" aria-hidden="true" tabindex="-1"></a>      lon_contrast_df <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(baseline_stub, lon_contrast_df)</span>
+<span id="cb16-67"><a href="#cb16-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-68"><a href="#cb16-68" aria-hidden="true" tabindex="-1"></a>      <span class="co"># emmeand by group</span></span>
+<span id="cb16-69"><a href="#cb16-69" aria-hidden="true" tabindex="-1"></a>      group_contrast_df <span class="ot">&lt;-</span></span>
+<span id="cb16-70"><a href="#cb16-70" aria-hidden="true" tabindex="-1"></a>        lmm_res <span class="sc">%&gt;%</span></span>
+<span id="cb16-71"><a href="#cb16-71" aria-hidden="true" tabindex="-1"></a>        emmeans<span class="sc">::</span><span class="fu">emmeans</span>(<span class="sc">~</span> treatment <span class="sc">|</span> time_point) <span class="sc">%&gt;%</span></span>
+<span id="cb16-72"><a href="#cb16-72" aria-hidden="true" tabindex="-1"></a>        emmeans<span class="sc">::</span><span class="fu">contrast</span>(<span class="at">method =</span> <span class="st">&quot;revpairwise&quot;</span>, <span class="at">adjust =</span> <span class="st">&quot;fdr&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-73"><a href="#cb16-73" aria-hidden="true" tabindex="-1"></a>        broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(<span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-74"><a href="#cb16-74" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">p.adj.global =</span> <span class="fu">p.adjust</span>(p.value, <span class="at">method =</span> <span class="st">&quot;fdr&quot;</span>))</span>
+<span id="cb16-75"><a href="#cb16-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-76"><a href="#cb16-76" aria-hidden="true" tabindex="-1"></a>      <span class="co"># forest plot by group</span></span>
+<span id="cb16-77"><a href="#cb16-77" aria-hidden="true" tabindex="-1"></a>      forest_plt_group <span class="ot">&lt;-</span></span>
+<span id="cb16-78"><a href="#cb16-78" aria-hidden="true" tabindex="-1"></a>        group_contrast_df <span class="sc">%&gt;%</span></span>
+<span id="cb16-79"><a href="#cb16-79" aria-hidden="true" tabindex="-1"></a>        rstatix<span class="sc">::</span><span class="fu">add_significance</span>(<span class="at">p.col =</span> <span class="st">&quot;p.adj.global&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-80"><a href="#cb16-80" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">tidyplot</span>(<span class="at">x =</span> estimate, <span class="at">y =</span> time_point) <span class="sc">%&gt;%</span></span>
+<span id="cb16-81"><a href="#cb16-81" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">add</span>(<span class="fu">geom_pointrange</span>(</span>
+<span id="cb16-82"><a href="#cb16-82" aria-hidden="true" tabindex="-1"></a>          <span class="fu">aes</span>(<span class="at">xmin =</span> conf.low, <span class="at">xmax =</span> conf.high),</span>
+<span id="cb16-83"><a href="#cb16-83" aria-hidden="true" tabindex="-1"></a>          <span class="at">alpha =</span> <span class="fl">0.8</span>,</span>
+<span id="cb16-84"><a href="#cb16-84" aria-hidden="true" tabindex="-1"></a>          <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.6</span>),</span>
+<span id="cb16-85"><a href="#cb16-85" aria-hidden="true" tabindex="-1"></a>          <span class="at">size =</span> <span class="dv">2</span> <span class="sc">/</span> ggplot2<span class="sc">::</span>.pt,</span>
+<span id="cb16-86"><a href="#cb16-86" aria-hidden="true" tabindex="-1"></a>          <span class="at">colour =</span> <span class="st">&quot;#252525&quot;</span></span>
+<span id="cb16-87"><a href="#cb16-87" aria-hidden="true" tabindex="-1"></a>        )) <span class="sc">%&gt;%</span></span>
+<span id="cb16-88"><a href="#cb16-88" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">add_reference_lines</span>(<span class="at">x =</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-89"><a href="#cb16-89" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">add</span>(<span class="fu">geom_text</span>(</span>
+<span id="cb16-90"><a href="#cb16-90" aria-hidden="true" tabindex="-1"></a>          <span class="fu">aes</span>(</span>
+<span id="cb16-91"><a href="#cb16-91" aria-hidden="true" tabindex="-1"></a>            <span class="at">x =</span> conf.high <span class="sc">*</span> <span class="fl">1.2</span>,</span>
+<span id="cb16-92"><a href="#cb16-92" aria-hidden="true" tabindex="-1"></a>            <span class="at">label =</span> dplyr<span class="sc">::</span><span class="fu">if_else</span>(</span>
+<span id="cb16-93"><a href="#cb16-93" aria-hidden="true" tabindex="-1"></a>              p.adj.global.signif <span class="sc">!=</span> <span class="st">&quot;ns&quot;</span>,</span>
+<span id="cb16-94"><a href="#cb16-94" aria-hidden="true" tabindex="-1"></a>              p.adj.global.signif,</span>
+<span id="cb16-95"><a href="#cb16-95" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;&quot;</span></span>
+<span id="cb16-96"><a href="#cb16-96" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb16-97"><a href="#cb16-97" aria-hidden="true" tabindex="-1"></a>          ),</span>
+<span id="cb16-98"><a href="#cb16-98" aria-hidden="true" tabindex="-1"></a>          <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.6</span>),</span>
+<span id="cb16-99"><a href="#cb16-99" aria-hidden="true" tabindex="-1"></a>          <span class="at">size =</span> <span class="dv">7</span>,</span>
+<span id="cb16-100"><a href="#cb16-100" aria-hidden="true" tabindex="-1"></a>          <span class="at">hjust =</span> <span class="dv">0</span>,</span>
+<span id="cb16-101"><a href="#cb16-101" aria-hidden="true" tabindex="-1"></a>          <span class="at">colour =</span> <span class="st">&quot;black&quot;</span></span>
+<span id="cb16-102"><a href="#cb16-102" aria-hidden="true" tabindex="-1"></a>        )) <span class="sc">%&gt;%</span></span>
+<span id="cb16-103"><a href="#cb16-103" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">add</span>(<span class="fu">expand_limits</span>(</span>
+<span id="cb16-104"><a href="#cb16-104" aria-hidden="true" tabindex="-1"></a>          <span class="at">x =</span> <span class="fu">max</span>(group_contrast_df<span class="sc">$</span>conf.high, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">*</span> <span class="fl">1.25</span></span>
+<span id="cb16-105"><a href="#cb16-105" aria-hidden="true" tabindex="-1"></a>        )) <span class="sc">%&gt;%</span></span>
+<span id="cb16-106"><a href="#cb16-106" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">adjust_x_axis_title</span>(glue<span class="sc">::</span><span class="fu">glue</span>(</span>
+<span id="cb16-107"><a href="#cb16-107" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot;Δ log2({.x}) (DTG - DRV/r)&quot;</span></span>
+<span id="cb16-108"><a href="#cb16-108" aria-hidden="true" tabindex="-1"></a>        )) <span class="sc">%&gt;%</span></span>
+<span id="cb16-109"><a href="#cb16-109" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">adjust_y_axis_title</span>(<span class="st">&quot;Time point (weeks)&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-110"><a href="#cb16-110" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">adjust_size</span>(<span class="dv">75</span>, <span class="dv">75</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-111"><a href="#cb16-111" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">adjust_font</span>(<span class="dv">8</span>)</span>
+<span id="cb16-112"><a href="#cb16-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-113"><a href="#cb16-113" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Trajectory plot</span></span>
+<span id="cb16-114"><a href="#cb16-114" aria-hidden="true" tabindex="-1"></a>      traj_plt <span class="ot">&lt;-</span></span>
+<span id="cb16-115"><a href="#cb16-115" aria-hidden="true" tabindex="-1"></a>        lon_contrast_df <span class="sc">%&gt;%</span></span>
+<span id="cb16-116"><a href="#cb16-116" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">tidyplot</span>(</span>
+<span id="cb16-117"><a href="#cb16-117" aria-hidden="true" tabindex="-1"></a>          <span class="at">x =</span> time_point,</span>
+<span id="cb16-118"><a href="#cb16-118" aria-hidden="true" tabindex="-1"></a>          <span class="at">y =</span> estimate,</span>
+<span id="cb16-119"><a href="#cb16-119" aria-hidden="true" tabindex="-1"></a>          <span class="at">colour =</span> treatment,</span>
+<span id="cb16-120"><a href="#cb16-120" aria-hidden="true" tabindex="-1"></a>          <span class="at">group =</span> treatment</span>
+<span id="cb16-121"><a href="#cb16-121" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">%&gt;%</span></span>
+<span id="cb16-122"><a href="#cb16-122" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">add</span>(<span class="fu">geom_pointrange</span>(</span>
+<span id="cb16-123"><a href="#cb16-123" aria-hidden="true" tabindex="-1"></a>          <span class="fu">aes</span>(<span class="at">ymin =</span> conf.low, <span class="at">ymax =</span> conf.high),</span>
+<span id="cb16-124"><a href="#cb16-124" aria-hidden="true" tabindex="-1"></a>          <span class="at">alpha =</span> <span class="fl">0.8</span>,</span>
+<span id="cb16-125"><a href="#cb16-125" aria-hidden="true" tabindex="-1"></a>          <span class="at">size =</span> <span class="dv">2</span> <span class="sc">/</span> ggplot2<span class="sc">::</span>.pt,</span>
+<span id="cb16-126"><a href="#cb16-126" aria-hidden="true" tabindex="-1"></a>          <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="dv">1</span> <span class="sc">/</span> ggplot2<span class="sc">::</span>.pt)</span>
+<span id="cb16-127"><a href="#cb16-127" aria-hidden="true" tabindex="-1"></a>        )) <span class="sc">%&gt;%</span></span>
+<span id="cb16-128"><a href="#cb16-128" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">add_line</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb16-129"><a href="#cb16-129" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">add_reference_lines</span>(<span class="at">y =</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-130"><a href="#cb16-130" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">adjust_x_axis_title</span>(<span class="st">&quot;Time Point (weeks)&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-131"><a href="#cb16-131" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">adjust_y_axis_title</span>(glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">&quot;Δ log2({.x}) vs basal&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb16-132"><a href="#cb16-132" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">adjust_legend_title</span>(<span class="st">&quot;Treatment&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-133"><a href="#cb16-133" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">adjust_size</span>(<span class="dv">75</span>, <span class="dv">75</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-134"><a href="#cb16-134" aria-hidden="true" tabindex="-1"></a>        tidyplots<span class="sc">::</span><span class="fu">adjust_font</span>(<span class="dv">8</span>)</span>
+<span id="cb16-135"><a href="#cb16-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-136"><a href="#cb16-136" aria-hidden="true" tabindex="-1"></a>      <span class="co"># plt list</span></span>
+<span id="cb16-137"><a href="#cb16-137" aria-hidden="true" tabindex="-1"></a>      plt_list <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">traj_plt =</span> traj_plt, <span class="at">forest_plt_group =</span> forest_plt_group)</span>
+<span id="cb16-138"><a href="#cb16-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-139"><a href="#cb16-139" aria-hidden="true" tabindex="-1"></a>      <span class="co"># save</span></span>
+<span id="cb16-140"><a href="#cb16-140" aria-hidden="true" tabindex="-1"></a>      showtext<span class="sc">::</span><span class="fu">showtext_auto</span>()</span>
+<span id="cb16-141"><a href="#cb16-141" aria-hidden="true" tabindex="-1"></a>      <span class="fu">names</span>(plt_list) <span class="sc">%&gt;%</span></span>
+<span id="cb16-142"><a href="#cb16-142" aria-hidden="true" tabindex="-1"></a>        purrr<span class="sc">::</span><span class="fu">walk</span>(</span>
+<span id="cb16-143"><a href="#cb16-143" aria-hidden="true" tabindex="-1"></a>          <span class="sc">~</span> {</span>
+<span id="cb16-144"><a href="#cb16-144" aria-hidden="true" tabindex="-1"></a>            plt_list[[.x]] <span class="sc">%&gt;%</span></span>
+<span id="cb16-145"><a href="#cb16-145" aria-hidden="true" tabindex="-1"></a>              tidyplots<span class="sc">::</span><span class="fu">adjust_size</span>(<span class="at">width =</span> <span class="dv">40</span>, <span class="at">height =</span> <span class="dv">40</span>, <span class="at">unit =</span> <span class="st">&quot;mm&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-146"><a href="#cb16-146" aria-hidden="true" tabindex="-1"></a>              tidyplots<span class="sc">::</span><span class="fu">adjust_font</span>(<span class="dv">7</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-147"><a href="#cb16-147" aria-hidden="true" tabindex="-1"></a>              tidyplots<span class="sc">::</span><span class="fu">save_plot</span>(</span>
+<span id="cb16-148"><a href="#cb16-148" aria-hidden="true" tabindex="-1"></a>                here<span class="sc">::</span><span class="fu">here</span>(out_dir, glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">&quot;lmm_{.x}_{.marker}.pdf&quot;</span>)),</span>
+<span id="cb16-149"><a href="#cb16-149" aria-hidden="true" tabindex="-1"></a>                <span class="at">view_plot =</span> <span class="cn">FALSE</span></span>
+<span id="cb16-150"><a href="#cb16-150" aria-hidden="true" tabindex="-1"></a>              )</span>
+<span id="cb16-151"><a href="#cb16-151" aria-hidden="true" tabindex="-1"></a>          }</span>
+<span id="cb16-152"><a href="#cb16-152" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb16-153"><a href="#cb16-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-154"><a href="#cb16-154" aria-hidden="true" tabindex="-1"></a>      <span class="fu">list</span>(</span>
+<span id="cb16-155"><a href="#cb16-155" aria-hidden="true" tabindex="-1"></a>        <span class="at">lon_stats =</span> lon_contrast_df <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">metric =</span> .x),</span>
+<span id="cb16-156"><a href="#cb16-156" aria-hidden="true" tabindex="-1"></a>        <span class="at">grp_stats =</span> group_contrast_df <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">metric =</span> .x),</span>
+<span id="cb16-157"><a href="#cb16-157" aria-hidden="true" tabindex="-1"></a>        <span class="at">plt =</span> <span class="fu">wrap_plots</span>(plt_list) <span class="sc">+</span> <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">&quot;collect&quot;</span>)</span>
+<span id="cb16-158"><a href="#cb16-158" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb16-159"><a href="#cb16-159" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb16-160"><a href="#cb16-160" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb16-161"><a href="#cb16-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-162"><a href="#cb16-162" aria-hidden="true" tabindex="-1"></a>lon_stats <span class="ot">&lt;-</span> plt_list <span class="sc">%&gt;%</span> purrr<span class="sc">::</span><span class="fu">map_dfr</span>(<span class="sc">~</span> { .x[[<span class="st">&quot;lon_stats&quot;</span>]] })</span>
+<span id="cb16-163"><a href="#cb16-163" aria-hidden="true" tabindex="-1"></a>grp_stats <span class="ot">&lt;-</span> plt_list <span class="sc">%&gt;%</span> purrr<span class="sc">::</span><span class="fu">map_dfr</span>(<span class="sc">~</span> { .x[[<span class="st">&quot;grp_stats&quot;</span>]] })</span>
+<span id="cb16-164"><a href="#cb16-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-165"><a href="#cb16-165" aria-hidden="true" tabindex="-1"></a>readr<span class="sc">::</span><span class="fu">write_csv</span>(lon_stats, here<span class="sc">::</span><span class="fu">here</span>(out_dir, <span class="st">&quot;lmm_longitudinal_stats.csv&quot;</span>))</span>
+<span id="cb16-166"><a href="#cb16-166" aria-hidden="true" tabindex="-1"></a>readr<span class="sc">::</span><span class="fu">write_csv</span>(grp_stats, here<span class="sc">::</span><span class="fu">here</span>(out_dir, <span class="st">&quot;lmm_group_stats.csv&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<section id="export-source-data-1" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="export-source-data-1"><span class="header-section-number">6.1</span> Export Source Data</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>lon_stats <span class="sc">%&gt;%</span> </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  readr<span class="sc">::</span><span class="fu">write_tsv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;source_data&quot;</span>, <span class="st">&quot;sup_fig_2ABC_longitudinal.tsv&quot;</span>))</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>grp_stats <span class="sc">%&gt;%</span> </span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  readr<span class="sc">::</span><span class="fu">write_tsv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;source_data&quot;</span>, <span class="st">&quot;sup_fig_2ABC_group.tsv&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
 </section>
 <section id="plot" class="level2" data-number="7">
 <h2 data-number="7" class="anchored" data-anchor-id="plot"><span class="header-section-number">7</span> Plot</h2>
@@ -2734,165 +2764,165 @@ colTree: NULL</code></pre>
 <section id="session-info" class="level3" data-number="8.1">
 <h3 data-number="8.1" class="anchored" data-anchor-id="session-info"><span class="header-section-number">8.1</span> Session Info</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">session_info</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">session_info</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>─ Session info ───────────────────────────────────────────────────────────────
  setting  value
  version  R version 4.5.2 (2025-10-31)
- os       macOS Sequoia 15.6
+ os       macOS Sequoia 15.7.3
  system   aarch64, darwin20
  ui       X11
  language (EN)
  collate  en_US.UTF-8
  ctype    en_US.UTF-8
  tz       Europe/Madrid
- date     2025-12-19
+ date     2026-01-23
  pandoc   3.6.3 @ /Applications/Positron.app/Contents/Resources/app/quarto/bin/tools/aarch64/ (via rmarkdown)
- quarto   1.8.26 @ /Users/fcatala/Applications/quarto/bin/quarto
+ quarto   1.8.26 @ /Applications/quarto/bin/quarto
 
 ─ Packages ───────────────────────────────────────────────────────────────────
  ! package                  * version    date (UTC) lib source
-   abind                      1.4-8      2024-09-12 [1] CRAN (R 4.5.0)
-   ape                        5.8-1      2024-12-16 [1] CRAN (R 4.5.0)
-   backports                  1.5.0      2024-05-23 [1] CRAN (R 4.5.0)
-   Biobase                  * 2.70.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   BiocGenerics             * 0.56.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
+ P abind                      1.4-8      2024-09-12 [?] CRAN (R 4.5.0)
+ P ape                        5.8-1      2024-12-16 [?] CRAN (R 4.5.0)
+ P backports                  1.5.0      2024-05-23 [?] CRAN (R 4.5.0)
+ P Biobase                  * 2.70.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P BiocGenerics             * 0.56.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
  P BiocManager                1.30.27    2025-11-14 [?] RSPM
-   BiocParallel               1.44.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   Biostrings                 2.78.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   bit                        4.6.0      2025-03-06 [1] CRAN (R 4.5.0)
-   bit64                      4.6.0-1    2025-01-16 [1] CRAN (R 4.5.0)
+ P BiocParallel               1.44.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P Biostrings                 2.78.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P bit                        4.6.0      2025-03-06 [?] RSPM (R 4.5.0)
+ P bit64                      4.6.0-1    2025-01-16 [?] RSPM (R 4.5.0)
  P boot                       1.3-32     2025-08-29 [?] CRAN (R 4.5.2)
  P broom                      1.0.11     2025-12-04 [?] RSPM
  P broom.mixed                0.2.9.6    2024-10-15 [?] RSPM
-   cachem                     1.1.0      2024-05-16 [1] RSPM
+ P cachem                     1.1.0      2024-05-16 [?] RSPM (R 4.5.0)
  P car                        3.1-3      2024-09-27 [?] RSPM
  P carData                    3.0-5      2022-01-06 [?] RSPM
-   cli                        3.6.5      2025-04-23 [1] RSPM
+ P cli                        3.6.5      2025-04-23 [?] RSPM (R 4.5.0)
  P coda                       0.19-4.1   2024-01-31 [?] RSPM
  P codetools                  0.2-20     2024-03-31 [?] CRAN (R 4.5.2)
-   crayon                     1.5.3      2024-06-20 [1] RSPM
-   data.table                 1.17.8     2025-07-10 [1] CRAN (R 4.5.0)
-   DelayedArray               0.36.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   devtools                   2.4.6      2025-10-03 [1] RSPM
-   digest                     0.6.39     2025-11-19 [1] RSPM
-   dplyr                    * 1.1.4      2023-11-17 [1] CRAN (R 4.5.0)
-   ellipsis                   0.3.2      2021-04-29 [1] RSPM
-   emmeans                    2.0.1      2025-12-16 [1] CRAN (R 4.5.2)
-   estimability               1.5.1      2024-05-12 [1] CRAN (R 4.5.0)
-   evaluate                   1.0.5      2025-08-27 [1] RSPM
-   fansi                      1.0.7      2025-11-19 [1] RSPM
-   farver                     2.1.2      2024-05-13 [1] CRAN (R 4.5.0)
-   fastmap                    1.2.0      2024-05-15 [1] RSPM
+ P crayon                     1.5.3      2024-06-20 [?] RSPM (R 4.5.0)
+ P data.table                 1.17.8     2025-07-10 [?] CRAN (R 4.5.0)
+ P DelayedArray               0.36.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P devtools                   2.4.6      2025-10-03 [?] RSPM (R 4.5.0)
+ P digest                     0.6.39     2025-11-19 [?] RSPM (R 4.5.0)
+ P dplyr                    * 1.1.4      2023-11-17 [?] CRAN (R 4.5.0)
+ P ellipsis                   0.3.2      2021-04-29 [?] RSPM (R 4.5.0)
+ P emmeans                    2.0.1      2025-12-16 [?] CRAN (R 4.5.2)
+ P estimability               1.5.1      2024-05-12 [?] CRAN (R 4.5.0)
+ P evaluate                   1.0.5      2025-08-27 [?] RSPM (R 4.5.0)
+ P fansi                      1.0.7      2025-11-19 [?] RSPM (R 4.5.0)
+ P farver                     2.1.2      2024-05-13 [?] CRAN (R 4.5.0)
+ P fastmap                    1.2.0      2024-05-15 [?] RSPM (R 4.5.0)
  P forcats                    1.0.1      2025-09-25 [?] RSPM
-   Formula                    1.2-5      2023-02-24 [1] CRAN (R 4.5.0)
-   fs                         1.6.6      2025-04-12 [1] RSPM
+ P Formula                    1.2-5      2023-02-24 [?] CRAN (R 4.5.0)
+ P fs                         1.6.6      2025-04-12 [?] RSPM (R 4.5.0)
  P furrr                      0.3.1      2022-08-15 [?] RSPM
-   future                     1.68.0     2025-11-17 [1] CRAN (R 4.5.2)
-   generics                 * 0.1.4      2025-05-09 [1] CRAN (R 4.5.0)
-   GenomicRanges            * 1.62.1     2025-12-08 [1] Bioconductor 3.22 (R 4.5.2)
+ P future                     1.68.0     2025-11-17 [?] CRAN (R 4.5.2)
+ P generics                 * 0.1.4      2025-05-09 [?] CRAN (R 4.5.0)
+ P GenomicRanges            * 1.62.1     2025-12-08 [?] Bioconductor 3.22 (R 4.5.2)
  P ggforce                    0.5.0      2025-06-18 [?] RSPM
-   ggplot2                  * 4.0.1      2025-11-14 [1] CRAN (R 4.5.2)
+ P ggplot2                  * 4.0.1      2025-11-14 [?] CRAN (R 4.5.2)
  P ggpubr                     0.6.2      2025-10-17 [?] RSPM
  P ggsignif                   0.6.4      2022-10-13 [?] RSPM
-   globals                    0.18.0     2025-05-08 [1] CRAN (R 4.5.0)
-   glue                       1.8.0      2024-09-30 [1] RSPM
-   gtable                     0.3.6      2024-10-25 [1] CRAN (R 4.5.0)
-   here                       1.0.2      2025-09-15 [1] RSPM
-   hms                        1.1.4      2025-10-17 [1] CRAN (R 4.5.0)
-   htmltools                  0.5.9      2025-12-04 [1] RSPM
-   htmlwidgets                1.6.4      2023-12-06 [1] CRAN (R 4.5.0)
-   httr                       1.4.7      2023-08-15 [1] CRAN (R 4.5.0)
-   IRanges                  * 2.44.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   jsonlite                   2.0.0      2025-03-27 [1] RSPM
-   knitr                      1.50       2025-03-16 [1] RSPM
-   labeling                   0.4.3      2023-08-29 [1] CRAN (R 4.5.0)
+ P globals                    0.18.0     2025-05-08 [?] CRAN (R 4.5.0)
+ P glue                       1.8.0      2024-09-30 [?] RSPM (R 4.5.0)
+ P gtable                     0.3.6      2024-10-25 [?] CRAN (R 4.5.0)
+ P here                       1.0.2      2025-09-15 [?] CRAN (R 4.5.0)
+ P hms                        1.1.4      2025-10-17 [?] CRAN (R 4.5.0)
+ P htmltools                  0.5.9      2025-12-04 [?] RSPM (R 4.5.0)
+ P htmlwidgets                1.6.4      2023-12-06 [?] CRAN (R 4.5.0)
+ P httr                       1.4.7      2023-08-15 [?] CRAN (R 4.5.0)
+ P IRanges                  * 2.44.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P jsonlite                   2.0.0      2025-03-27 [?] RSPM (R 4.5.0)
+ P knitr                      1.50       2025-03-16 [?] RSPM (R 4.5.0)
+ P labeling                   0.4.3      2023-08-29 [?] CRAN (R 4.5.0)
  P lattice                    0.22-7     2025-04-02 [?] CRAN (R 4.5.2)
-   lazyeval                   0.2.2      2019-03-15 [1] CRAN (R 4.5.0)
-   lifecycle                  1.0.4      2023-11-07 [1] RSPM
-   listenv                    0.10.0     2025-11-02 [1] CRAN (R 4.5.0)
+ P lazyeval                   0.2.2      2019-03-15 [?] CRAN (R 4.5.0)
+ P lifecycle                  1.0.4      2023-11-07 [?] RSPM (R 4.5.0)
+ P listenv                    0.10.0     2025-11-02 [?] CRAN (R 4.5.0)
  P lme4                       1.1-38     2025-12-02 [?] CRAN (R 4.5.2)
  P lmerTest                   3.1-3      2020-10-23 [?] RSPM
-   magrittr                 * 2.0.4      2025-09-12 [1] RSPM
+ P magrittr                 * 2.0.4      2025-09-12 [?] RSPM (R 4.5.0)
  P MASS                       7.3-65     2025-02-28 [?] CRAN (R 4.5.2)
  P Matrix                     1.7-4      2025-08-28 [?] CRAN (R 4.5.2)
-   MatrixGenerics           * 1.22.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   matrixStats              * 1.5.0      2025-01-07 [1] CRAN (R 4.5.0)
-   memoise                    2.0.1      2021-11-26 [1] RSPM
+ P MatrixGenerics           * 1.22.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P matrixStats              * 1.5.0      2025-01-07 [?] CRAN (R 4.5.0)
+ P memoise                    2.0.1      2021-11-26 [?] RSPM (R 4.5.0)
  P minqa                      1.2.8      2024-08-17 [?] CRAN (R 4.5.0)
  P multcomp                   1.4-29     2025-10-20 [?] RSPM
-   mvtnorm                    1.3-3      2025-01-10 [1] CRAN (R 4.5.0)
+ P mvtnorm                    1.3-3      2025-01-10 [?] CRAN (R 4.5.0)
  P nlme                       3.1-168    2025-03-31 [?] CRAN (R 4.5.2)
  P nloptr                     2.2.1      2025-03-17 [?] RSPM
-   numDeriv                   2016.8-1.1 2019-06-06 [1] CRAN (R 4.5.0)
-   parallelly                 1.46.0     2025-12-12 [1] CRAN (R 4.5.2)
-   patchwork                * 1.3.2      2025-08-25 [1] CRAN (R 4.5.0)
+ P numDeriv                   2016.8-1.1 2019-06-06 [?] CRAN (R 4.5.0)
+ P parallelly                 1.46.0     2025-12-12 [?] CRAN (R 4.5.2)
+ P patchwork                * 1.3.2      2025-08-25 [?] CRAN (R 4.5.0)
  P pbkrtest                   0.5.5      2025-07-18 [?] RSPM
-   pillar                     1.11.1     2025-09-17 [1] RSPM
-   pkgbuild                   1.4.8      2025-05-26 [1] RSPM
-   pkgconfig                  2.0.3      2019-09-22 [1] RSPM
-   pkgload                    1.4.1      2025-09-23 [1] RSPM
-   plotly                     4.11.0     2025-06-19 [1] CRAN (R 4.5.0)
+ P pillar                     1.11.1     2025-09-17 [?] RSPM (R 4.5.0)
+ P pkgbuild                   1.4.8      2025-05-26 [?] RSPM (R 4.5.0)
+ P pkgconfig                  2.0.3      2019-09-22 [?] RSPM (R 4.5.0)
+ P pkgload                    1.4.1      2025-09-23 [?] RSPM (R 4.5.0)
+ P plotly                     4.11.0     2025-06-19 [?] CRAN (R 4.5.0)
  P polyclip                   1.10-7     2024-07-23 [?] RSPM
-   purrr                      1.2.0      2025-11-04 [1] RSPM
-   R6                         2.6.1      2025-02-15 [1] RSPM
-   ragg                       1.5.0      2025-09-02 [1] RSPM
-   rappdirs                   0.3.3      2021-01-31 [1] RSPM
-   rbibutils                  2.4        2025-11-07 [1] CRAN (R 4.5.0)
-   RColorBrewer               1.1-3      2022-04-03 [1] CRAN (R 4.5.0)
-   Rcpp                       1.1.0      2025-07-02 [1] CRAN (R 4.5.0)
-   Rdpack                     2.6.4      2025-04-09 [1] CRAN (R 4.5.0)
-   readr                      2.1.6      2025-11-14 [1] CRAN (R 4.5.2)
+ P purrr                      1.2.0      2025-11-04 [?] RSPM (R 4.5.0)
+ P R6                         2.6.1      2025-02-15 [?] RSPM (R 4.5.0)
+ P ragg                       1.5.0      2025-09-02 [?] RSPM (R 4.5.0)
+ P rappdirs                   0.3.3      2021-01-31 [?] RSPM (R 4.5.0)
+ P rbibutils                  2.4        2025-11-07 [?] CRAN (R 4.5.0)
+ P RColorBrewer               1.1-3      2022-04-03 [?] CRAN (R 4.5.0)
+ P Rcpp                       1.1.0      2025-07-02 [?] CRAN (R 4.5.0)
+ P Rdpack                     2.6.4      2025-04-09 [?] CRAN (R 4.5.0)
+ P readr                      2.1.6      2025-11-14 [?] CRAN (R 4.5.2)
  P reformulas                 0.4.3      2025-12-17 [?] RSPM
-   remotes                    2.5.0      2024-03-17 [1] RSPM
+ P remotes                    2.5.0      2024-03-17 [?] RSPM (R 4.5.0)
    renv                       1.1.5      2025-07-24 [1] RSPM (R 4.5.0)
-   rlang                      1.1.6      2025-04-11 [1] RSPM
-   rmarkdown                  2.30       2025-09-28 [1] RSPM
-   rprojroot                  2.1.1      2025-08-26 [1] RSPM
+ P rlang                      1.1.6      2025-04-11 [?] RSPM (R 4.5.0)
+ P rmarkdown                  2.30       2025-09-28 [?] RSPM (R 4.5.0)
+ P rprojroot                  2.1.1      2025-08-26 [?] RSPM (R 4.5.0)
  P rstatix                    0.7.3      2025-10-18 [?] RSPM
-   S4Arrays                   1.10.1     2025-12-08 [1] Bioconductor 3.22 (R 4.5.2)
-   S4Vectors                * 0.48.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   S7                         0.2.1      2025-11-14 [1] CRAN (R 4.5.2)
+ P S4Arrays                   1.10.1     2025-12-08 [?] Bioconductor 3.22 (R 4.5.2)
+ P S4Vectors                * 0.48.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P S7                         0.2.1      2025-11-14 [?] CRAN (R 4.5.2)
  P sandwich                   3.1-1      2024-09-15 [?] RSPM
-   scales                     1.4.0      2025-04-24 [1] CRAN (R 4.5.0)
-   Seqinfo                  * 1.0.0      2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   sessioninfo                1.2.3      2025-02-05 [1] RSPM
+ P scales                     1.4.0      2025-04-24 [?] CRAN (R 4.5.0)
+ P Seqinfo                  * 1.0.0      2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P sessioninfo                1.2.3      2025-02-05 [?] RSPM (R 4.5.0)
  P showtext                   0.9-7      2024-03-02 [?] RSPM
  P showtextdb                 3.0        2020-06-04 [?] RSPM
-   SingleCellExperiment     * 1.32.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   SparseArray                1.10.6     2025-12-08 [1] Bioconductor 3.22 (R 4.5.2)
-   stringi                    1.8.7      2025-03-27 [1] RSPM
-   stringr                    1.6.0      2025-11-04 [1] RSPM
-   SummarizedExperiment     * 1.40.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
+ P SingleCellExperiment     * 1.32.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P SparseArray                1.10.6     2025-12-08 [?] Bioconductor 3.22 (R 4.5.2)
+ P stringi                    1.8.7      2025-03-27 [?] RSPM (R 4.5.0)
+ P stringr                    1.6.0      2025-11-04 [?] RSPM (R 4.5.0)
+ P SummarizedExperiment     * 1.40.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
  P survival                   3.8-3      2024-12-17 [?] CRAN (R 4.5.2)
  P sysfonts                   0.8.9      2024-03-02 [?] RSPM
-   systemfonts                1.3.1      2025-10-01 [1] RSPM
-   textshaping                1.0.4      2025-10-10 [1] RSPM
+ P systemfonts                1.3.1      2025-10-01 [?] RSPM (R 4.5.0)
+ P textshaping                1.0.4      2025-10-10 [?] RSPM (R 4.5.0)
  P TH.data                    1.1-5      2025-11-17 [?] RSPM
-   tibble                     3.3.0      2025-06-08 [1] RSPM
+ P tibble                     3.3.0      2025-06-08 [?] RSPM (R 4.5.0)
  P tidyplots                  0.3.1      2025-07-02 [?] CRAN (R 4.5.0)
-   tidyr                    * 1.3.1      2024-01-24 [1] CRAN (R 4.5.0)
-   tidyselect                 1.2.1      2024-03-11 [1] CRAN (R 4.5.0)
-   tidySingleCellExperiment * 1.20.1     2025-11-10 [1] Bioconduc~
-   tidytree                   0.4.6      2023-12-12 [1] CRAN (R 4.5.0)
-   treeio                     1.34.0     2025-10-30 [1] Bioconductor 3.22 (R 4.5.1)
-   TreeSummarizedExperiment   2.18.0     2025-10-30 [1] Bioconductor 3.22 (R 4.5.1)
-   ttservice                * 0.5.3      2025-07-10 [1] RSPM
+ P tidyr                    * 1.3.1      2024-01-24 [?] CRAN (R 4.5.0)
+ P tidyselect                 1.2.1      2024-03-11 [?] CRAN (R 4.5.0)
+ P tidySingleCellExperiment * 1.20.1     2025-11-10 [?] Bioconductor 3.22 (R 4.5.1)
+ P tidytree                   0.4.6      2023-12-12 [?] CRAN (R 4.5.0)
+ P treeio                     1.34.0     2025-10-30 [?] Bioconductor 3.22 (R 4.5.1)
+ P TreeSummarizedExperiment   2.18.0     2025-10-30 [?] Bioconductor 3.22 (R 4.5.1)
+ P ttservice                * 0.5.3      2025-07-10 [?] RSPM (R 4.5.0)
  P tweenr                     2.0.3      2024-02-26 [?] RSPM
-   tzdb                       0.5.0      2025-03-15 [1] CRAN (R 4.5.0)
-   usethis                    3.2.1      2025-09-06 [1] RSPM
-   vctrs                      0.6.5      2023-12-01 [1] RSPM
-   viridisLite                0.4.2      2023-05-02 [1] CRAN (R 4.5.0)
-   vroom                      1.6.7      2025-11-28 [1] CRAN (R 4.5.2)
-   withr                      3.0.2      2024-10-28 [1] RSPM
-   xfun                       0.55       2025-12-16 [1] RSPM
-   xtable                     1.8-4      2019-04-21 [1] RSPM
-   XVector                    0.50.0     2025-10-29 [1] Bioconductor 3.22 (R 4.5.1)
-   yaml                       2.3.12     2025-12-10 [1] RSPM
-   yulab.utils                0.2.3      2025-12-15 [1] CRAN (R 4.5.2)
+ P tzdb                       0.5.0      2025-03-15 [?] CRAN (R 4.5.0)
+ P usethis                    3.2.1      2025-09-06 [?] RSPM (R 4.5.0)
+ P vctrs                      0.6.5      2023-12-01 [?] RSPM (R 4.5.0)
+ P viridisLite                0.4.2      2023-05-02 [?] CRAN (R 4.5.0)
+ P vroom                      1.6.7      2025-11-28 [?] CRAN (R 4.5.2)
+ P withr                      3.0.2      2024-10-28 [?] RSPM (R 4.5.0)
+ P xfun                       0.55       2025-12-16 [?] RSPM (R 4.5.0)
+ P xtable                     1.8-4      2019-04-21 [?] RSPM (R 4.5.0)
+ P XVector                    0.50.0     2025-10-29 [?] Bioconductor 3.22 (R 4.5.1)
+ P yaml                       2.3.12     2025-12-10 [?] RSPM (R 4.5.0)
+ P yulab.utils                0.2.3      2025-12-15 [?] CRAN (R 4.5.2)
  P zoo                        1.8-15     2025-12-15 [?] RSPM
 
- [1] /Users/fcatala/Documents/GitHub/fcatala_advanz4/renv/library/macos/R-4.5/aarch64-apple-darwin20
+ [1] /Users/fcatala/GitHub/fcatala_advanz4/renv/library/macos/R-4.5/aarch64-apple-darwin20
  [2] /Users/fcatala/Library/Caches/org.R-project.R/R/renv/sandbox/macos/R-4.5/aarch64-apple-darwin20/4cd76b74
 
  * ── Packages attached to the search path.

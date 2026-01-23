@@ -157,6 +157,22 @@ names(plt_list) %>%
 
 :::
 
+### Export Source Data
+
+```{r}
+plt_df %>% 
+  dplyr::select(
+    SampleID, 
+    record_id, 
+    time_point, 
+    treatment, 
+    dplyr::all_of(all_markers$marker)
+  ) %>% 
+    readr::write_tsv(
+      here::here("data", "source_data", "sup_fig_1ABC_marker_abundance.tsv")
+    )
+```
+
 ### Plot Zooms
 
 ```{r}
@@ -368,6 +384,16 @@ grp_stats <- plt_list %>% purrr::map_dfr(~ { .x[["grp_stats"]] })
 
 readr::write_csv(lon_stats, here::here(out_dir, "lmm_longitudinal_stats.csv"))
 readr::write_csv(grp_stats, here::here(out_dir, "lmm_group_stats.csv"))
+```
+
+### Export Source Data
+
+```{r}
+lon_stats %>% 
+  readr::write_tsv(here::here("data", "source_data", "sup_fig_2ABC_longitudinal.tsv"))
+
+grp_stats %>% 
+  readr::write_tsv(here::here("data", "source_data", "sup_fig_2ABC_group.tsv"))
 ```
 
 ## Plot 
