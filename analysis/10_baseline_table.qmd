@@ -163,6 +163,16 @@ gt::gtsave(
   data = summary_tbl,
   filename = here::here(out_dir, "baseline_table.pdf")
 )
+
+gt::gtsave(
+  data = summary_tbl,
+  filename = here::here(out_dir, "baseline_table.docx")
+)
+
+gt::gtsave(
+  data = summary_tbl,
+  filename = here::here(out_dir, "baseline_table.ltx")
+)
 ```
 
 
