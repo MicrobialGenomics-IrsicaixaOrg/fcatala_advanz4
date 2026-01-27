@@ -46,7 +46,7 @@ authors:
     affiliation: "IrsiCaixa"
     email: "rparedes@irsicaixa.es"
   - name: "ADVANZ-4 MISTRAL investigators"
-title: "Dolutegravir Restores Gut Microbiota in Late-stage HIV-1 Unlike Darunavir: An Open-Label, Randomized Clinical Trial"
+title: "Code for Dolutegravir Restores Gut Microbiota in Late-stage HIV-1 Unlike Darunavir: An Open-Label, Randomized Clinical Trial"
 version: 1.0.0
 date-released: 2026-01-27
 url: "https://github.com/MicrobialGenomics-IrsicaixaOrg/fcatala_advanz4" 
