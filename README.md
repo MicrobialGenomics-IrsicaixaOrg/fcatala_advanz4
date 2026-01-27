@@ -1,5 +1,7 @@
 # Advanz4 
 
+[![DOI](https://zenodo.org/badge/955869511.svg)](https://doi.org/10.5281/zenodo.18387903)
+
 ## Introduction 🦠
 
 This repository contains the code and documentation for the analyses presented in the paper:
